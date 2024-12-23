@@ -1,12 +1,13 @@
 ﻿namespace citrus;
+
 using citrus.Runner;
 
 public class Program
 {
     public static int Main(string[] args)
     {
+        // args = ["/home/scs/GitHub/citrus/debug.kiwi"];
         ScriptRunner runner = new ();
-        args = ["/home/scs/GitHub/citrus/debug.kiwi"];
         return new CLIHost(args).ExecuteCLI(runner);
     }
 }
@@ -14,8 +15,8 @@ public class Program
 class CLIHost(IEnumerable<string> cliArgs)
 {
     private readonly IEnumerable<string> cliArgs = cliArgs;
-    private List<string> citrusArgs = [];
-    private List<string> citrusScripts = [];
+    private readonly List<string> citrusArgs = [];
+    private readonly List<string> citrusScripts = [];
 
     public int ExecuteCLI(IRunner runner)
     {
@@ -36,7 +37,7 @@ class CLIHost(IEnumerable<string> cliArgs)
     {
         foreach (var script in citrusScripts)
         {
-            runner.Run(script, citrusArgs);
+            _ = runner.Run(script, citrusArgs);
         }
 
         return 0;
