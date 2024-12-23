@@ -1,0 +1,29 @@
+namespace citrus.Parsing.AST;
+
+public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string> keys) : ASTNode(ASTNodeType.HashLiteral)
+{
+    public Dictionary<ASTNode, ASTNode?> Elements { get; } = elements;
+    public List<string> Keys { get; } = keys;
+
+    public override void Print(int depth)
+    {
+        ASTTracer.PrintDepth(depth);
+        PrintASTNodeType();
+        foreach (var element in Elements)
+        {
+            element.Key.Print(1 + depth);
+            element.Value?.Print(1 + depth);
+        }
+    }
+
+    public override ASTNode Clone()
+    {
+        Dictionary<ASTNode, ASTNode?> clonedElements = [];
+        foreach (var (key, value) in Elements) 
+        {
+            clonedElements.Add(key.Clone(), value?.Clone());
+        }
+
+        return new HashLiteralNode(clonedElements, Keys);
+    }
+}

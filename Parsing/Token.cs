@@ -1,0 +1,153 @@
+using citrus.Parsing;
+using citrus.Typing;
+
+namespace citrus.Parsing;
+
+public class TokenStream(List<Token> tokens)
+{
+    private readonly List<Token> tokens = tokens;
+
+    public bool Empty => Size == 0;
+    public bool CanRead => Position < Size;
+    public int Size => tokens.Count;
+    public int Position { get; private set; } = 0;
+
+    public Token At(int pos)
+    {
+        if (pos >= Size)
+        {
+            return Token.CreateEof();
+        }
+
+        return tokens[pos];
+    }
+
+    public Token Current()
+    {
+        if (Position >= Size)
+        {
+            return Token.CreateEof();
+        }
+
+        return tokens[Position];
+    }
+
+    public Token Previous()
+    {
+        if (Position - 1 < 0)
+        {
+            return tokens.First();
+        }
+
+        return tokens[Position - 1];
+    }
+
+    public void Rewind()
+    {
+        if (Position - 1 < 0)
+        {
+            return;  // TODO: is it okay to swallow this?
+        }
+
+        --Position;
+    }
+
+    public bool MatchType(TokenType type)
+    {
+        if (Current().Type == type)
+        {
+            Next();
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool MatchName(TokenName name)
+    {
+        if (Current().Name == name)
+        {
+            Next();
+            return true;
+        }
+
+        return false;
+    }
+
+    public void Next()
+    {
+        if (Position < Size)
+        {
+            ++Position;
+
+            if (Current().Type == TokenType.Comment)
+            {
+                Next();
+            }
+        }
+    }
+
+    public Token Peek()
+    {
+        if (Position + 1 < Size)
+        {
+            return tokens[Position + 1];
+        }
+        
+        return Token.CreateEof();
+    }
+}
+
+public struct Token(TokenType type, TokenName name, TokenSpan span, string text)
+{
+    private readonly string text = text;
+
+    public readonly TokenType Type { get; } = type;
+    public readonly TokenName Name { get; } = name;
+    public readonly TokenSpan Span { get; } = span;
+    public readonly string Text => text;
+    public Value? Value { get; set; }
+
+    public static Token CreateEof()
+    {
+        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty);
+    }
+}
+
+public readonly struct TokenSpan(int file, int line, int pos)
+{
+    private readonly int pos = pos;
+
+    public readonly int File { get; } = file;
+    public readonly int Line { get; } = line;
+    public readonly int Pos => pos;
+}
+
+public enum TokenType
+{
+    Identifier,
+    Comment,
+    Comma,
+    Keyword,
+    Operator,
+    Literal,
+    String,
+    Newline,
+    Escape,
+    LParen,
+    RParen,
+    LBracket,
+    RBracket,
+    LBrace,
+    RBrace,
+    Conditional,
+    Colon,
+    Qualifier,
+    Dot,
+    Range,
+    Typename,
+    Lambda,
+    Question,
+    Error,
+    Eof
+}
