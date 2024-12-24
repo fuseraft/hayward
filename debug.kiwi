@@ -1,73 +1,82 @@
-const PRINT = false
+/#
 
-fn get_calc(): hashmap
-  return {}.set("add", (with (a: float, b: float) do a + b end))
-           .set("sub", (with (a: float, b: float) do a - b end))
-           .set("mul", (with (a: float, b: float) do a * b end))
-           .set("div", (with (a: float, b: float) do a / b end))
-end
+(~'o')~ "boo"
 
-fn do_mathy_stuff(calc: hashmap): float
-  var (a: float = 1.0,
-       b: float = 2.0,
-       c: float = 0.0)
+#/
 
-  for op in calc do
-    var (func: lambda = calc.get(op))
-    
-    if PRINT
-      println "${op}(${a}, ${b}) = ${func(a, b)}"
-    end
+println [
+    1, 
+    [
+        3, 
+        4, 
+        true
+    ], 
+    [
+        {
+            1: 2,
+            3: 4
+        }
+    ],
+    "Hello, World!"
+]
 
-    c += func(a, b)
-  end
+/#
+Generating AST: /home/scs/GitHub/citrus/debug.kiwi
 
-  return c
-end
+Program:
+  PrintLine:
+    ListLiteral:
+      Literal: 1
+      ListLiteral:
+        Literal: 3
+        Literal: 4
+        Literal: true
+      ListLiteral:
+        HashLiteral:
+          KVP:
+            Key:
+              Literal: 1
+            Value: 
+              Literal: 2
+          KVP:
+            Key:
+              Literal: 3
+            Value: 
+              Literal: 4
+      Literal: Hello, World!
+#/
 
-fn test(): float
-  var (calc: hashmap = get_calc(),
-       sum: float)
+/#
+Tokenizing: /home/scs/GitHub/citrus/debug.kiwi
 
-  for i in [1..1000] do
-    sum += do_mathy_stuff(calc)
-  end
-
-  return sum
-end
-
-fn benchmark()
-  var (start: float = time::ticks(),
-       _ = test(),
-       stop: float = time::ticks(), 
-       duration: float = time::ticksms(stop - start))
-  
-  if PRINT
-    println "computed in ${duration} milliseconds."
-  end
-
-  return duration
-end
-
-fn main(argv: list = [])
-  var (num_runs: integer = 5,
-       results: list = [],
-       total_duration: float)
-
-  if !argv.empty() && string::isnumeric(argv.first())
-    num_runs = argv.first().to_int()
-  end
-
-  for run in std::range(0, num_runs) do
-    var (duration: float = benchmark())
-    results.push(duration)
-    total_duration += duration
-  end
-
-  println "durations: ${results}"
-  println "minimum: ${results.min()}"
-  println "maximum: ${results.max()}"
-  println "average: ${total_duration / results.size()}"
-end
-
-main()
+        Token #                Type                Name
+        -------                ----                ----
+              1             Comment             Default
+              2             Keyword          KW_PrintLn
+              3            LBracket             Default
+              4             Literal             Default
+              5               Comma             Default
+              6            LBracket             Default
+              7             Literal             Default
+              8               Comma             Default
+              9             Literal             Default
+             10               Comma             Default
+             11             Literal             KW_True
+             12            RBracket             Default
+             13               Comma             Default
+             14            LBracket             Default
+             15              LBrace             Default
+             16             Literal             Default
+             17               Colon             Default
+             18             Literal             Default
+             19               Comma             Default
+             20             Literal             Default
+             21               Colon             Default
+             22             Literal             Default
+             23              RBrace             Default
+             24            RBracket             Default
+             25               Comma             Default
+             26              String             Default
+             27            RBracket             Default
+             28                 Eof             Default
+#/

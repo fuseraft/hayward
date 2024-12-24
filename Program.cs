@@ -6,8 +6,8 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        // args = ["/home/scs/GitHub/citrus/debug.kiwi"];
-        ScriptRunner runner = new ();
+        args = ["-t", "/home/scs/GitHub/citrus/debug.kiwi"];
+        ASTPrinter runner = new ();
         return new CLIHost(args).ExecuteCLI(runner);
     }
 }
@@ -17,12 +17,19 @@ class CLIHost(IEnumerable<string> cliArgs)
     private readonly IEnumerable<string> cliArgs = cliArgs;
     private readonly List<string> citrusArgs = [];
     private readonly List<string> citrusScripts = [];
+    private bool printTokens = false;
 
     public int ExecuteCLI(IRunner runner)
     {
         try
         {
             HandleCommandLineArguments();
+
+            if (printTokens)
+            {
+                return PrintTokens();
+            }
+            
             return Execute(runner);
         }
         catch (Exception ex)
@@ -31,16 +38,6 @@ class CLIHost(IEnumerable<string> cliArgs)
             Console.Error.WriteLine(ex.StackTrace);
             return 1;
         }
-    }
-
-    private int Execute(IRunner runner)
-    {
-        foreach (var script in citrusScripts)
-        {
-            _ = runner.Run(script, citrusArgs);
-        }
-
-        return 0;
     }
 
     private void HandleCommandLineArguments()
@@ -53,7 +50,13 @@ class CLIHost(IEnumerable<string> cliArgs)
             switch (current.ToLower())
             {
                 case "-n":
+                case "--new":
                     CreateNewFile(ref iter);
+                    break;
+
+                case "-t":
+                case "--tokens":
+                    PrintTokens(ref iter);
                     break;
 
                 default:
@@ -68,6 +71,45 @@ class CLIHost(IEnumerable<string> cliArgs)
                     break;
             }
         }
+    }
+
+    private int Execute(IRunner runner)
+    {
+        foreach (var script in citrusScripts)
+        {
+            _ = runner.Run(script, citrusArgs);
+        }
+
+        return 0;
+    }
+
+    private int PrintTokens()
+    {
+        var printer = new TokenPrinter();
+        
+        foreach (var script in citrusScripts)
+        {
+            _ = printer.Run(script, citrusArgs);
+        }
+
+        return 0;
+    }
+
+    private void PrintTokens(ref IEnumerator<string> iter)
+    {
+        if (!iter.MoveNext())
+        {
+            throw new ArgumentException("Expected a filename after `new`.");
+        }
+
+        var filename = iter.Current;
+        if (!IsScript(ref filename))
+        {
+            throw new FileNotFoundException($"The file does not exist: {filename}");
+        }
+
+        citrusScripts.Add(filename);
+        printTokens = true;
     }
 
     private void CreateNewFile(ref IEnumerator<string> iter)

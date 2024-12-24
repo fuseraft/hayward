@@ -72,100 +72,72 @@ public class Lexer(int file, string path) : IDisposable
 
     private Token TokenizeSymbol(TokenSpan span, char c)
     {
-        if (c == '\n')
+        switch (c)
         {
-            return CreateToken(TokenType.Newline, span, Environment.NewLine);
+            case '\n':
+                return CreateToken(TokenType.Newline, span, Environment.NewLine);
+            case ',':
+                return CreateToken(TokenType.Comma, span, ",");
+            case '@':
+                return CreateToken(TokenType.Keyword, span, "@", TokenName.KW_This);
+            case ':' when PeekChar() == ':':
+                GetChar();
+                return CreateToken(TokenType.Qualifier, span, "::");
+            case '.' when PeekChar() == '.':
+                GetChar();
+                return CreateToken(TokenType.Range, span, "..");
+            case ':':
+                return CreateToken(TokenType.Colon, span, ":");
+            case '.':
+                return CreateToken(TokenType.Dot, span, ".");
+            case '\\':
+                return TokenizeEscaped(span);
+            case '(' or ')':
+                return TokenizeParen(span, c);
+            case '[' or ']':
+                return TokenizeBracket(span, c);
+            case '{' or '}':
+                return TokenizeBrace(span, c);
+            case '#':
+                return TokenizeComment(span);
+            case '/' when PeekChar() == '#':
+                return TokenizeBlockComment(span);
         }
-        else if (c == ',')
-        {
-            return CreateToken(TokenType.Comma, span, ",");
-        }
-        else if (c == '@')
-        {
-            return CreateToken(TokenType.Keyword, span, "@", TokenName.KW_This);
-        }
-        else if (c == ':' && PeekChar() == ':')
-        {
-            GetChar();
-            return CreateToken(TokenType.Qualifier, span, "::");
-        }
-        else if (c == '.' && PeekChar() == '.')
-        {
-            GetChar();
-            return CreateToken(TokenType.Range, span, "..");
-        }
-        else if (c == ':')
-        {
-            return CreateToken(TokenType.Colon, span, ":");
-        }
-        else if (c == '.')
-        {
-            return CreateToken(TokenType.Dot, span, ".");
-        }
-        else if (c == '\\')
-        {
-            return TokenizeEscaped(span);
-        }
-        else if (c == '(' || c == ')')
-        {
-            return TokenizeParen(span, c);
-        }
-        else if (c == '[' || c == ']')
-        {
-            return TokenizeBracket(span, c);
-        }
-        else if (c == '{' || c == '}')
-        {
-            return TokenizeBrace(span, c);
-        }
-        else if (c == '#')
-        {
-            return TokenizeComment(span);
-        }
-        else if (c == '/' && PeekChar() == '#')
-        {
-            return TokenizeBlockComment(span);
-        }
-        
+
         return TokenizeOperator(span, c);
     }
 
     private Token TokenizeEscaped(TokenSpan span)
     {
-        var text = string.Empty;
         char? c = GetChar();
 
-        if (c == '\\')
+        string? text;
+        switch (c)
         {
-            text = "\\";
-        }
-        else if (c == 'b')
-        {
-            text = "\b";
-        }
-        else if (c == 'r')
-        {
-            text = "\r";
-        }
-        else if (c == 'n')
-        {
-            text = "\n";
-        }
-        else if (c == 't')
-        {
-            text = "\t";
-        }
-        else if (c == 'f')
-        {
-            text = "\f";
-        }
-        else if (c == '"')
-        {
-            text = "\"";
-        }
-        else
-        {
-            text = $"\\{c}";
+            case '\\':
+                text = "\\";
+                break;
+            case 'b':
+                text = "\b";
+                break;
+            case 'r':
+                text = "\r";
+                break;
+            case 'n':
+                text = "\n";
+                break;
+            case 't':
+                text = "\t";
+                break;
+            case 'f':
+                text = "\f";
+                break;
+            case '"':
+                text = "\"";
+                break;
+            default:
+                text = $"\\{c}";
+                break;
         }
 
         return CreateToken(TokenType.Escape, span, text);
@@ -178,8 +150,8 @@ public class Lexer(int file, string path) : IDisposable
         if (stream.CanRead)
         {
             char? nc = PeekChar();
-            bool isArithmeticOpChar = c == '+' || c == '*' || c == '-' || c == '/' || c == '%';
-            bool isBooleanOpChar = c == '|' || c == '&' || c == '=' || c == '!' || c == '<' || c == '>';
+            bool isArithmeticOpChar = c is '+' or '*' or '-' or '/' or '%';
+            bool isBooleanOpChar = c is '|' or '&' or '=' or '!' or '<' or '>';
             bool isArithmeticOp = (nc == '=' && (isArithmeticOpChar || isBooleanOpChar)) ||
                 (c == '*' && nc == '*');
             bool isBooleanOp = (nc == '|' || nc == '&') && isBooleanOpChar;
@@ -223,33 +195,17 @@ public class Lexer(int file, string path) : IDisposable
         {
             if (escape)
             {
-                switch (c)
+                text += c switch
                 {
-                    case 'n':
-                        text += '\n';
-                        break;
-                    case 'r':
-                        text += '\r';
-                        break;
-                    case 't':
-                        text += '\t';
-                        break;
-                    case '\\':
-                        text += '\\';
-                        break;
-                    case 'b':
-                        text += '\b';
-                        break;
-                    case 'f':
-                        text += '\f';
-                        break;
-                    case '"':
-                        text += '"';
-                        break;
-                    default:
-                        text += $"\\{c}";
-                        break;
-                }
+                    'n' => '\n',
+                    'r' => '\r',
+                    't' => '\t',
+                    '\\' => '\\',
+                    'b' => '\b',
+                    'f' => '\f',
+                    '"' => '"',
+                    _ => $"\\{c}",
+                };
 
                 escape = false;
                 GetChar();
@@ -288,125 +244,48 @@ public class Lexer(int file, string path) : IDisposable
 
     private TokenName GetOperatorName(string text)
     {
-        switch (text)
+        return text switch
         {
-            case "=":
-                return TokenName.Ops_Assign;
-
-            case "!":
-                return TokenName.Ops_Not;
-
-            case "==":
-                return TokenName.Ops_Equal;
-
-            case "!=":
-                return TokenName.Ops_NotEqual;
-
-            case "<":
-                return TokenName.Ops_LessThan;
-
-            case "<=":
-                return TokenName.Ops_LessThanOrEqual;
-
-            case ">":
-                return TokenName.Ops_GreaterThan;
-
-            case ">=":
-                return TokenName.Ops_GreaterThanOrEqual;
-
-            case "+":
-                return TokenName.Ops_Add;
-
-            case "+=":
-                return TokenName.Ops_AddAssign;
-
-            case "-":
-                return TokenName.Ops_Subtract;
-
-            case "-=":
-                return TokenName.Ops_SubtractAssign;
-
-            case "*":
-                return TokenName.Ops_Multiply;
-
-            case "*=":
-                return TokenName.Ops_MultiplyAssign;
-
-            case "**":
-                return TokenName.Ops_Exponent;
-
-            case "**=":
-                return TokenName.Ops_ExponentAssign;
-
-            case "%":
-                return TokenName.Ops_Modulus;
-
-            case "%=":
-                return TokenName.Ops_ModuloAssign;
-
-            case "/":
-                return TokenName.Ops_Divide;
-
-            case "/=":
-                return TokenName.Ops_DivideAssign;
-
-            case "&&":
-                return TokenName.Ops_And;
-
-            case "&&=":
-                return TokenName.Ops_AndAssign;
-
-            case "||":
-                return TokenName.Ops_Or;
-
-            case "||=":
-                return TokenName.Ops_OrAssign;
-
-            case "^":
-                return TokenName.Ops_BitwiseXor;
-
-            case "^=":
-                return TokenName.Ops_BitwiseXorAssign;
-
-            case "~":
-                return TokenName.Ops_BitwiseNot;
-
-            case "~=":
-                return TokenName.Ops_BitwiseNotAssign;
-
-            case "|":
-                return TokenName.Ops_BitwiseOr;
-
-            case "|=":
-                return TokenName.Ops_BitwiseOrAssign;
-
-            case "&":
-                return TokenName.Ops_BitwiseAnd;
-
-            case "&=":
-                return TokenName.Ops_BitwiseAndAssign;
-
-            case "<<":
-                return TokenName.Ops_BitwiseLeftShift;
-
-            case "<<=":
-                return TokenName.Ops_BitwiseLeftShiftAssign;
-
-            case ">>":
-                return TokenName.Ops_BitwiseRightShift;
-
-            case ">>=":
-                return TokenName.Ops_BitwiseRightShiftAssign;
-
-            case ">>>":
-                return TokenName.Ops_BitwiseUnsignedRightShift;
-
-            case ">>>=":
-                return TokenName.Ops_BitwiseUnsignedRightShiftAssign;
-
-            default:
-                return TokenName.Default;
-        }
+            "=" => TokenName.Ops_Assign,
+            "!" => TokenName.Ops_Not,
+            "==" => TokenName.Ops_Equal,
+            "!=" => TokenName.Ops_NotEqual,
+            "<" => TokenName.Ops_LessThan,
+            "<=" => TokenName.Ops_LessThanOrEqual,
+            ">" => TokenName.Ops_GreaterThan,
+            ">=" => TokenName.Ops_GreaterThanOrEqual,
+            "+" => TokenName.Ops_Add,
+            "+=" => TokenName.Ops_AddAssign,
+            "-" => TokenName.Ops_Subtract,
+            "-=" => TokenName.Ops_SubtractAssign,
+            "*" => TokenName.Ops_Multiply,
+            "*=" => TokenName.Ops_MultiplyAssign,
+            "**" => TokenName.Ops_Exponent,
+            "**=" => TokenName.Ops_ExponentAssign,
+            "%" => TokenName.Ops_Modulus,
+            "%=" => TokenName.Ops_ModuloAssign,
+            "/" => TokenName.Ops_Divide,
+            "/=" => TokenName.Ops_DivideAssign,
+            "&&" => TokenName.Ops_And,
+            "&&=" => TokenName.Ops_AndAssign,
+            "||" => TokenName.Ops_Or,
+            "||=" => TokenName.Ops_OrAssign,
+            "^" => TokenName.Ops_BitwiseXor,
+            "^=" => TokenName.Ops_BitwiseXorAssign,
+            "~" => TokenName.Ops_BitwiseNot,
+            "~=" => TokenName.Ops_BitwiseNotAssign,
+            "|" => TokenName.Ops_BitwiseOr,
+            "|=" => TokenName.Ops_BitwiseOrAssign,
+            "&" => TokenName.Ops_BitwiseAnd,
+            "&=" => TokenName.Ops_BitwiseAndAssign,
+            "<<" => TokenName.Ops_BitwiseLeftShift,
+            "<<=" => TokenName.Ops_BitwiseLeftShiftAssign,
+            ">>" => TokenName.Ops_BitwiseRightShift,
+            ">>=" => TokenName.Ops_BitwiseRightShiftAssign,
+            ">>>" => TokenName.Ops_BitwiseUnsignedRightShift,
+            ">>>=" => TokenName.Ops_BitwiseUnsignedRightShiftAssign,
+            _ => TokenName.Default,
+        };
     }
 
     private Token TokenizeBlockComment(TokenSpan span)
@@ -421,6 +300,7 @@ public class Lexer(int file, string path) : IDisposable
         {
             if (ch == '#' && PeekChar() == '/')
             {
+                GetChar();
                 break;
             }
 

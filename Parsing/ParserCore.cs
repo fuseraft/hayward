@@ -121,7 +121,7 @@ public partial class Parser(bool rethrowErrors = false)
 
             case TokenType.Operator:
                 var name = GetTokenName();
-                return name == TokenName.Ops_Not || name == TokenName.Ops_Subtract || name == TokenName.Ops_BitwiseNot;
+                return name is TokenName.Ops_Not or TokenName.Ops_Subtract or TokenName.Ops_BitwiseNot;
 
             default:
                 return false;

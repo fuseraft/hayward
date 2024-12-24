@@ -782,8 +782,8 @@ public partial class Parser
     {
         MatchName(TokenName.KW_Package);
 
-        if (GetTokenType() != TokenType.Identifier &&
-            GetTokenType() != TokenType.Typename)
+        if (GetTokenType() is not TokenType.Identifier and
+            not TokenType.Typename)
         {
             throw new SyntaxError(GetErrorToken(), "Expected identifier for package name.");
         }
@@ -835,8 +835,8 @@ public partial class Parser
 
                 caseWhen.Condition = ParseExpression();
 
-                while (GetTokenName() != TokenName.KW_When && GetTokenName() != TokenName.KW_Else &&
-                       GetTokenName() != TokenName.KW_End)
+                while (GetTokenName() is not TokenName.KW_When and not TokenName.KW_Else and
+                       not TokenName.KW_End)
                 {
                     var stmt = ParseStatement();
                     if (stmt != null)
@@ -1221,8 +1221,8 @@ public partial class Parser
         MatchType(
             TokenType.Keyword);  // Consume 'print', 'println', 'eprint', 'eprintln'
 
-        var printNewLine = name == TokenName.KW_PrintLn || name == TokenName.KW_EPrintLn;
-        var printStdError = name == TokenName.KW_EPrint || name == TokenName.KW_EPrintLn;
+        var printNewLine = name is TokenName.KW_PrintLn or TokenName.KW_EPrintLn;
+        var printStdError = name is TokenName.KW_EPrint or TokenName.KW_EPrintLn;
         var expression = ParseExpression();
         return new PrintNode(expression, printNewLine, printStdError);
     }
@@ -1308,9 +1308,9 @@ public partial class Parser
 
         while (GetTokenType() != TokenType.RBrace)
         {
-            if (GetTokenType() != TokenType.String &&
-                GetTokenType() != TokenType.Identifier &&
-                GetTokenType() != TokenType.Literal)
+            if (GetTokenType() is not TokenType.String and
+                not TokenType.Identifier and
+                not TokenType.Literal)
             {
                 throw new SyntaxError(
                     GetErrorToken(),
@@ -1433,8 +1433,8 @@ public partial class Parser
         ASTNode? stop = null;
         ASTNode? step = null;
 
-        if (GetTokenType() != TokenType.Colon &&
-            GetTokenType() != TokenType.Qualifier)
+        if (GetTokenType() is not TokenType.Colon and
+            not TokenType.Qualifier)
         {
             start = ParseExpression();
         }
@@ -1443,9 +1443,9 @@ public partial class Parser
         {
             isSlice = true;
 
-            if (GetTokenType() != TokenType.Colon &&
-                GetTokenType() != TokenType.Qualifier &&
-                GetTokenType() != TokenType.RBracket)
+            if (GetTokenType() is not TokenType.Colon and
+                not TokenType.Qualifier and
+                not TokenType.RBracket)
             {
                 stop = ParseExpression();
             }
@@ -1469,12 +1469,12 @@ public partial class Parser
         else
         {
             var indexExpression = start ?? throw new SyntaxError(GetErrorToken(), "Missing index expression.");
-            if (indexExpression.Type != ASTNodeType.Literal &&
-                indexExpression.Type != ASTNodeType.Identifier &&
-                indexExpression.Type != ASTNodeType.FunctionCall &&
-                indexExpression.Type != ASTNodeType.BinaryOperation &&
-                indexExpression.Type != ASTNodeType.MethodCall &&
-                indexExpression.Type != ASTNodeType.MemberAccess)
+            if (indexExpression.Type is not ASTNodeType.Literal and
+                not ASTNodeType.Identifier and
+                not ASTNodeType.FunctionCall and
+                not ASTNodeType.BinaryOperation and
+                not ASTNodeType.MethodCall and
+                not ASTNodeType.MemberAccess)
             {
                 throw new SyntaxError(indexValueToken, "Invalid index value in indexer.");
             }
@@ -1789,37 +1789,37 @@ public partial class Parser
             node = new IdentifierNode(identifierName);
         }
 
-        if (GetTokenType() == TokenType.Dot)
+        switch (GetTokenType())
         {
-            node = ParseMemberAccess(node);
-        }
-        else if (GetTokenType() == TokenType.LParen)
-        {
-            node = ParseFunctionCall(identifierName, type);
-        }
-        else if (GetTokenType() == TokenType.LBracket)
-        {
-            node = ParseIndexing(identifierName);
-        }
-        else if (GetTokenType() == TokenType.Operator && IsAssignmentOperator())
-        {
-            node = ParseAssignment(node, identifierName);
-        }
-        else if (GetTokenType() == TokenType.Qualifier && Peek().Type == TokenType.Identifier)
-        {
-            node = ParseQualifiedIdentifier(identifierName);
-        }
-        else if (GetTokenType() == TokenType.Comma && !packed && LookAhead([TokenName.Ops_Assign, TokenName.Ops_LessThan]))
-        {
-            node = ParsePackAssignment(node);
-        }
-        else if (isTypeName && !lenient)
-        {
-            throw new SyntaxError(GetErrorToken(), $"Expected '(' or '::' after the identifier `{identifierName}`.");
-        }
-        else
-        {
-            node = new IdentifierNode(identifierName);
+            case TokenType.Dot:
+                node = ParseMemberAccess(node);
+                break;
+            case TokenType.LParen:
+                node = ParseFunctionCall(identifierName, type);
+                break;
+            case TokenType.LBracket:
+                node = ParseIndexing(identifierName);
+                break;
+            case TokenType.Operator when IsAssignmentOperator():
+                node = ParseAssignment(node, identifierName);
+                break;
+            case TokenType.Qualifier when Peek().Type == TokenType.Identifier:
+                node = ParseQualifiedIdentifier(identifierName);
+                break;
+            case TokenType.Comma when !packed && LookAhead([TokenName.Ops_Assign, TokenName.Ops_LessThan]):
+                node = ParsePackAssignment(node);
+                break;
+            default:
+                if (isTypeName && !lenient)
+                {
+                    throw new SyntaxError(GetErrorToken(), $"Expected '(' or '::' after the identifier `{identifierName}`.");
+                }
+                else
+                {
+                    node = new IdentifierNode(identifierName);
+                }
+
+                break;
         }
 
         if (node != null)
@@ -2040,19 +2040,19 @@ public partial class Parser
                 }
                 else
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Unexpected token '" + token.Text + "'.");
+                    throw new SyntaxError(GetErrorToken(), $"Unexpected token `{token.Text}`.");
                 }
                 break;
         }
 
-        if (GetTokenType() == TokenType.Dot)
+        switch (GetTokenType())
         {
-            node = ParseMemberAccess(node);
-        }
-        else if (GetTokenType() == TokenType.LBracket)
-        {
-            node = ParseIndexing(node);
+            case TokenType.Dot:
+                node = ParseMemberAccess(node);
+                break;
+            case TokenType.LBracket:
+                node = ParseIndexing(node);
+                break;
         }
 
         if (node != null)

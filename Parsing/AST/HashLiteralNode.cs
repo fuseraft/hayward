@@ -11,8 +11,16 @@ public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string
         PrintASTNodeType();
         foreach (var element in Elements)
         {
-            element.Key.Print(1 + depth);
-            element.Value?.Print(1 + depth);
+            ASTTracer.PrintDepth(1 + depth);
+            Console.WriteLine("KVP:");
+            
+            ASTTracer.PrintDepth(2 + depth);
+            Console.WriteLine("Key:");
+            element.Key.Print(3 + depth);
+
+            ASTTracer.PrintDepth(2 + depth);
+            Console.WriteLine("Value: ");
+            element.Value?.Print(3 + depth);
         }
     }
 
