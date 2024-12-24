@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class LambdaCallNode : ASTNode
 {
     public LambdaCallNode() : base(ASTNodeType.LambdaCall) { }
-    public LambdaCallNode(ASTNode? lambdaNode, 
+    public LambdaCallNode(ASTNode? lambdaNode,
                      List<ASTNode?> arguments)
           : base(ASTNodeType.LambdaCall)
     {

@@ -5,14 +5,14 @@ namespace citrus.Parsing.AST;
 public class FunctionNode : ASTNode
 {
     public FunctionNode()
-        : base(ASTNodeType.Function) {}
+        : base(ASTNodeType.Function) { }
 
     public string Name { get; set; } = string.Empty;
     public List<KeyValuePair<string, ASTNode?>> Parameters { get; set; } = [];
     public List<ASTNode?> Body { get; set; } = [];
     public Dictionary<string, TokenName> TypeHints { get; set; } = [];
     public TokenName ReturnTypeHint { get; set; } = TokenName.Types_Any;
-    public bool IsStatic { get; set; } 
+    public bool IsStatic { get; set; }
     public bool IsPrivate { get; set; }
 
     public override void Print(int depth = 0)
@@ -68,7 +68,7 @@ public class FunctionNode : ASTNode
         List<KeyValuePair<string, ASTNode?>> clonedParameters = [];
         foreach (var param in Parameters)
         {
-            KeyValuePair<string, ASTNode?> item = new (param.Key, param.Value?.Clone());
+            KeyValuePair<string, ASTNode?> item = new(param.Key, param.Value?.Clone());
             clonedParameters.Add(item);
         }
 
@@ -86,7 +86,7 @@ public class FunctionNode : ASTNode
             IsStatic = IsStatic,
             IsPrivate = IsPrivate,
             TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint    
+            ReturnTypeHint = ReturnTypeHint
         };
     }
 }

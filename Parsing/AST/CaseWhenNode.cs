@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class CaseWhenNode : ASTNode
 {
     public CaseWhenNode()
-        : base(ASTNodeType.CaseWhen) {}
+        : base(ASTNodeType.CaseWhen) { }
 
     public ASTNode? Condition { get; set; }
     public List<ASTNode?> Body { get; set; } = [];

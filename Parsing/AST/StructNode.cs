@@ -4,7 +4,7 @@ public class StructNode : ASTNode
 {
     private readonly string baseStruct = string.Empty;
 
-    public StructNode() : base(ASTNodeType.Struct) {}
+    public StructNode() : base(ASTNodeType.Struct) { }
     public StructNode(string name, string baseStruct, List<string> interfaces, List<ASTNode?> methods)
         : base(ASTNodeType.Struct)
     {
@@ -23,7 +23,7 @@ public class StructNode : ASTNode
     {
         ASTTracer.PrintDepth(depth);
         PrintASTNodeType();
-        
+
         ASTTracer.PrintDepth(1 + depth);
         Console.WriteLine($"Name: {BaseStruct}");
 
@@ -32,8 +32,9 @@ public class StructNode : ASTNode
             ASTTracer.PrintDepth(1 + depth);
             Console.WriteLine($"Base: {baseStruct}");
         }
-    
-        if (Interfaces.Count > 0) {
+
+        if (Interfaces.Count > 0)
+        {
             ASTTracer.PrintDepth(1 + depth);
             Console.WriteLine("Interfaces:");
             foreach (var iface in Interfaces)
@@ -42,7 +43,7 @@ public class StructNode : ASTNode
                 Console.WriteLine(iface);
             }
         }
-        
+
         if (Methods.Count > 0)
         {
             ASTTracer.PrintDepth(1 + depth);

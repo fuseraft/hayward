@@ -5,7 +5,7 @@ namespace citrus.Parsing.AST;
 public class VariableNode : ASTNode
 {
     public VariableNode()
-        : base(ASTNodeType.Variable) {}
+        : base(ASTNodeType.Variable) { }
 
     public List<KeyValuePair<string, ASTNode?>> Variables { get; set; } = [];
     public Dictionary<string, TokenName> TypeHints { get; set; } = [];
@@ -45,10 +45,10 @@ public class VariableNode : ASTNode
     public override ASTNode Clone()
     {
         List<KeyValuePair<string, ASTNode?>> clonedVariables = [];
-        
+
         foreach (var v in Variables)
         {
-            KeyValuePair<string, ASTNode?> item = new (v.Key, v.Value?.Clone());
+            KeyValuePair<string, ASTNode?> item = new(v.Key, v.Value?.Clone());
             clonedVariables.Add(item);
         }
 

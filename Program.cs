@@ -1,15 +1,19 @@
 ﻿namespace citrus;
-
 using citrus.Runner;
 
 public class Program
 {
     public static int Main(string[] args)
     {
-        // args = ["-t", "/home/scs/GitHub/citrus/debug.kiwi"];
-        ASTPrinter runner = new ();
+        var runner = new ScriptRunner();
         return new CLIHost(args).ExecuteCLI(runner);
     }
+}
+
+class CLIConfig
+{
+    public bool PrintTokens { get; set; } = false;
+    public bool PrintAST { get; set; } = false;
 }
 
 class CLIHost(IEnumerable<string> cliArgs)
@@ -17,20 +21,20 @@ class CLIHost(IEnumerable<string> cliArgs)
     private readonly IEnumerable<string> cliArgs = cliArgs;
     private readonly List<string> citrusArgs = [];
     private readonly List<string> citrusScripts = [];
-    private bool printTokens = false;
 
     public int ExecuteCLI(IRunner runner)
     {
         try
         {
-            HandleCommandLineArguments();
+            var config = Configure();
+            runner = GetRunner(config, runner);
 
-            if (printTokens)
+            foreach (var script in citrusScripts)
             {
-                return PrintTokens();
+                _ = runner.Run(script, citrusArgs);
             }
-            
-            return Execute(runner);
+
+            return 0;
         }
         catch (Exception ex)
         {
@@ -40,8 +44,10 @@ class CLIHost(IEnumerable<string> cliArgs)
         }
     }
 
-    private void HandleCommandLineArguments()
+    private CLIConfig Configure()
     {
+        CLIConfig config = new();
+
         var iter = cliArgs.GetEnumerator();
         while (iter.MoveNext())
         {
@@ -56,7 +62,12 @@ class CLIHost(IEnumerable<string> cliArgs)
 
                 case "-t":
                 case "--tokens":
-                    PrintTokens(ref iter);
+                    PrintTokens(ref iter, config);
+                    break;
+
+                case "-a":
+                case "--ast":
+                    PrintAST(ref iter, config);
                     break;
 
                 default:
@@ -71,45 +82,36 @@ class CLIHost(IEnumerable<string> cliArgs)
                     break;
             }
         }
+
+        return config;
     }
 
-    private int Execute(IRunner runner)
+    private IRunner GetRunner(CLIConfig config, IRunner runner)
     {
-        foreach (var script in citrusScripts)
+        if (config.PrintAST)
         {
-            _ = runner.Run(script, citrusArgs);
+            return new ASTPrinter();
+        }
+        else if (config.PrintTokens)
+        {
+            return new TokenPrinter();
         }
 
-        return 0;
+        return runner;
     }
 
-    private int PrintTokens()
+    private void PrintTokens(ref IEnumerator<string> iter, CLIConfig config)
     {
-        var printer = new TokenPrinter();
-        
-        foreach (var script in citrusScripts)
-        {
-            _ = printer.Run(script, citrusArgs);
-        }
-
-        return 0;
-    }
-
-    private void PrintTokens(ref IEnumerator<string> iter)
-    {
-        if (!iter.MoveNext())
-        {
-            throw new ArgumentException("Expected a filename after `new`.");
-        }
-
-        var filename = iter.Current;
-        if (!IsScript(ref filename))
-        {
-            throw new FileNotFoundException($"The file does not exist: {filename}");
-        }
-
+        var filename = GetFilename(ref iter);
         citrusScripts.Add(filename);
-        printTokens = true;
+        config.PrintTokens = true;
+    }
+
+    private void PrintAST(ref IEnumerator<string> iter, CLIConfig config)
+    {
+        var filename = GetFilename(ref iter);
+        citrusScripts.Add(filename);
+        config.PrintAST = true;
     }
 
     private void CreateNewFile(ref IEnumerator<string> iter)
@@ -128,6 +130,22 @@ class CLIHost(IEnumerable<string> cliArgs)
         using var fs = File.Create(filename);
 
         Console.WriteLine($"Created {filename}");
+    }
+
+    private string GetFilename(ref IEnumerator<string> iter)
+    {
+        if (!iter.MoveNext())
+        {
+            throw new ArgumentException("Expected a filename.");
+        }
+
+        var filename = iter.Current;
+        if (!IsScript(ref filename))
+        {
+            throw new FileNotFoundException($"The file does not exist: {filename}");
+        }
+
+        return filename;
     }
 
     private bool IsScript(ref string filename)

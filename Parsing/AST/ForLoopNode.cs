@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class ForLoopNode : ASTNode
 {
     public ForLoopNode()
-        : base(ASTNodeType.ForLoop) {}
+        : base(ASTNodeType.ForLoop) { }
 
     public ASTNode? DataSet { get; set; }
     public ASTNode? ValueIterator { get; set; }

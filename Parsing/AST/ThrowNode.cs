@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class ThrowNode : ASTNode
 {
     public ThrowNode()
-        : base(ASTNodeType.Throw) {}
+        : base(ASTNodeType.Throw) { }
     public ThrowNode(ASTNode? errorValue, ASTNode? condition)
         : base(ASTNodeType.Throw)
     {
@@ -13,7 +13,7 @@ public class ThrowNode : ASTNode
 
     public ASTNode? ErrorValue { get; set; }
     public ASTNode? Condition { get; set; }
-  
+
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);

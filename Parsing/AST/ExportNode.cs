@@ -2,11 +2,11 @@ namespace citrus.Parsing.AST;
 
 public class ExportNode : ASTNode
 {
-    public ExportNode() : base(ASTNodeType.Export) {}
+    public ExportNode() : base(ASTNodeType.Export) { }
     public ExportNode(ASTNode? packageName)
         : base(ASTNodeType.Export)
     {
-        PackageName = packageName; 
+        PackageName = packageName;
     }
 
     public ASTNode? PackageName { get; }

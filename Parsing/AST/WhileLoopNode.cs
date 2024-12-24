@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class WhileLoopNode : ASTNode
 {
     public WhileLoopNode()
-        : base(ASTNodeType.WhileLoop) {}
+        : base(ASTNodeType.WhileLoop) { }
 
     public ASTNode? Condition { get; set; }
     public List<ASTNode?> Body { get; set; } = [];

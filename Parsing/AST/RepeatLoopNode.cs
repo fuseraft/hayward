@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class RepeatLoopNode : ASTNode
 {
     public RepeatLoopNode()
-        : base(ASTNodeType.RepeatLoop) {}
+        : base(ASTNodeType.RepeatLoop) { }
 
     public ASTNode? Count { get; set; }
     public ASTNode? Alias { get; set; }

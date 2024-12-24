@@ -4,7 +4,7 @@ public class SpawnNode : ASTNode
 {
     public ASTNode? Expression { get; }
 
-    public SpawnNode() : base(ASTNodeType.Spawn) {}
+    public SpawnNode() : base(ASTNodeType.Spawn) { }
     public SpawnNode(ASTNode? expression)
       : base(ASTNodeType.Spawn)
     {

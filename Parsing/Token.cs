@@ -93,7 +93,7 @@ public class TokenStream(List<Token> tokens)
         {
             return tokens[Position + 1];
         }
-        
+
         return Token.CreateEof();
     }
 }

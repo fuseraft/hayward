@@ -5,11 +5,11 @@ public class ASTPrinter : IRunner
 {
     private const int SuccessReturnCode = 0;
 
-    public ASTPrinter() {}
+    public ASTPrinter() { }
 
     public int Run(string script, List<string> args)
     {
-        using Lexer lexer = new (0, script);
+        using Lexer lexer = new(0, script);
         var stream = lexer.GetTokenStream();
 
         Console.WriteLine($"Generating AST: {script}\n");

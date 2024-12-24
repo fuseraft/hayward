@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class ProgramNode : ASTNode
 {
     public ProgramNode()
-        : base(ASTNodeType.Program) {}
+        : base(ASTNodeType.Program) { }
 
     public ProgramNode(List<ASTNode> statements)
         : base(ASTNodeType.Program)

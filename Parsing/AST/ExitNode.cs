@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class ExitNode : ASTNode
 {
     public ExitNode()
-        : base(ASTNodeType.Exit) {}
+        : base(ASTNodeType.Exit) { }
     public ExitNode(ASTNode? exitValue, ASTNode? condition)
         : base(ASTNodeType.Exit)
     {
@@ -13,7 +13,7 @@ public class ExitNode : ASTNode
 
     public ASTNode? ExitValue { get; set; }
     public ASTNode? Condition { get; set; }
-  
+
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);

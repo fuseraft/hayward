@@ -2,13 +2,13 @@ namespace citrus.Parsing.AST;
 
 public class MemberAccessNode : ASTNode
 {
-    public MemberAccessNode() : base(ASTNodeType.MemberAccess) {}
+    public MemberAccessNode() : base(ASTNodeType.MemberAccess) { }
     public MemberAccessNode(ASTNode? obj, string memberName)
         : base(ASTNodeType.MemberAccess)
     {
         Object = obj;
         MemberName = memberName;
-    } 
+    }
 
     public ASTNode? Object { get; }
     public string MemberName { get; } = string.Empty;

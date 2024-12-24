@@ -2,13 +2,13 @@ namespace citrus.Parsing.AST;
 
 public class IdentifierNode : ASTNode
 {
-    public IdentifierNode() : base(ASTNodeType.Identifier) {}
+    public IdentifierNode() : base(ASTNodeType.Identifier) { }
     public IdentifierNode(string name)
         : base(ASTNodeType.Identifier)
     {
         Name = name;
     }
-    
+
     public string Name { get; } = string.Empty;
     public string Package { get; set; } = string.Empty;
 

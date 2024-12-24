@@ -146,7 +146,7 @@ public class Lexer(int file, string path) : IDisposable
     private Token TokenizeOperator(TokenSpan span, char c)
     {
         var text = string.Empty + c;
-                
+
         if (stream.CanRead)
         {
             char? nc = PeekChar();
@@ -181,7 +181,7 @@ public class Lexer(int file, string path) : IDisposable
         }
 
         var name = GetOperatorName(text);
-        
+
         return CreateToken(TokenType.Operator, span, text, name);
     }
 
@@ -295,7 +295,7 @@ public class Lexer(int file, string path) : IDisposable
 
         SkipWhitespace();
         char? ch;
-        
+
         while ((ch = GetChar()) != null)
         {
             if (ch == '#' && PeekChar() == '/')
@@ -450,32 +450,32 @@ public class Lexer(int file, string path) : IDisposable
             case "Hashmap":
                 name = TokenName.Types_Hash;
                 break;
-            
+
             case "lambda":
             case "Lambda":
                 name = TokenName.Types_Lambda;
                 break;
-            
+
             case "string":
             case "String":
                 name = TokenName.Types_String;
                 break;
-            
+
             case "list":
             case "List":
                 name = TokenName.Types_List;
                 break;
-            
+
             case "object":
             case "Object":
                 name = TokenName.Types_Object;
                 break;
-            
+
             case "none":
             case "None":
                 name = TokenName.Types_None;
                 break;
-            
+
             case "pointer":
             case "Pointer":
                 name = TokenName.Types_Pointer;
@@ -578,39 +578,39 @@ public class Lexer(int file, string path) : IDisposable
             case "eprint":
                 name = TokenName.KW_EPrint;
                 break;
-                
+
             case "eprintln":
                 name = TokenName.KW_EPrintLn;
                 break;
-                
+
             case "exit":
                 name = TokenName.KW_Exit;
                 break;
-                
+
             case "export":
                 name = TokenName.KW_Export;
                 break;
-                
+
             case "finally":
                 name = TokenName.KW_Finally;
                 break;
-                
+
             case "for":
                 name = TokenName.KW_For;
                 break;
-                
+
             case "spawn":
                 name = TokenName.KW_Spawn;
                 break;
-                
+
             case "import":
                 name = TokenName.KW_Import;
                 break;
-                
+
             case "in":
                 name = TokenName.KW_In;
                 break;
-                
+
             case "interface":
                 name = TokenName.KW_Interface;
                 break;
@@ -619,75 +619,75 @@ public class Lexer(int file, string path) : IDisposable
             case "fn":
                 name = TokenName.KW_Method;
                 break;
-                
+
             case "package":
                 name = TokenName.KW_Package;
                 break;
-                
+
             case "next":
                 name = TokenName.KW_Next;
                 break;
-                
+
             case "override":
                 name = TokenName.KW_Override;
                 break;
-                
+
             case "parse":
                 name = TokenName.KW_Parse;
                 break;
-                
+
             case "pass":
                 name = TokenName.KW_Pass;
                 break;
-                
+
             case "print":
                 name = TokenName.KW_Print;
                 break;
-                
+
             case "println":
                 name = TokenName.KW_PrintLn;
                 break;
-                
+
             case "printxy":
                 name = TokenName.KW_PrintXy;
                 break;
-                
+
             case "private":
                 name = TokenName.KW_Private;
                 break;
-                
+
             case "repeat":
                 name = TokenName.KW_Repeat;
                 break;
-                
+
             case "return":
                 name = TokenName.KW_Return;
                 break;
-                
+
             case "static":
                 name = TokenName.KW_Static;
                 break;
-                
+
             case "struct":
                 name = TokenName.KW_Struct;
                 break;
-                
+
             case "throw":
                 name = TokenName.KW_Throw;
                 break;
-                
+
             case "try":
                 name = TokenName.KW_Try;
                 break;
-                
+
             case "var":
                 name = TokenName.KW_Var;
                 break;
-                
+
             case "when":
                 name = TokenName.KW_When;
                 break;
-                
+
             case "while":
                 name = TokenName.KW_While;
                 break;

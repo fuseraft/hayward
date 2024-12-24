@@ -5,7 +5,7 @@ namespace citrus.Parsing.AST;
 public class LambdaNode : ASTNode
 {
     public LambdaNode()
-        : base(ASTNodeType.Lambda) {}
+        : base(ASTNodeType.Lambda) { }
 
     public List<KeyValuePair<string, ASTNode?>> Parameters { get; set; } = [];
     public List<ASTNode?> Body { get; set; } = [];
@@ -57,7 +57,7 @@ public class LambdaNode : ASTNode
         List<KeyValuePair<string, ASTNode?>> clonedParameters = [];
         foreach (var param in Parameters)
         {
-            KeyValuePair<string, ASTNode?> item = new (param.Key, param.Value?.Clone());
+            KeyValuePair<string, ASTNode?> item = new(param.Key, param.Value?.Clone());
             clonedParameters.Add(item);
         }
 
@@ -72,7 +72,7 @@ public class LambdaNode : ASTNode
             Parameters = clonedParameters,
             Body = clonedBody,
             TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint    
+            ReturnTypeHint = ReturnTypeHint
         };
     }
 }

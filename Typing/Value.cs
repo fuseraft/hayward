@@ -119,13 +119,13 @@ public class Value(object? value = null, ValueType type = ValueType.None)
         Value_ = value;
         Type = ValueType.Integer;
     }
-    
+
     public void SetValue(int value)
     {
         Value_ = (long)value;
         Type = ValueType.Integer;
     }
-    
+
     public void SetValue(double value)
     {
         Value_ = value;

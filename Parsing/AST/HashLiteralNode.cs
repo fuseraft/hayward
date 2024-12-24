@@ -13,7 +13,7 @@ public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string
         {
             ASTTracer.PrintDepth(1 + depth);
             Console.WriteLine("KVP:");
-            
+
             ASTTracer.PrintDepth(2 + depth);
             Console.WriteLine("Key:");
             element.Key.Print(3 + depth);
@@ -27,7 +27,7 @@ public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string
     public override ASTNode Clone()
     {
         Dictionary<ASTNode, ASTNode?> clonedElements = [];
-        foreach (var (key, value) in Elements) 
+        foreach (var (key, value) in Elements)
         {
             clonedElements.Add(key.Clone(), value?.Clone());
         }

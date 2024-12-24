@@ -5,15 +5,15 @@ public class TokenPrinter : IRunner
 {
     private const int SuccessReturnCode = 0;
 
-    public TokenPrinter() {}
+    public TokenPrinter() { }
 
     public int Run(string script, List<string> args)
     {
         Console.WriteLine($"Tokenizing: {script}\n");
         Console.WriteLine($"{"Token #",15}{"Type",20}{"Name",20}");
         Console.WriteLine($"{"-------",15}{"----",20}{"----",20}");
-        
-        using Lexer lexer = new (0, script);
+
+        using Lexer lexer = new(0, script);
         var stream = lexer.GetTokenStream();
         var counter = 0;
 

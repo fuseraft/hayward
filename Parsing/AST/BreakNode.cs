@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class BreakNode : ASTNode
 {
     public BreakNode()
-        : base(ASTNodeType.Break) {}
+        : base(ASTNodeType.Break) { }
     public BreakNode(ASTNode? condition)
         : base(ASTNodeType.Break)
     {
@@ -11,7 +11,7 @@ public class BreakNode : ASTNode
     }
 
     public ASTNode? Condition { get; set; }
-  
+
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);

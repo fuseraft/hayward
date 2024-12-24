@@ -2,7 +2,7 @@ using citrus.Parsing.AST;
 
 public class PackageNode : ASTNode
 {
-    public PackageNode() : base(ASTNodeType.Package) {}
+    public PackageNode() : base(ASTNodeType.Package) { }
     public PackageNode(ASTNode? packageName)
         : base(ASTNodeType.Package)
     {

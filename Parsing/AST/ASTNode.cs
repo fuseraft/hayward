@@ -16,7 +16,7 @@ public class ASTNode(ASTNodeType type)
         Console.WriteLine($"{Enum.GetName(typeof(ASTNodeType), Type)}:");
     }
 
-    public virtual ASTNode Clone() => new (Type)
+    public virtual ASTNode Clone() => new(Type)
     {
         Token = Token
     };

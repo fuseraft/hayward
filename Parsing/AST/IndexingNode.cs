@@ -2,7 +2,7 @@ namespace citrus.Parsing.AST;
 
 public class IndexingNode : ASTNode
 {
-    public IndexingNode() : base(ASTNodeType.Index) {}
+    public IndexingNode() : base(ASTNodeType.Index) { }
     public IndexingNode(string? name, ASTNode? indexExpression)
         : base(ASTNodeType.Index)
     {
@@ -11,7 +11,7 @@ public class IndexingNode : ASTNode
     }
     public IndexingNode(ASTNode? indexedObject, ASTNode? indexExpression)
         : base(ASTNodeType.Index)
-    {        
+    {
         this.IndexedObject = indexedObject;
         this.IndexExpression = indexExpression;
     }
@@ -23,7 +23,7 @@ public class IndexingNode : ASTNode
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);
-        
+
         if (IndexedObject == null)
         {
             PrintASTNodeType();
@@ -35,7 +35,7 @@ public class IndexingNode : ASTNode
             Console.WriteLine("Index on object:");
             IndexedObject.Print(1 + depth);
         }
-        
+
         IndexExpression?.Print(1 + depth);
     }
 

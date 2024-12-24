@@ -2,7 +2,7 @@ namespace citrus.Parsing.AST;
 
 public class SelfNode : ASTNode
 {
-    public SelfNode() : base(ASTNodeType.Self) {}
+    public SelfNode() : base(ASTNodeType.Self) { }
     public SelfNode(string name)
         : base(ASTNodeType.Self) => Name = name;
 

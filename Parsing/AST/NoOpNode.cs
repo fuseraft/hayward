@@ -2,7 +2,7 @@ namespace citrus.Parsing.AST;
 
 public class NoOpNode : ASTNode
 {
-    public NoOpNode() : base(ASTNodeType.NoOp) {}
+    public NoOpNode() : base(ASTNodeType.NoOp) { }
 
     public override void Print(int depth)
     {

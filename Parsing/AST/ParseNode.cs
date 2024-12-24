@@ -2,11 +2,11 @@ namespace citrus.Parsing.AST;
 
 public class ParseNode : ASTNode
 {
-    public ParseNode() : base(ASTNodeType.Parse) {}
+    public ParseNode() : base(ASTNodeType.Parse) { }
     public ParseNode(ASTNode? parseValue)
         : base(ASTNodeType.Parse)
     {
-        ParseValue = parseValue; 
+        ParseValue = parseValue;
     }
 
     public ASTNode? ParseValue { get; }

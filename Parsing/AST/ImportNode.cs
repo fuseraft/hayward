@@ -2,11 +2,11 @@ namespace citrus.Parsing.AST;
 
 public class ImportNode : ASTNode
 {
-    public ImportNode() : base(ASTNodeType.Import) {}
+    public ImportNode() : base(ASTNodeType.Import) { }
     public ImportNode(ASTNode? packageName)
         : base(ASTNodeType.Import)
     {
-        PackageName = packageName; 
+        PackageName = packageName;
     }
 
     public ASTNode? PackageName { get; }

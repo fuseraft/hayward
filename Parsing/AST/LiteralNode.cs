@@ -2,9 +2,10 @@ namespace citrus.Parsing.AST;
 
 public class LiteralNode : ASTNode
 {
-    public LiteralNode() : base(ASTNodeType.Literal) {}
+    public LiteralNode()
+        : base(ASTNodeType.Literal) { }
     public LiteralNode(object? value)
-      : base(ASTNodeType.Literal) => Value = value;
+        : base(ASTNodeType.Literal) => Value = value;
 
     public object? Value { get; }
 

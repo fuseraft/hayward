@@ -7,12 +7,12 @@ public partial class Parser(bool rethrowErrors = false)
 {
     private readonly bool rethrow = rethrowErrors;
     private Token token = Token.CreateEof();
-    private TokenStream stream = new ([]);
-    private Stack<Dictionary<string, string>> mangledNameStack = new ();
+    private TokenStream stream = new([]);
+    private Stack<Dictionary<string, string>> mangledNameStack = new();
 
     public ASTNode ParseTokenStreamCollection(List<TokenStream> streams)
     {
-        ProgramNode root = new ();
+        ProgramNode root = new();
         bool isRootTokenSet = false;
 
         foreach (var stream in streams)
@@ -63,7 +63,7 @@ public partial class Parser(bool rethrowErrors = false)
         this.stream = stream;
         token = stream.Current();  // Set to beginning.
 
-        ProgramNode root = new ()
+        ProgramNode root = new()
         {
             IsScript = isScript
         };
@@ -134,7 +134,7 @@ public partial class Parser(bool rethrowErrors = false)
         token = stream.Current();
         return token;
     }
-    
+
     private Token Peek() => stream.Peek();
 
     private bool MatchType(TokenType expectedType)
@@ -162,7 +162,7 @@ public partial class Parser(bool rethrowErrors = false)
     private bool LookAhead(List<TokenName> names)
     {
         const int JumpThreshold = 10;
-        
+
         int pos = stream.Position;
         int nameLength = names.Count;
         int jumps = pos;
@@ -186,25 +186,25 @@ public partial class Parser(bool rethrowErrors = false)
             if (matches == nameLength)
             {
                 jumps = pos - jumps;
-                
+
                 if (jumps > JumpThreshold)
                 {
                     return false;
                 }
-                
+
                 return true;
             }
         }
 
         return false;
     }
-    
+
     private void Rewind()
     {
         stream.Rewind();
         token = stream.Current();
     }
-  
+
     private TokenType GetTokenType() => token.Type;
 
     private TokenName GetTokenName() => token.Name;
@@ -239,10 +239,10 @@ public partial class Parser(bool rethrowErrors = false)
         _ => false,
     };
 
-    private bool IsComparisonOperator() => token.Name switch 
+    private bool IsComparisonOperator() => token.Name switch
     {
-      TokenName.Ops_GreaterThan or TokenName.Ops_GreaterThanOrEqual or TokenName.Ops_LessThan or TokenName.Ops_LessThanOrEqual => true,
-      _ => false,
+        TokenName.Ops_GreaterThan or TokenName.Ops_GreaterThanOrEqual or TokenName.Ops_LessThan or TokenName.Ops_LessThanOrEqual => true,
+        _ => false,
     };
 
     private bool IsAssignmentOperator() => token.Name switch
@@ -281,8 +281,8 @@ public partial class Parser(bool rethrowErrors = false)
 
     private bool HasName(string name)
     {
-        Stack<Dictionary<string, string>> nameStack = new (mangledNameStack);
-        
+        Stack<Dictionary<string, string>> nameStack = new(mangledNameStack);
+
         while (nameStack.Count > 0)
         {
             var names = nameStack.Pop();
@@ -297,7 +297,7 @@ public partial class Parser(bool rethrowErrors = false)
 
     private string GetName(string name)
     {
-        Stack<Dictionary<string, string>> nameStack = new (mangledNameStack);
+        Stack<Dictionary<string, string>> nameStack = new(mangledNameStack);
 
         while (nameStack.Count > 0)
         {
@@ -313,7 +313,7 @@ public partial class Parser(bool rethrowErrors = false)
 
     Dictionary<string, string> PushNameStack()
     {
-        Dictionary<string, string> emptyMap = new ();
+        Dictionary<string, string> emptyMap = new();
         mangledNameStack.Push(emptyMap);
         return mangledNameStack.Peek();
     }

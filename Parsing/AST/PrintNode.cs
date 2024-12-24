@@ -4,7 +4,7 @@ namespace citrus.Parsing.AST;
 
 public class PrintNode : ASTNode
 {
-    public PrintNode() : base(ASTNodeType.Print) {}
+    public PrintNode() : base(ASTNodeType.Print) { }
     public PrintNode(ASTNode? expression, bool printNewline, bool printStdError)
         : base(ASTNodeType.Print)
     {
@@ -37,7 +37,7 @@ public class PrintNode : ASTNode
 
 public class PrintXyNode : ASTNode
 {
-    public PrintXyNode() : base(ASTNodeType.PrintXy) {}
+    public PrintXyNode() : base(ASTNodeType.PrintXy) { }
     public PrintXyNode(ASTNode? expression, ASTNode? x, ASTNode? y)
         : base(ASTNodeType.PrintXy)
     {

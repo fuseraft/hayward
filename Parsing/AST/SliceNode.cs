@@ -2,7 +2,7 @@ namespace citrus.Parsing.AST;
 
 public class SliceNode : ASTNode
 {
-    public SliceNode() : base(ASTNodeType.Slice) {}
+    public SliceNode() : base(ASTNodeType.Slice) { }
     public SliceNode(ASTNode? slicedObject, ASTNode? startExpression = null, ASTNode? stopExpression = null, ASTNode? stepExpression = null)
       : base(ASTNodeType.Slice)
     {
@@ -16,12 +16,13 @@ public class SliceNode : ASTNode
     public ASTNode? StartExpression { get; }
     public ASTNode? StopExpression { get; }
     public ASTNode? StepExpression { get; }
-        
+
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);
 
-        if (SlicedObject != null) {
+        if (SlicedObject != null)
+        {
             Console.WriteLine("Slice on object:");
             SlicedObject.Print(1 + depth);
         }

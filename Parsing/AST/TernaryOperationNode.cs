@@ -3,7 +3,7 @@ namespace citrus.Parsing.AST;
 public class TernaryOperationNode : ASTNode
 {
     public TernaryOperationNode()
-        : base(ASTNodeType.TernaryOperation) {}
+        : base(ASTNodeType.TernaryOperation) { }
     public TernaryOperationNode(ASTNode? evalExpression, ASTNode? trueExpression, ASTNode? falseExpression)
       : base(ASTNodeType.TernaryOperation)
     {
