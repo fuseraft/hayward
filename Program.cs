@@ -6,7 +6,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        args = ["-t", "/home/scs/GitHub/citrus/debug.kiwi"];
+        // args = ["-t", "/home/scs/GitHub/citrus/debug.kiwi"];
         ASTPrinter runner = new ();
         return new CLIHost(args).ExecuteCLI(runner);
     }
