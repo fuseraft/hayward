@@ -1,21 +1,49 @@
 namespace citrus.Parsing.AST;
 
+/// <summary>
+/// An AST node.<br />
+/// <br />
+/// Each node in the tree has:<br />
+///     - A token from the token stream used for error and stack tracing.<br />
+///     - A type for the interpreter to understand.<br />
+///     - A <c>Print</c> method for printing the node.<br />
+///     - A <c>Clone</c> method for creating a deep copy of the node.<br />
+/// </summary>
+/// <param name="type">The AST node type.</param>
 public class ASTNode(ASTNodeType type)
 {
+    /// <summary>
+    /// In overridden classes, this method prints the AST node in a hierarchical tree format.
+    /// </summary>
+    /// <param name="depth">The number of spaces to the left of the text.</param>
     public virtual void Print(int depth = 0)
     {
         ASTTracer.PrintDepth(depth);
         PrintASTNodeType();
     }
 
+    /// <summary>
+    /// Gets or sets the token.
+    /// </summary>
     public Token? Token { get; set; } = null;
+
+    /// <summary>
+    /// Gets or sets the type.
+    /// </summary>
     public ASTNodeType Type { get; } = type;
 
+    /// <summary>
+    /// Prints the AST node type.
+    /// </summary>
     public void PrintASTNodeType()
     {
         Console.WriteLine($"{Enum.GetName(typeof(ASTNodeType), Type)}:");
     }
 
+    /// <summary>
+    /// In overriden classes, this method creates and returns a deep copy of the node.
+    /// </summary>
+    /// <returns>An instance of <see cref="ASTNode"/>.</returns>
     public virtual ASTNode Clone() => new(Type)
     {
         Token = Token

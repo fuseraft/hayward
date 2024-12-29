@@ -12,7 +12,7 @@ public class LiteralNode : ASTNode
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);
-        Console.WriteLine($"Literal: {Token?.Text}"); // Serializer::serialize(value)
+        Console.WriteLine($"Literal: {Token?.Text}");
     }
 
     public override ASTNode Clone() => new LiteralNode(Value);

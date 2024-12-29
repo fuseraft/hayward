@@ -3,10 +3,17 @@ using citrus.Parsing;
 
 public class TokenPrinter : IRunner
 {
+    /// <summary>
+    /// A success return code. A placeholder until a smarter mechanism is implemented.
+    /// </summary>
     private const int SuccessReturnCode = 0;
 
-    public TokenPrinter() { }
-
+    /// <summary>
+    /// Prints the tokens of a given script.
+    /// </summary>
+    /// <param name="script">The script.</param>
+    /// <param name="args">The arguments.</param>
+    /// <returns>Returns <c>0</c> for now.</returns>
     public int Run(string script, List<string> args)
     {
         Console.WriteLine($"Tokenizing: {script}\n");

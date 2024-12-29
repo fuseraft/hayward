@@ -3,6 +3,10 @@ using citrus.Tracing.Error;
 
 namespace citrus.Parsing;
 
+/// <summary>
+/// The parser.
+/// </summary>
+/// <param name="rethrowErrors">A flag to control when to rethrow an exception.</param>
 public partial class Parser(bool rethrowErrors = false)
 {
     private readonly bool rethrow = rethrowErrors;
@@ -58,14 +62,14 @@ public partial class Parser(bool rethrowErrors = false)
         return root;
     }
 
-    public ASTNode ParseTokenStream(TokenStream stream, bool isScript)
+    public ASTNode ParseTokenStream(TokenStream stream, bool isEntryPoint)
     {
         this.stream = stream;
         token = stream.Current();  // Set to beginning.
 
         ProgramNode root = new()
         {
-            IsScript = isScript
+            IsEntryPoint = isEntryPoint
         };
 
         try

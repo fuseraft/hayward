@@ -1,94 +1,93 @@
 namespace citrus.Typing;
 
+public class InstanceRef
+{
+    public string Identifier { get; set; } = string.Empty;
+    public string StructName { get; set; } = string.Empty;
+    public Dictionary<string, Value> InstanceVariables { get; set; } = [];
+
+    public bool HasVariable(string name)
+    {
+        return InstanceVariables.ContainsKey(name);
+    }
+}
+
+public class LambdaRef
+{
+    public string Identifier { get; set; } = string.Empty;
+}
+
+public class StructRef
+{
+    public string Identifier { get; set; } = string.Empty;
+}
+
+public class NullRef { }
+
 public class Value(object? value = null, ValueType type = ValueType.None)
 {
-    public object? Value_ { get; set; } = value ?? null;
+    public object Value_ { get; set; } = value ?? new NullRef();
     public ValueType Type { get; set; } = type;
 
     public static Value Create(object? value)
     {
-        if (value == null)
+        return value switch
         {
-            return CreateNull();
-        }
-
-        if (value is long)
-        {
-            return CreateInteger(value);
-        }
-        else if (value is double)
-        {
-            return CreateFloat(value);
-        }
-        else if (value is bool)
-        {
-            return CreateBoolean(value);
-        }
-        else if (value is string)
-        {
-            return CreateString(value);
-        }
-        else if (value is List<Value>)
-        {
-            return CreateList(value);
-        }
-        else if (value is Dictionary<Value, Value>)
-        {
-            return CreateHashmap(value);
-        }
-
-        /*case ValueType.Object:
-            return CreateObject(value);
-        case ValueType.Lambda:
-            return CreateLambda(value);
-        case ValueType.None:
-            return CreateNull();
-        case ValueType.Struct:
-            return CreateStruct(value);
-        case ValueType.Pointer:
-            return CreatePointer(value);
-        default:
-            return {};
-        }*/
-        return CreateNull();
+            null => CreateNull(),
+            long => CreateInteger(value),
+            double => CreateFloat(value),
+            bool => CreateBoolean(value),
+            string => CreateString(value),
+            List<Value> => CreateList(value),
+            Dictionary<Value, Value> => CreateHashmap(value),
+            InstanceRef => CreateObject(value),
+            LambdaRef => CreateLambda(value),
+            StructRef => CreateStruct(value),
+            NullRef => CreateNull(),
+            _ => CreateNull()
+        };
     }
 
     public static Value EmptyString() { return CreateString(string.Empty); }
-
     public static Value CreateInteger(long value) => new(value, ValueType.Integer);
     public static Value CreateInteger(object value) => new(value, ValueType.Integer);
+    public static Value CreateFloat(double value) => new(value, ValueType.Float);
     public static Value CreateFloat(object value) => new(value, ValueType.Float);
+    public static Value CreateBoolean(bool value) => new(value, ValueType.Float);
     public static Value CreateBoolean(object value) => new(value, ValueType.Boolean);
+    public static Value CreateString(string value) => new(value, ValueType.String);
     public static Value CreateString(object value) => new(value, ValueType.String);
+    public static Value CreateList(List<Value> value) => new(value, ValueType.List);
     public static Value CreateList(object value) => new(value, ValueType.List);
+    public static Value CreateList() => new(new List<Value>(), ValueType.List);
+    public static Value CreateHashmap(Dictionary<Value, Value> value) => new(value, ValueType.Hashmap);
     public static Value CreateHashmap(object value) => new(value, ValueType.Hashmap);
+    public static Value CreateHashmap() => new(new Dictionary<Value, Value>(), ValueType.Hashmap);
+    public static Value CreateNull(NullRef value) => new(value, ValueType.None);
     public static Value CreateNull(object value) => new(value, ValueType.None);
-    public static Value CreateNull() => new(null, ValueType.None);
-    /*
-    public static Value CreateObject(object value) {
-        return {value, ValueType.Object};
-    }
-    public static Value CreateLambda(object value) {
-        return {value, ValueType.Lambda};
-    }
-    public static Value CreateStruct(object value) {
-        return {value, ValueType.Struct);
-    }
-    public static Value CreatePointer(object value) {
-        return new (value, ValueType.Pointer);
-    }*/
+    public static Value CreateNull() => new(new NullRef(), ValueType.None);
+    public static Value CreateObject(InstanceRef value) => new(value, ValueType.Object);
+    public static Value CreateObject(object value) => new(value, ValueType.Object);
+    public static Value CreateLambda(LambdaRef value) => new (value, ValueType.Lambda);
+    public static Value CreateLambda(object value) => new (value, ValueType.Lambda);
+    public static Value CreateStruct(StructRef value) => new (value, ValueType.Struct);
+    public static Value CreateStruct(object value) => new (value, ValueType.Struct);
+    // public static Value CreatePointer(object value) => new(value, ValueType.Pointer);
 
-    public long GetInteger() => Convert.ToInt64(Value_);
-    public double GetFloat() => Convert.ToDouble(Value_);
-    public bool GetBoolean() => Convert.ToBoolean(Value_);
-    public string GetString() => Value_ != null ? (Value_ as string) ?? string.Empty : string.Empty;
-    public List<Value> GetList() => Value_ != null ? (Value_ as List<Value>) ?? [] : [];
-    public Dictionary<Value, Value> GetHashmap() => Value_ != null ? (Value_ as Dictionary<Value, Value>) ?? [] : [];
-    /*public const kObject GetObject() const { return std::get<kObject>(Value_); }
-    public const kLambda GetLambda() const { return std::get<kLambda>(Value_); }
-    public const k_null GetNull() const { return std::get<k_null>(Value_); }
-    public const kStruct GetStruct() const { return std::get<kStruct>(Value_); }
-    public const kPointer GetPointer() const { return std::get<kPointer>(Value_); }*/
+    public long GetInteger() => (long)Value_;
+    public double GetFloat() => (double)Value_;
+    public bool GetBoolean() => (bool)Value_;
+    public string GetString() => (string)Value_;
+    public List<Value> GetList() => (List<Value>)Value_;
+    public Dictionary<Value, Value> GetHashmap() => (Dictionary<Value, Value>)Value_;
+    public InstanceRef GetObject() => (InstanceRef)Value_;
+    public LambdaRef GetLambda() => (LambdaRef)Value_;
+    public StructRef GetStruct() => (StructRef)Value_;
+    public NullRef GetNull()
+    {
+        Value_ ??= new NullRef();
+        return (NullRef)Value_;
+    }
 
     public bool IsInteger() => Type == ValueType.Integer;
     public bool IsFloat() => Type == ValueType.Float;
@@ -104,7 +103,7 @@ public class Value(object? value = null, ValueType type = ValueType.None)
 
     public void Set(object? value, ValueType type)
     {
-        Value_ = value;
+        Value_ = value ?? new NullRef();
         Type = type;
     }
 
@@ -131,47 +130,56 @@ public class Value(object? value = null, ValueType type = ValueType.None)
         Value_ = value;
         Type = ValueType.Float;
     }
+
     public void SetValue(bool value)
     {
         Value_ = value;
         Type = ValueType.Boolean;
     }
+
     public void SetValue(string value)
     {
         Value_ = value;
         Type = ValueType.String;
     }
+
     public void SetValue(List<Value> value)
     {
         Value_ = value;
         Type = ValueType.List;
     }
+
     public void SetValue(Dictionary<Value, Value> value)
     {
         Value_ = value;
         Type = ValueType.Hashmap;
     }
 
-    /*public void SetValue(const kObject& value)
+    public void SetValue(InstanceRef value)
     {
         Value_ = value;
         Type = ValueType.Object;
     }
-    public void SetValue(const kLambda& value)
+
+    public void SetValue(LambdaRef value)
     {
         Value_ = value;
         Type = ValueType.Lambda;
     }
-    public void SetValue(const k_null& value)
-    {
-        Value_ = value;
-        Type = ValueType.None;
-    }
-    public void SetValue(const kStruct& value)
+
+    public void SetValue(StructRef value)
     {
         Value_ = value;
         Type = ValueType.Struct;
     }
+
+    public void SetValue(NullRef value)
+    {
+        Value_ = value;
+        Type = ValueType.None;
+    }
+
+    /*
     public void SetValue(const kPointer& value)
     {
         Value_ = value;

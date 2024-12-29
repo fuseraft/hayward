@@ -2,8 +2,27 @@ using citrus.Parsing;
 
 namespace citrus.Typing;
 
-public class Serializer
+public partial class Serializer
 {
+    public static bool AssertTypematch(Value v, TokenName typeName)
+    {
+        return typeName switch
+        {
+            TokenName.Types_Any => true,
+            TokenName.Types_Boolean => v.IsBoolean(),
+            TokenName.Types_Float => v.IsFloat(),
+            TokenName.Types_Hash => v.IsHashmap(),
+            TokenName.Types_Integer => v.IsInteger(),
+            TokenName.Types_Lambda => v.IsLambda(),
+            TokenName.Types_List => v.IsList(),
+            TokenName.Types_None => v.IsNull(),
+            TokenName.Types_Object => v.IsObject(),
+            TokenName.Types_String => v.IsString(),
+            TokenName.Types_Pointer => v.IsPointer(),
+            _ => false,
+        };
+    }
+
     public static string GetTypenameString(TokenName name)
     {
         return name switch
@@ -21,6 +40,54 @@ public class Serializer
             TokenName.Types_String => "String",
             _ => string.Empty,
         };
+    }
+
+    public static string GetTypenameString(Value v)
+    {
+        if (v.IsInteger())
+        {
+            return "Integer";
+        }
+        else if (v.IsFloat())
+        {
+            return "Float";
+        }
+        else if (v.IsBoolean())
+        {
+            return "Boolean";
+        }
+        else if (v.IsString())
+        {
+            return "String";
+        }
+        else if (v.IsNull())
+        {
+            return "None";
+        }
+        else if (v.IsList())
+        {
+            return "List";
+        }
+        else if (v.IsHashmap())
+        {
+            return "Hashmap";
+        }
+        else if (v.IsObject())
+        {
+            return v.GetObject().StructName;
+        }
+        else if (v.IsLambda())
+        {
+            return "Lambda";
+        }
+        else if (v.IsPointer())
+        {
+            return "Pointer";
+        }
+        else
+        {
+            return string.Empty;
+        }
     }
 
     public static string GetOperatorString(TokenName name)

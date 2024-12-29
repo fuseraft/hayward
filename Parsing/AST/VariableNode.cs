@@ -28,7 +28,7 @@ public class VariableNode : ASTNode
             {
                 ASTTracer.PrintDepth(2 + depth);
                 var typeHint = TypeHints[v.Key];
-                Console.WriteLine($"Type: {Serializer.GetTypenameString(typeHint)}"); // Serializer::get_typename_string(typeHint);
+                Console.WriteLine($"Type: {Serializer.GetTypenameString(typeHint)}");
             }
 
             if (v.Value == null)
