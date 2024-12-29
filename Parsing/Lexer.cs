@@ -1,5 +1,4 @@
-using System.Formats.Asn1;
-using System.Reflection.Metadata.Ecma335;
+using citrus.Typing;
 
 namespace citrus.Parsing;
 
@@ -18,6 +17,63 @@ public class Lexer(int file, string path) : IDisposable
     public void Dispose()
     {
         stream?.Close();
+    }
+
+    private char? PeekChar()
+    {
+        long origin = stream.Position;
+
+        int byteValue = stream.ReadByte();
+        if (byteValue == -1)
+        {
+            return null;
+        }
+
+        char c = (char)byteValue;
+        stream.Position = origin;
+        return c;
+    }
+
+    private char? GetChar()
+    {
+        int byteValue = stream.ReadByte();
+        if (byteValue == -1)
+        {
+            return null;
+        }
+
+        var c = (char)byteValue;
+
+        if (c == '\r' && PeekChar() == '\n')
+        {
+            c = (char)stream.ReadByte();
+        }
+
+        if (c == '\n')
+        {
+            ++line;
+            pos = 0;
+        }
+        else
+        {
+            ++pos;
+        }
+
+        return c;
+    }
+
+    private void SkipWhitespace()
+    {
+        int byteValue;
+        while ((byteValue = stream.ReadByte()) != -1)
+        {
+            char c = (char)byteValue;
+            if (!char.IsWhiteSpace(c) && c != '\n')
+            {
+                --stream.Position;
+                break;
+            }
+        }
     }
 
     private List<Token> GetTokens()
@@ -242,7 +298,153 @@ public class Lexer(int file, string path) : IDisposable
         return CreateToken(TokenType.String, span, text);
     }
 
-    private TokenName GetOperatorName(string text)
+    private Token TokenizeBlockComment(TokenSpan span)
+    {
+        var text = string.Empty;
+        GetChar(); // Skip '#'
+
+        SkipWhitespace();
+        char? ch;
+
+        while ((ch = GetChar()) != null)
+        {
+            if (ch == '#' && PeekChar() == '/')
+            {
+                GetChar();
+                break;
+            }
+
+            text += ch;
+        }
+
+        return CreateToken(TokenType.Comment, span, text);
+    }
+
+    private Token TokenizeComment(TokenSpan span)
+    {
+        var text = string.Empty;
+
+        SkipWhitespace();
+        char? ch;
+
+        while ((ch = GetChar()) != null)
+        {
+            if (ch == '\n')
+            {
+                break;
+            }
+
+            text += ch;
+        }
+
+        return CreateToken(TokenType.Comment, span, text);
+    }
+
+    private Token TokenizeLiteral(TokenSpan span, char c)
+    {
+        var text = string.Empty + c;
+        char? ch;
+        char lastChar = '\0';
+
+        while ((ch = PeekChar()) != null && (char.IsDigit(ch.Value) || ch == '.' || ch == 'e' || ch == 'E'))
+        {
+            c = ch.Value;
+
+            if (c == '.' && lastChar == '.')
+            {
+                text = text[..^1];
+                --stream.Position;
+                break;
+            }
+
+            text += c;
+            lastChar = c;
+            GetChar();
+        }
+
+        var dots = text.Count(c => c == '.');
+        var es = text.ToLower().Count(c => c == 'e');
+
+        if (dots > 1 || es > 1)
+        {
+            return CreateToken(TokenType.Error, span, text);
+        }
+
+        if (dots == 0)
+        {
+            return CreateLiteralToken(span, text, Value.CreateInteger(Convert.ToInt64(text)));
+        }
+
+        return CreateLiteralToken(span, text, Value.CreateFloat(Convert.ToDouble(text)));
+    }
+
+    private Token TokenizeKeywordOrIdentifier(TokenSpan span, char c)
+    {
+        var text = string.Empty + c;
+        char? ch;
+
+        while ((ch = PeekChar()) != null)
+        {
+            c = ch.Value;
+
+            if (!char.IsAsciiLetterOrDigit(c) && c != '_')
+            {
+                break;
+            }
+
+            text += c;
+            GetChar();
+        }
+
+        if (IsKeyword(text, out TokenName kw))
+        {
+            return CreateToken(TokenType.Keyword, span, text, kw);
+        }
+        else if (IsConditionalKeyword(text, out TokenName kwCond))
+        {
+            return CreateToken(TokenType.Conditional, span, text, kwCond);
+        }
+        else if (IsLiteralKeyword(text, out TokenName kwLiteral))
+        {
+            return text switch
+            {
+                "null" => CreateLiteralToken(span, text, Value.CreateNull()),
+                "true" => CreateLiteralToken(span, text, Value.CreateBoolean(true)),
+                "false" => CreateLiteralToken(span, text, Value.CreateBoolean(false)),
+                _ => CreateToken(TokenType.Error, span, text)
+            };
+        }
+        else if (IsLambdaKeyword(text, out TokenName kwLambda))
+        {
+            return CreateToken(TokenType.Lambda, span, text, kwLambda);
+        }
+        else if (IsTypenameKeyword(text, out TokenName kwTypename))
+        {
+            return CreateToken(TokenType.Typename, span, text, kwTypename);
+        }
+
+        return CreateToken(TokenType.Identifier, span, text);
+    }
+
+    private static Token TokenizeParen(TokenSpan span, char c)
+    {
+        var text = string.Empty + c;
+        return CreateToken(c == '(' ? TokenType.LParen : TokenType.RParen, span, text);
+    }
+
+    private static Token TokenizeBracket(TokenSpan span, char c)
+    {
+        var text = string.Empty + c;
+        return CreateToken(c == '[' ? TokenType.LBracket : TokenType.RBracket, span, text);
+    }
+
+    private static Token TokenizeBrace(TokenSpan span, char c)
+    {
+        var text = string.Empty + c;
+        return CreateToken(c == '{' ? TokenType.LBrace : TokenType.RBrace, span, text);
+    }
+
+    private static TokenName GetOperatorName(string text)
     {
         return text switch
         {
@@ -286,138 +488,6 @@ public class Lexer(int file, string path) : IDisposable
             ">>>=" => TokenName.Ops_BitwiseUnsignedRightShiftAssign,
             _ => TokenName.Default,
         };
-    }
-
-    private Token TokenizeBlockComment(TokenSpan span)
-    {
-        var text = string.Empty;
-        GetChar(); // Skip '#'
-
-        SkipWhitespace();
-        char? ch;
-
-        while ((ch = GetChar()) != null)
-        {
-            if (ch == '#' && PeekChar() == '/')
-            {
-                GetChar();
-                break;
-            }
-
-            text += ch;
-        }
-
-        return CreateToken(TokenType.Comment, span, text);
-    }
-
-    private Token TokenizeComment(TokenSpan span)
-    {
-        var text = string.Empty;
-
-        SkipWhitespace();
-        char? ch;
-
-        while ((ch = GetChar()) != null)
-        {
-            if (ch == '\n')
-            {
-                break;
-            }
-
-            text += ch;
-        }
-
-        return CreateToken(TokenType.Comment, span, text);
-    }
-
-    private Token TokenizeParen(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '(' ? TokenType.LParen : TokenType.RParen, span, text);
-    }
-
-    private Token TokenizeBracket(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '[' ? TokenType.LBracket : TokenType.RBracket, span, text);
-    }
-
-    private Token TokenizeBrace(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '{' ? TokenType.LBrace : TokenType.RBrace, span, text);
-    }
-
-    private Token TokenizeLiteral(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        char? ch;
-        char lastChar = '\0';
-
-        while ((ch = PeekChar()) != null && (char.IsDigit(ch.Value) || ch == '.' || ch == 'e' || ch == 'E'))
-        {
-            c = ch.Value;
-
-            if (c == '.' && lastChar == '.')
-            {
-                text = text[..^1];
-                --stream.Position;
-                break;
-            }
-
-            text += c;
-            lastChar = c;
-            GetChar();
-        }
-
-        if (text.Count(c => c == '.') > 1 || text.ToLower().Count(c => c == 'e') > 1)
-        {
-            return CreateToken(TokenType.Error, span, text);
-        }
-
-        return CreateToken(TokenType.Literal, span, text);
-    }
-
-    private Token TokenizeKeywordOrIdentifier(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        char? ch;
-
-        while ((ch = PeekChar()) != null)
-        {
-            c = ch.Value;
-
-            if (!char.IsAsciiLetterOrDigit(c) && c != '_')
-            {
-                break;
-            }
-
-            text += c;
-            GetChar();
-        }
-
-        if (IsKeyword(text, out TokenName kw))
-        {
-            return CreateToken(TokenType.Keyword, span, text, kw);
-        }
-        else if (IsConditionalKeyword(text, out TokenName kwCond))
-        {
-            return CreateToken(TokenType.Conditional, span, text, kwCond);
-        }
-        else if (IsLiteralKeyword(text, out TokenName kwLiteral))
-        {
-            return CreateToken(TokenType.Literal, span, text, kwLiteral);
-        }
-        else if (IsLambdaKeyword(text, out TokenName kwLambda))
-        {
-            return CreateToken(TokenType.Lambda, span, text, kwLambda);
-        }
-        else if (IsTypenameKeyword(text, out TokenName kwTypename))
-        {
-            return CreateToken(TokenType.Typename, span, text, kwTypename);
-        }
-
-        return CreateToken(TokenType.Identifier, span, text);
     }
 
     private static bool IsTypenameKeyword(string text, out TokenName name)
@@ -699,70 +769,12 @@ public class Lexer(int file, string path) : IDisposable
         return name != TokenName.Default;
     }
 
-    private char? PeekChar()
+    private static Token CreateLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.Literal, name, span, text)
     {
-        long origin = stream.Position;
+        Value = value
+    };
 
-        int byteValue = stream.ReadByte();
-        if (byteValue == -1)
-        {
-            return null;
-        }
+    private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text);
 
-        char c = (char)byteValue;
-        stream.Position = origin;
-        return c;
-    }
-
-    private char? GetChar()
-    {
-        int byteValue = stream.ReadByte();
-        if (byteValue == -1)
-        {
-            return null;
-        }
-
-        var c = (char)byteValue;
-
-        if (c == '\r' && PeekChar() == '\n')
-        {
-            c = (char)stream.ReadByte();
-        }
-
-        if (c == '\n')
-        {
-            ++line;
-            pos = 0;
-        }
-        else
-        {
-            ++pos;
-        }
-
-        return c;
-    }
-
-    private void SkipWhitespace()
-    {
-        int byteValue;
-        while ((byteValue = stream.ReadByte()) != -1)
-        {
-            char c = (char)byteValue;
-            if (!char.IsWhiteSpace(c) && c != '\n')
-            {
-                --stream.Position;
-                break;
-            }
-        }
-    }
-
-    private Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default)
-    {
-        return new Token(type, name, span, text);
-    }
-
-    private TokenSpan CreateSpan()
-    {
-        return new TokenSpan(file, line, pos);
-    }
+    private TokenSpan CreateSpan() => new(file, line, pos);
 }

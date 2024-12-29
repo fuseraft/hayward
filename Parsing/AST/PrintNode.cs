@@ -1,5 +1,3 @@
-using System.Net.NetworkInformation;
-
 namespace citrus.Parsing.AST;
 
 public class PrintNode : ASTNode
