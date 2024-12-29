@@ -355,8 +355,10 @@ public class Interpreter
     private Value Visit(ReturnNode node) => throw new NotImplementedException();
     private Value Visit(IndexingNode node) => throw new NotImplementedException();
     private Value Visit(SliceNode node) => throw new NotImplementedException();
+    /*
     private Value Visit(ParseNode node) => throw new NotImplementedException();
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
+    */
 
     private bool PushFrame(StackFrame frame)
     {
