@@ -59,6 +59,7 @@ public class Value(object? value = null, ValueType type = ValueType.None)
     }
 
     public static Value EmptyString() { return CreateString(string.Empty); }
+    public static Value Default() => new(0L, ValueType.Integer);
     public static Value CreateInteger(long value) => new(value, ValueType.Integer);
     public static Value CreateInteger(object value) => new(value, ValueType.Integer);
     public static Value CreateFloat(double value) => new(value, ValueType.Float);

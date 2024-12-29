@@ -352,7 +352,27 @@ public class Interpreter
     private Value Visit(LambdaCallNode node) => throw new NotImplementedException();
     private Value Visit(FunctionCallNode node) => throw new NotImplementedException();
     private Value Visit(MethodCallNode node) => throw new NotImplementedException();
-    private Value Visit(ReturnNode node) => throw new NotImplementedException();
+    
+    private Value Visit(ReturnNode node)
+    {
+        var returnValue = Value.Default();
+        
+        if (node.Condition == null || BooleanFunc.IsTruthy(Interpret(node.Condition)))
+        {
+            if (node.ReturnValue != null)
+            {
+                returnValue = Interpret(node.ReturnValue);
+            }
+
+            var frame = CallStack.Peek();
+            frame.SetFlag(FrameFlags.Return);
+            frame.ReturnValue = returnValue;
+            return returnValue;
+        }
+
+        return returnValue;
+    }
+    
     private Value Visit(IndexingNode node) => throw new NotImplementedException();
     private Value Visit(SliceNode node) => throw new NotImplementedException();
     /*
