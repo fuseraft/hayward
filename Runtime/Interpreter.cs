@@ -299,11 +299,76 @@ public class Interpreter
     private Value Visit(MemberAssignmentNode node) => throw new NotImplementedException();
     private Value Visit(PackAssignmentNode node) => throw new NotImplementedException();
     private Value Visit(MemberAccessNode node) => throw new NotImplementedException();
-    private Value Visit(LiteralNode node) => throw new NotImplementedException();
+
+    private static Value Visit(LiteralNode node) => node.Value;
+
     private Value Visit(RangeLiteralNode node) => throw new NotImplementedException();
-    private Value Visit(ListLiteralNode node) => throw new NotImplementedException();
-    private Value Visit(HashLiteralNode node) => throw new NotImplementedException();
-    private Value Visit(IdentifierNode node) => throw new NotImplementedException();
+
+    private Value Visit(ListLiteralNode node)
+    {
+        List<Value> list = [];
+        
+        foreach (var element in node.Elements)
+        {
+            var value = Interpret(element);
+            list.Add(value);
+        }
+
+        return Value.CreateList(list);
+    }
+
+    private Value Visit(HashLiteralNode node)
+    {
+        Dictionary<Value, Value> hash = [];
+        
+        foreach (var pair in node.Elements)
+        {
+            var key = Interpret(pair.Key);
+            var value = Interpret(pair.Value);
+            hash[key] = value;
+        }
+
+        return Value.CreateHashmap(hash);
+    }
+
+    private Value Visit(IdentifierNode node)
+    {
+        var frame = CallStack.Peek();
+        var name = node.Name;
+
+        if (frame.InObjectContext() && name[0] == '@')
+        {
+            return frame.GetObjectContext()?.InstanceVariables[name] ?? Value.CreateNull();
+        }
+
+        if (frame.HasVariable(name))
+        {
+            return frame.Variables[name];
+        }
+        else if (Context.HasStruct(name))
+        {
+            return Value.CreateStruct(new StructRef { Identifier = name });
+        }
+        else if (Context.HasLambda(name))
+        {
+            return Value.CreateLambda(new LambdaRef { Identifier = name });
+        }
+        else if (Context.HasMappedLambda(name))
+        {
+            var id = Context.LambdaTable[name];
+
+            if (Context.HasLambda(id))
+            {
+                return Value.CreateLambda(new LambdaRef { Identifier = id });
+            }
+        }
+        else if (Context.HasConstant(name))
+        {
+            return Context.Constants[name];
+        }
+
+        return Value.CreateNull();
+    }
 
     private void Visit(PrintNode node)
     {
