@@ -1,3 +1,5 @@
+using citrus.Parsing;
+using citrus.Tracing.Error;
 namespace citrus.Typing;
 
 public class InstanceRef
@@ -23,6 +25,14 @@ public class StructRef
 }
 
 public class NullRef { }
+
+public class SliceIndex
+{
+    public Value? IndexOrStart { get; set; }
+    public Value? StopIndex { get; set; }
+    public Value? StepValue { get; set; }
+    public bool IsSlice { get; set; }
+};
 
 public class Value(object? value = null, ValueType type = ValueType.None)
 {
@@ -100,6 +110,48 @@ public class Value(object? value = null, ValueType type = ValueType.None)
     public bool IsNull() => Type == ValueType.None;
     public bool IsStruct() => Type == ValueType.Struct;
     public bool IsPointer() => Type == ValueType.Pointer;
+
+    public static List<Value> Clone(List<Value> list)
+    {
+        List<Value> clone = [];
+        
+        foreach (var value in list)
+        {
+            clone.Add(value.Clone());
+        }
+        
+        return clone;
+    }
+
+    public static Dictionary<Value, Value> Clone(Dictionary<Value, Value> hash)
+    {
+        Dictionary<Value, Value> clone = [];
+        
+        foreach (var key in hash.Keys)
+        {
+            clone.Add(key, hash[key].Clone());
+        }
+
+        return clone;
+    }
+
+    public Value Clone()
+    {
+        return Type switch
+        {
+            ValueType.Integer => CreateInteger(GetInteger()),
+            ValueType.Float => CreateFloat(GetFloat()),
+            ValueType.Boolean => CreateBoolean(GetBoolean()),
+            ValueType.String => CreateString(GetString()),
+            ValueType.List => CreateList(Clone(GetList())),
+            ValueType.Hashmap => CreateHashmap(Clone(GetHashmap())),
+            ValueType.Object => CreateObject(GetObject()),
+            ValueType.Lambda => CreateLambda(GetLambda()),
+            ValueType.None => CreateNull(),
+            ValueType.Struct => CreateStruct(GetStruct()),
+            _ => throw new Exception("Unsupported type for cloning"),
+        };
+    }
 
     public void Set(object? value, ValueType type)
     {

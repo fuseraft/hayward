@@ -47,7 +47,7 @@ public struct BooleanFunc
         };
     }
 
-    public static bool IsZero(Token token, Value v)
+    public static bool IsZero(Token token, ref Value v)
     {
         if (v.IsFloat())
         {
