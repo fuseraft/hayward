@@ -277,8 +277,8 @@ public class Interpreter
         if (node.Condition == null || BooleanFunc.IsTruthy(Interpret(node.Condition)))
         {
             var exitValue = Interpret(node.ExitValue);
-            var exitCode = 0L;
-
+            long exitCode;
+            
             if (exitValue.IsInteger())
             {
                 exitCode = exitValue.GetInteger();
