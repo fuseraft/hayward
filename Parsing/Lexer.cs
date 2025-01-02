@@ -4,10 +4,10 @@ namespace citrus.Parsing;
 
 public class Lexer(int file, string path) : IDisposable
 {
-    private readonly FileStream stream = File.OpenRead(path);
-    private readonly int file = file;
-    private int line = 0;
-    private int pos = 0;
+    private readonly FileStream stream = System.IO.File.OpenRead(path);
+    private readonly int File = file;
+    private int LineNumber = 0;
+    private int Position = 0;
 
     public TokenStream GetTokenStream()
     {
@@ -51,12 +51,12 @@ public class Lexer(int file, string path) : IDisposable
 
         if (c == '\n')
         {
-            ++line;
-            pos = 0;
+            ++LineNumber;
+            Position = 0;
         }
         else
         {
-            ++pos;
+            ++Position;
         }
 
         return c;
@@ -776,5 +776,5 @@ public class Lexer(int file, string path) : IDisposable
 
     private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text);
 
-    private TokenSpan CreateSpan() => new(file, line, pos);
+    private TokenSpan CreateSpan() => new(File, LineNumber, Position);
 }

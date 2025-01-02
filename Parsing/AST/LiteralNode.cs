@@ -9,7 +9,7 @@ public class LiteralNode(Value value) : ASTNode(ASTNodeType.Literal)
     public override void Print(int depth)
     {
         ASTTracer.PrintDepth(depth);
-        Console.WriteLine($"Literal: {Token?.Text}");
+        Console.WriteLine($"Literal: {this.Token.Text}");
     }
 
     public override ASTNode Clone() => new LiteralNode(Value);

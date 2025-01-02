@@ -2,9 +2,9 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Builtin.Operation;
 
-public struct BooleanFunc
+public struct BooleanOp
 {
     public static bool IsTruthy(Value value)
     {
@@ -21,11 +21,6 @@ public struct BooleanFunc
             Typing.ValueType.None => false,
             _ => false,
         };
-    }
-
-    public static bool IsEqual(Value v1, Value v2)
-    {
-        return IsSame(v1, v2);
     }
 
     public static bool IsSame(Value v1, Value v2)

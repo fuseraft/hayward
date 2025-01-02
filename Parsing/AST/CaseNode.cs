@@ -5,7 +5,7 @@ public class CaseNode : ASTNode
     public CaseNode() : base(ASTNodeType.Case) { }
     public ASTNode? TestValue { get; set; }
     public List<ASTNode?> ElseBody { get; set; } = [];
-    public List<ASTNode?> WhenNodes { get; set; } = [];
+    public List<CaseWhenNode> WhenNodes { get; set; } = [];
 
     public override void Print(int depth)
     {
@@ -46,10 +46,10 @@ public class CaseNode : ASTNode
             clonedElseBody.Add(stmt?.Clone());
         }
 
-        List<ASTNode?> clonedWhenNodes = [];
+        List<CaseWhenNode> clonedWhenNodes = [];
         foreach (var when in WhenNodes)
         {
-            clonedWhenNodes.Add(when?.Clone());
+            clonedWhenNodes.Add((CaseWhenNode)when.Clone());
         }
 
         return new CaseNode

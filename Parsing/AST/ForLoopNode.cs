@@ -1,12 +1,9 @@
 namespace citrus.Parsing.AST;
 
-public class ForLoopNode : ASTNode
+public class ForLoopNode(ASTNode valueIterator) : ASTNode(ASTNodeType.ForLoop)
 {
-    public ForLoopNode()
-        : base(ASTNodeType.ForLoop) { }
-
     public ASTNode? DataSet { get; set; }
-    public ASTNode? ValueIterator { get; set; }
+    public ASTNode ValueIterator { get; set; } = valueIterator;
     public ASTNode? IndexIterator { get; set; }
     public List<ASTNode?> Body { get; set; } = [];
 
@@ -46,10 +43,9 @@ public class ForLoopNode : ASTNode
             clonedBody.Add(stmt?.Clone());
         }
 
-        return new ForLoopNode
+        return new ForLoopNode(ValueIterator.Clone())
         {
             DataSet = DataSet?.Clone(),
-            ValueIterator = ValueIterator?.Clone(),
             IndexIterator = IndexIterator?.Clone(),
             Body = clonedBody
         };

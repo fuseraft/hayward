@@ -86,20 +86,6 @@ class CLIHost(IEnumerable<string> cliArgs)
         return config;
     }
 
-    private IRunner GetRunner(CLIConfig config, IRunner runner)
-    {
-        if (config.PrintAST)
-        {
-            return new ASTPrinter();
-        }
-        else if (config.PrintTokens)
-        {
-            return new TokenPrinter();
-        }
-
-        return runner;
-    }
-
     private void PrintTokens(ref IEnumerator<string> iter, CLIConfig config)
     {
         var filename = GetFilename(ref iter);
@@ -114,7 +100,21 @@ class CLIHost(IEnumerable<string> cliArgs)
         config.PrintAST = true;
     }
 
-    private void CreateNewFile(ref IEnumerator<string> iter)
+    private static IRunner GetRunner(CLIConfig config, IRunner runner)
+    {
+        if (config.PrintAST)
+        {
+            return new ASTPrinter();
+        }
+        else if (config.PrintTokens)
+        {
+            return new TokenPrinter();
+        }
+
+        return runner;
+    }
+
+    private static void CreateNewFile(ref IEnumerator<string> iter)
     {
         if (!iter.MoveNext())
         {
@@ -132,7 +132,7 @@ class CLIHost(IEnumerable<string> cliArgs)
         Console.WriteLine($"Created {filename}");
     }
 
-    private string GetFilename(ref IEnumerator<string> iter)
+    private static string GetFilename(ref IEnumerator<string> iter)
     {
         if (!iter.MoveNext())
         {
@@ -148,7 +148,7 @@ class CLIHost(IEnumerable<string> cliArgs)
         return filename;
     }
 
-    private bool IsScript(ref string filename)
+    private static bool IsScript(ref string filename)
     {
         if (!Path.HasExtension(filename))
         {

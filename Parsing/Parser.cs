@@ -17,8 +17,7 @@ public partial class Parser
             return ParseCase();
         }
 
-        throw new SyntaxError(GetErrorToken(),
-                          "Expected if-statement or case-statement.");
+        throw new SyntaxError(GetErrorToken(), "Expected if-statement or case-statement.");
     }
 
     private ASTNode? ParseKeyword()
@@ -99,8 +98,7 @@ public partial class Parser
                 return ParseVar();
 
             default:
-                throw new SyntaxError(GetErrorToken(),
-                                  "Unexpected keyword '" + token.Text + "'.");
+                throw new SyntaxError(GetErrorToken(), $"Unexpected keyword '{token.Text}'.");
         }
     }
 
@@ -188,8 +186,7 @@ public partial class Parser
         {
             if (GetTokenType() != TokenType.Identifier)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected identifier for base struct name.");
+                throw new SyntaxError(GetErrorToken(), "Expected identifier for base struct name.");
             }
 
             baseStruct = token.Text;
@@ -228,12 +225,9 @@ public partial class Parser
             var statement = ParseStatement() ?? throw new SyntaxError(GetErrorToken(), "Expected a function.");
             if (statement.Type == ASTNodeType.Function)
             {
-                var func = statement as FunctionNode;
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                var func = (FunctionNode)statement;
                 func.IsPrivate = isPrivate;
                 func.IsStatic = isStatic;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
                 methods.Add(func);
             }
@@ -323,8 +317,7 @@ public partial class Parser
                 // expect a type name
                 if (GetTokenType() != TokenType.Typename)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected a type name in parameter type hint.");
+                    throw new SyntaxError(GetErrorToken(), "Expected a type name in parameter type hint.");
                 }
 
                 // grab the type name
@@ -354,8 +347,7 @@ public partial class Parser
             else if (GetTokenType() != TokenType.RParen)
             {
                 // if it's not a comma and it's not a ')', let the dev know there is a syntax error.
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected ',' or ')' in variable declaration list.");
+                throw new SyntaxError(GetErrorToken(), "Expected ',' or ')' in variable declaration list.");
             }
         }
 
@@ -383,7 +375,7 @@ public partial class Parser
         string functionName = token.Text;
         Next();
 
-        string mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
+        string mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
 
         // Parse parameters
         List<KeyValuePair<string, ASTNode?>> parameters = [];
@@ -392,8 +384,7 @@ public partial class Parser
 
         if (isTypeName && GetTokenType() != TokenType.LParen)
         {
-            throw new SyntaxError(GetErrorToken(), "Expected '(' after the identifier `" +
-                                                   functionName + "`.");
+            throw new SyntaxError(GetErrorToken(), $"Expected '(' after the identifier `{functionName}`.");
         }
 
         if (GetTokenType() == TokenType.LParen)
@@ -425,8 +416,7 @@ public partial class Parser
                 {
                     if (GetTokenType() != TokenType.Typename)
                     {
-                        throw new SyntaxError(GetErrorToken(),
-                                          "Expected a type name in parameter type hint.");
+                        throw new SyntaxError(GetErrorToken(), "Expected a type name in parameter type hint.");
                     }
 
                     var typeName = GetTokenName();
@@ -451,8 +441,7 @@ public partial class Parser
                 }
                 else if (GetTokenType() != TokenType.RParen)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected ',' or ')' in parameter list.");
+                    throw new SyntaxError(GetErrorToken(), "Expected ',' or ')' in parameter list.");
                 }
             }
 
@@ -462,8 +451,7 @@ public partial class Parser
             {
                 if (GetTokenType() != TokenType.Typename)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected a type name in return type hint.");
+                    throw new SyntaxError(GetErrorToken(), "Expected a type name in return type hint.");
                 }
 
                 var typeName = GetTokenName();
@@ -505,11 +493,13 @@ public partial class Parser
         var mangledNames = GetNameMap();
         string mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
         HashSet<string> subMangled = [];
+        var valueIteratorName = string.Empty;
 
         if (GetTokenType() == TokenType.Identifier)
         {
-            mangledNames[token.Text] = mangler + token.Text;
-            subMangled.Add(mangler + token.Text);
+            valueIteratorName = mangler + token.Text;
+            mangledNames[token.Text] = valueIteratorName;
+            subMangled.Add(valueIteratorName);
         }
 
         var valueIterator = ParseIdentifier(false, false);
@@ -554,11 +544,9 @@ public partial class Parser
             mangledNames.Remove(mangledName);
         }
 
-        return new ForLoopNode
+        return new ForLoopNode(valueIterator ?? new IdentifierNode(valueIteratorName))
         {
-            ValueIterator = valueIterator,
-            IndexIterator =
-            indexIterator,
+            IndexIterator = indexIterator,
             DataSet = dataSet,
             Body = body
         };
@@ -605,8 +593,7 @@ public partial class Parser
         {
             if (GetTokenType() != TokenType.Identifier)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected identifier in repeat-loop value alias.");
+                throw new SyntaxError(GetErrorToken(), "Expected identifier in repeat-loop value alias.");
             }
 
             alias = ParseIdentifier(false, false);
@@ -829,8 +816,7 @@ public partial class Parser
                 var caseWhen = new CaseWhenNode();
                 if (!HasValue())
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected condition or value for case-when.");
+                    throw new SyntaxError(GetErrorToken(), "Expected condition or value for case-when.");
                 }
 
                 caseWhen.Condition = ParseExpression();
@@ -978,16 +964,14 @@ public partial class Parser
                     {
                         if (GetTokenType() != TokenType.Identifier)
                         {
-                            throw new SyntaxError(GetErrorToken(),
-                                              "Expected identifier in catch parameters.");
+                            throw new SyntaxError(GetErrorToken(), "Expected identifier in catch parameters.");
                         }
                         var firstParameter = ParseIdentifier(false, false);
                         if (MatchType(TokenType.Comma))
                         {
                             if (GetTokenType() != TokenType.Identifier)
                             {
-                                throw new SyntaxError(GetErrorToken(),
-                                                  "Expected identifier in catch parameters.");
+                                throw new SyntaxError(GetErrorToken(), "Expected identifier in catch parameters.");
                             }
 
                             errorType = firstParameter;
@@ -1000,8 +984,7 @@ public partial class Parser
 
                         if (!MatchType(TokenType.RParen))
                         {
-                            throw new SyntaxError(GetErrorToken(),
-                                              "Expected ')' in catch parameter expression.");
+                            throw new SyntaxError(GetErrorToken(), "Expected ')' in catch parameter expression.");
                         }
                     }
                     building = TokenName.KW_Catch;
@@ -1058,8 +1041,7 @@ public partial class Parser
             }
             else if (GetTokenType() != TokenType.RParen)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected ')' or ',' in function call.");
+                throw new SyntaxError(GetErrorToken(), "Expected ')' or ',' in function call.");
             }
         }
 
@@ -1122,8 +1104,7 @@ public partial class Parser
 
                 if (mangledNames.ContainsKey(paramName))
                 {
-                    throw new SyntaxError(GetErrorToken(), "The parameter name '" + paramName +
-                                                           "' is already used.");
+                    throw new SyntaxError(GetErrorToken(), $"The parameter name '{paramName}' is already used.");
                 }
 
                 var mangledName = mangler + paramName;
@@ -1136,8 +1117,7 @@ public partial class Parser
                 {
                     if (GetTokenType() != TokenType.Typename)
                     {
-                        throw new SyntaxError(GetErrorToken(),
-                                          "Expected a type name in parameter type hint.");
+                        throw new SyntaxError(GetErrorToken(), "Expected a type name in parameter type hint.");
                     }
 
                     var typeName = GetTokenName();
@@ -1162,8 +1142,7 @@ public partial class Parser
                 }
                 else if (GetTokenType() != TokenType.RParen)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected ',' or ')' in parameter list.");
+                    throw new SyntaxError(GetErrorToken(), "Expected ',' or ')' in parameter list.");
                 }
             }
 
@@ -1173,8 +1152,7 @@ public partial class Parser
             {
                 if (GetTokenType() != TokenType.Typename)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected a type name in return type hint.");
+                    throw new SyntaxError(GetErrorToken(), "Expected a type name in return type hint.");
                 }
 
                 var typeName = GetTokenName();
@@ -1270,8 +1248,7 @@ public partial class Parser
 
             if (printNode.Expression != null && printNode.X != null && printNode.Y != null)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Wrong number of parameters for printxy.");
+                throw new SyntaxError(GetErrorToken(), "Wrong number of parameters for printxy.");
             }
         }
 
@@ -1279,8 +1256,7 @@ public partial class Parser
 
         if (printNode.Expression == null || printNode.X == null || printNode.Y == null)
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Wrong number of parameters for printxy.");
+            throw new SyntaxError(GetErrorToken(), "Wrong number of parameters for printxy.");
         }
 
         return printNode;
@@ -1312,9 +1288,7 @@ public partial class Parser
                 not TokenType.Identifier and
                 not TokenType.Literal)
             {
-                throw new SyntaxError(
-                    GetErrorToken(),
-                    "Expected a string, literal, or identifier for hashmap key.");
+                throw new SyntaxError(GetErrorToken(), "Expected a string, literal, or identifier for hashmap key.");
             }
 
             var keyString = token.Text;
@@ -1336,8 +1310,7 @@ public partial class Parser
             }
             else if (GetTokenType() != TokenType.RBrace)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected '}' or ',' in hashmap literal");
+                throw new SyntaxError(GetErrorToken(), "Expected '}' or ',' in hashmap literal");
             }
         }
 
@@ -1370,29 +1343,25 @@ public partial class Parser
             {
                 if (!isRange)
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected ']' or ',' in list literal.");
+                    throw new SyntaxError(GetErrorToken(), "Expected ']' or ',' in list literal.");
                 }
                 else
                 {
-                    throw new SyntaxError(GetErrorToken(),
-                                      "Expected ']' or '..' in range literal.");
+                    throw new SyntaxError(GetErrorToken(), "Expected ']' or '..' in range literal.");
                 }
             }
         }
 
         if (!MatchType(TokenType.RBracket))
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected ']' in list or range literal.");
+            throw new SyntaxError(GetErrorToken(), "Expected ']' in list or range literal.");
         }
 
         if (isRange)
         {
             if (elements.Count != 2)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected start and end values in range literal.");
+                throw new SyntaxError(GetErrorToken(), "Expected start and end values in range literal.");
             }
 
             return new RangeLiteralNode(elements[0], elements[1]);
@@ -1502,8 +1471,7 @@ public partial class Parser
 
             if (GetTokenType() != TokenType.Identifier)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected identifier after '.' in member access.");
+                throw new SyntaxError(GetErrorToken(), "Expected identifier after '.' in member access.");
             }
 
             var op = GetTokenName();
@@ -1545,8 +1513,7 @@ public partial class Parser
             }
             else if (GetTokenType() != TokenType.RParen)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected ')' or ',' in function call.");
+                throw new SyntaxError(GetErrorToken(), "Expected ')' or ',' in function call.");
             }
         }
 
@@ -1580,8 +1547,7 @@ public partial class Parser
             MatchType(TokenType.Comma);
             if (GetTokenType() != TokenType.Identifier)
             {
-                throw new SyntaxError(GetErrorToken(),
-                                  "Expected identifier in pack assignment variable set.");
+                throw new SyntaxError(GetErrorToken(), "Expected identifier in pack assignment variable set.");
             }
 
             var identifierName = token.Text;
@@ -1597,14 +1563,12 @@ public partial class Parser
 
         if (!MatchName(TokenName.Ops_Assign))
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected an unpack operator, '=<', in pack assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an unpack operator, '=<', in pack assignment.");
         }
 
         if (!MatchName(TokenName.Ops_LessThan))
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected an unpack operator, '=<', in pack assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an unpack operator, '=<', in pack assignment.");
         }
 
         var lhsLength = assignment.Left.Count;
@@ -1640,15 +1604,13 @@ public partial class Parser
 
         if (GetTokenType() != TokenType.Identifier)
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected an identifier in const assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an identifier in const assignment.");
         }
 
         var identifierName = token.Text;
         if (identifierName != identifierName.ToUpper())
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Constant identifiers should contain only uppercase characters and underscores.");
+            throw new SyntaxError(GetErrorToken(), "Constant identifiers should contain only uppercase characters and underscores.");
         }
 
         Next();  // skip the identifier
@@ -1656,16 +1618,12 @@ public partial class Parser
 
         if (!IsAssignmentOperator(type))
         {
-            throw new SyntaxError(
-                GetErrorToken(),
-                "Expected an assignment operator in constant assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an assignment operator in constant assignment.");
         }
 
         if (type != TokenName.Ops_Assign)
         {
-            throw new SyntaxError(
-                GetErrorToken(),
-                "Expected an assignment operator in constant assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an assignment operator in constant assignment.");
         }
         Next();  // skip the operator
 
@@ -1679,8 +1637,7 @@ public partial class Parser
     {
         if (!IsAssignmentOperator())
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected an assignment operator in assignment.");
+            throw new SyntaxError(GetErrorToken(), "Expected an assignment operator in assignment.");
         }
 
         var type = GetTokenName();
@@ -1708,14 +1665,13 @@ public partial class Parser
 
         if (GetTokenType() != TokenType.Identifier && !isTypeName)
         {
-            throw new SyntaxError(GetErrorToken(),
-                              "Expected an identifier after qualifier.");
+            throw new SyntaxError(GetErrorToken(), "Expected an identifier after qualifier.");
         }
 
         var rightIdentifierName = token.Text;
         Next();
 
-        var qualifiedName = prefix + "::" + rightIdentifierName;
+        var qualifiedName = $"{prefix}::{rightIdentifierName}";
 
         ASTNode? qualifiedNode =
             new IdentifierNode(qualifiedName);
@@ -1738,9 +1694,7 @@ public partial class Parser
         }
         else if (isTypeName)
         {
-            throw new SyntaxError(
-                GetErrorToken(),
-                "Expected '(' or '::' after the identifier `" + qualifiedName + "`.");
+            throw new SyntaxError(GetErrorToken(), "Expected '(' or '::' after the identifier `" + qualifiedName + "`.");
         }
 
         return qualifiedNode;
@@ -2016,8 +1970,7 @@ public partial class Parser
                     Next();  // Skip "("
                     if (GetTokenType() == TokenType.RParen)
                     {
-                        throw new SyntaxError(GetErrorToken(),
-                                          "Expected a value between '(' and ')'.");
+                        throw new SyntaxError(GetErrorToken(), "Expected a value between '(' and ')'.");
                     }
                     var result = ParseExpression();
                     MatchType(TokenType.RParen);

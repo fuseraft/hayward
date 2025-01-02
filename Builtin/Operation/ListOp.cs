@@ -2,9 +2,9 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Builtin.Operation;
 
-public struct ListFunc
+public struct ListOp
 {
     public static List<Value> ListMul(Token token, ref Value left, ref Value right)
     {

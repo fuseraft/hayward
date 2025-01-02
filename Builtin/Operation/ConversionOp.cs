@@ -2,9 +2,9 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Builtin.Operation;
 
-public struct ConversionFunc
+public struct ConversionOp
 {
     public static string GetString(Token t, Value v, string message = "Expected a string value.")
     {

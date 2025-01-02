@@ -2,10 +2,111 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Builtin.Operation;
 
-public struct MathFunc
+public struct MathOp
 {
+    public static Value Add(Token token, ref Value left, ref Value right, bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        Value res = GetAddResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Sub(Token token, ref Value left, ref Value right, bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        Value res = GetSubResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Exp(Token token, ref Value left, ref Value right, bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        Value res = GetExpResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Mod(Token token, ref Value left, ref Value right, bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        Value res = GetModResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Div(Token token, ref Value left, ref Value right,
+                       bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        Value res = GetDivResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Mul(Token token, ref Value left, ref Value right, bool doAssign = false)
+    {
+        Typing.ValueType type = Typing.ValueType.None;
+        var res = GetMulResult(token, ref left, ref right, ref type);
+
+        if (doAssign)
+        {
+            left.Set(res, type);
+            return left;
+        }
+
+        return res;
+    }
+
+    public static Value Negate(Token token, ref Value right)
+    {
+        if (right.IsInteger())
+        {
+            return Value.CreateInteger(-right.GetInteger());
+        }
+        else if (right.IsFloat())
+        {
+            return Value.CreateFloat(-right.GetFloat());
+        }
+        else
+        {
+            throw new ConversionError(token, "Unary minus applied to a non-numeric value.");
+        }
+    }
+    
     private static long GetNonZero(Token token, long value)
     {
         if (value == 0)
@@ -60,7 +161,7 @@ public struct MathFunc
         else if (leftIsString)
         {
             type = Typing.ValueType.String;
-            return new(left.GetString() + ConversionFunc.ToString(right), type);
+            return new(left.GetString() + ConversionOp.ToString(right), type);
         }
         else if (left.IsList())
         {
@@ -81,7 +182,7 @@ public struct MathFunc
         else if (rightIsString)
         {
             type = Typing.ValueType.String;
-            return new(ConversionFunc.ToString(left) + right.GetString(), type);
+            return new(ConversionOp.ToString(left) + right.GetString(), type);
         }
 
         throw new ConversionError(token, "Conversion error in addition.");
@@ -118,7 +219,7 @@ public struct MathFunc
 
             foreach (var item in leftList)
             {
-                if (!found && BooleanFunc.IsSame(item, right))
+                if (!found && BooleanOp.IsSame(item, right))
                 {
                     found = true;
                     continue;
@@ -142,7 +243,7 @@ public struct MathFunc
 
                 foreach (var ritem in rightList)
                 {
-                    if (BooleanFunc.IsSame(item, ritem))
+                    if (BooleanOp.IsSame(item, ritem))
                     {
                         found = true;
                         break;
@@ -272,99 +373,14 @@ public struct MathFunc
         else if (left.IsString() && right.IsInteger())
         {
             type = Typing.ValueType.String;
-            return new(StringFunc.StringMul(ref left, ref right), type);
+            return new(StringOp.StringMul(ref left, ref right), type);
         }
         else if (left.IsList() && right.IsInteger())
         {
             type = Typing.ValueType.List;
-            return new(ListFunc.ListMul(token, ref left, ref right), type);
+            return new(ListOp.ListMul(token, ref left, ref right), type);
         }
 
         throw new ConversionError(token, "Conversion error in multiplication.");
-    }
-
-    public static Value Add(Token token, ref Value left, ref Value right, bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        Value res = GetAddResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
-    }
-
-    public static Value Sub(Token token, ref Value left, ref Value right, bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        Value res = GetSubResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
-    }
-
-    public static Value Exp(Token token, ref Value left, ref Value right, bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        Value res = GetExpResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
-    }
-
-    public static Value Mod(Token token, ref Value left, ref Value right, bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        Value res = GetModResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
-    }
-
-    public static Value Div(Token token, ref Value left, ref Value right,
-                       bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        Value res = GetDivResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
-    }
-
-    public static Value Mul(Token token, ref Value left, ref Value right, bool doAssign = false)
-    {
-        Typing.ValueType type = Typing.ValueType.None;
-        var res = GetMulResult(token, ref left, ref right, ref type);
-
-        if (doAssign)
-        {
-            left.Set(res, type);
-            return left;
-        }
-
-        return res;
     }
 }

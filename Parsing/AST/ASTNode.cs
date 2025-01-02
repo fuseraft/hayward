@@ -25,7 +25,7 @@ public class ASTNode(ASTNodeType type)
     /// <summary>
     /// Gets or sets the token.
     /// </summary>
-    public Token? Token { get; set; } = null;
+    public Token Token { get; set; }
 
     /// <summary>
     /// Gets or sets the type.

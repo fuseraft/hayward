@@ -1,19 +1,23 @@
 using citrus.Builtin;
+using citrus.Builtin.Operation;
+using citrus.Parsing;
 using citrus.Parsing.AST;
 using citrus.Typing;
+using citrus.Tracing.Error;
 namespace citrus.Runtime;
 
 public class Interpreter
 {
     const int SafemodeMaxIterations = 1000000;
 
+    public bool Safemode { get; set; } = false;
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
     private Stack<string> FuncStack { get; set; } = [];
     private Dictionary<string, string> CliArgs { get; set; } = [];
-    private static Value DefaultValue = Value.CreateNull();
+    private static Value DefaultValue = Value.Default();
 
     public void SetContext(KContext context) => Context = context;
 
@@ -21,211 +25,81 @@ public class Interpreter
     {
         if (node == null)
         {
-            return DefaultValue;
+            return Value.Default();
         }
 
-        Value result = DefaultValue;
-        bool sigCheck = false;
+        bool sigCheck = RequiresSigCheck(node.Type);
 
-        switch (node.Type)
+        Value result = node.Type switch
         {
-            case ASTNodeType.Program:
-                result = Visit((ProgramNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Self:
-                result = Visit((SelfNode)node);
-                break;
-
-            case ASTNodeType.Package:
-                result = Visit((PackageNode)node);
-                break;
-
-            case ASTNodeType.Struct:
-                result = Visit((StructNode)node);
-                break;
-
-            case ASTNodeType.Import:
-                result = Visit((ImportNode)node);
-                break;
-
-            case ASTNodeType.Export:
-                result = Visit((ExportNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Exit:
-                Visit((ExitNode)node);
-                break;
-
-            case ASTNodeType.Throw:
-                result = Visit((ThrowNode)node);
-                break;
-
-            case ASTNodeType.Assignment:
-                result = Visit((AssignmentNode)node);
-                break;
-
-            case ASTNodeType.ConstAssignment:
-                result = Visit((ConstAssignmentNode)node);
-                break;
-
-            case ASTNodeType.IndexAssignment:
-                result = Visit((IndexAssignmentNode)node);
-                break;
-
-            case ASTNodeType.MemberAssignment:
-                result = Visit((MemberAssignmentNode)node);
-                break;
-
-            case ASTNodeType.PackAssignment:
-                result = Visit((PackAssignmentNode)node);
-                break;
-
-            case ASTNodeType.MemberAccess:
-                result = Visit((MemberAccessNode)node);
-                break;
-
-            case ASTNodeType.Literal:
-                result = Visit((LiteralNode)node);
-                break;
-
-            case ASTNodeType.ListLiteral:
-                result = Visit((ListLiteralNode)node);
-                break;
-
-            case ASTNodeType.RangeLiteral:
-                result = Visit((RangeLiteralNode)node);
-                break;
-
-            case ASTNodeType.HashLiteral:
-                result = Visit((HashLiteralNode)node);
-                break;
-
-            case ASTNodeType.Identifier:
-                result = Visit((IdentifierNode)node);
-                break;
-
-            case ASTNodeType.Print:
-                Visit((PrintNode)node);
-                break;
-
-            case ASTNodeType.PrintXy:
-                result = Visit((PrintXyNode)node);
-                break;
-
-            case ASTNodeType.TernaryOperation:
-                result = Visit((TernaryOperationNode)node);
-                break;
-
-            case ASTNodeType.BinaryOperation:
-                result = Visit((BinaryOperationNode)node);
-                break;
-
-            case ASTNodeType.UnaryOperation:
-                result = Visit((UnaryOperationNode)node);
-                break;
-
-            case ASTNodeType.If:
-                result = Visit((IfNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Case:
-                result = Visit((CaseNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.ForLoop:
-                result = Visit((ForLoopNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.WhileLoop:
-                result = Visit((WhileLoopNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.RepeatLoop:
-                result = Visit((RepeatLoopNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Break:
-                result = Visit((BreakNode)node);
-                break;
-
-            case ASTNodeType.Next:
-                result = Visit((NextNode)node);
-                break;
-
-            case ASTNodeType.Try:
-                result = Visit((TryNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Lambda:
-                result = Visit((LambdaNode)node);
-                break;
-
-            case ASTNodeType.LambdaCall:
-                result = Visit((LambdaCallNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Function:
-                result = Visit((FunctionNode)node);
-                break;
-
-            case ASTNodeType.Variable:
-                result = Visit((VariableNode)node);
-                break;
-
-            case ASTNodeType.FunctionCall:
-                result = Visit((FunctionCallNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.MethodCall:
-                result = Visit((MethodCallNode)node);
-                sigCheck = true;
-                break;
-
-            case ASTNodeType.Return:
-                result = Visit((ReturnNode)node);
-                break;
-
-            case ASTNodeType.Index:
-                result = Visit((IndexingNode)node);
-                break;
-
-            case ASTNodeType.Slice:
-                result = Visit((SliceNode)node);
-                break;
-
-            case ASTNodeType.Parse:
-                //result = Visit((ParseNode)node);
-                break;
-
-            case ASTNodeType.NoOp:
-                break;
-
-            case ASTNodeType.Spawn:
-                //result = Visit((SpawnNode)node);
-                break;
-
-            default:
-                node.Print();
-                break;
-        }
+            ASTNodeType.Program => Visit((ProgramNode)node),
+            ASTNodeType.Self => Visit((SelfNode)node),
+            ASTNodeType.Package => Visit((PackageNode)node),
+            ASTNodeType.Struct => Visit((StructNode)node),
+            ASTNodeType.Import => Visit((ImportNode)node),
+            ASTNodeType.Export => Visit((ExportNode)node),
+            ASTNodeType.Exit => Visit((ExitNode)node),
+            ASTNodeType.Throw => Visit((ThrowNode)node),
+            ASTNodeType.Assignment => Visit((AssignmentNode)node),
+            ASTNodeType.ConstAssignment => Visit((ConstAssignmentNode)node),
+            ASTNodeType.IndexAssignment => Visit((IndexAssignmentNode)node),
+            ASTNodeType.MemberAssignment => Visit((MemberAssignmentNode)node),
+            ASTNodeType.PackAssignment => Visit((PackAssignmentNode)node),
+            ASTNodeType.MemberAccess => Visit((MemberAccessNode)node),
+            ASTNodeType.Literal => Visit((LiteralNode)node),
+            ASTNodeType.ListLiteral => Visit((ListLiteralNode)node),
+            ASTNodeType.RangeLiteral => Visit((RangeLiteralNode)node),
+            ASTNodeType.HashLiteral => Visit((HashLiteralNode)node),
+            ASTNodeType.Identifier => Visit((IdentifierNode)node),
+            ASTNodeType.Print => Visit((PrintNode)node),
+            ASTNodeType.PrintXy => Visit((PrintXyNode)node),
+            ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
+            ASTNodeType.BinaryOperation => Visit((BinaryOperationNode)node),
+            ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
+            ASTNodeType.If => Visit((IfNode)node),
+            ASTNodeType.Case => Visit((CaseNode)node),
+            ASTNodeType.ForLoop => Visit((ForLoopNode)node),
+            ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
+            ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
+            ASTNodeType.Break => Visit((BreakNode)node),
+            ASTNodeType.Next => Visit((NextNode)node),
+            ASTNodeType.Try => Visit((TryNode)node),
+            ASTNodeType.Lambda => Visit((LambdaNode)node),
+            ASTNodeType.LambdaCall => Visit((LambdaCallNode)node),
+            ASTNodeType.Function => Visit((FunctionNode)node),
+            ASTNodeType.Variable => Visit((VariableNode)node),
+            ASTNodeType.FunctionCall => Visit((FunctionCallNode)node),
+            ASTNodeType.MethodCall => Visit((MethodCallNode)node),
+            ASTNodeType.Return => Visit((ReturnNode)node),
+            ASTNodeType.Index => Visit((IndexingNode)node),
+            ASTNodeType.Slice => Visit((SliceNode)node),
+            ASTNodeType.Parse => Value.Default(),
+            ASTNodeType.NoOp => Value.Default(),
+            ASTNodeType.Spawn => Value.Default(),
+            _ => PrintNode(node),
+        };
 
         if (sigCheck)
         {
-            // handlePendingSignals(node->token);
+            // HandlePendingSignals(node.Token);
         }
 
         return result;
+    }
+
+    private static bool RequiresSigCheck(ASTNodeType type)
+    {
+        return type is ASTNodeType.Program
+            or ASTNodeType.Export
+            or ASTNodeType.Try or ASTNodeType.If or ASTNodeType.Case or
+            ASTNodeType.ForLoop or ASTNodeType.WhileLoop or ASTNodeType.RepeatLoop or
+            ASTNodeType.LambdaCall or ASTNodeType.FunctionCall or ASTNodeType.MethodCall;
+    }
+
+    private static Value PrintNode(ASTNode node)
+    {
+        node.Print();
+        return Value.Default();
     }
 
     /// <summary>
@@ -243,7 +117,7 @@ public class Interpreter
                 Name = "citrus"
             };
             programFrame.Variables["global"] = Value.CreateHashmap();
-            
+
             PushFrame(programFrame);
         }
 
@@ -267,18 +141,18 @@ public class Interpreter
     private Value Visit(StructNode node) => throw new NotImplementedException();
     private Value Visit(ExportNode node) => throw new NotImplementedException();
     private Value Visit(ImportNode node) => throw new NotImplementedException();
-    
+
     /// <summary>
     /// Handle the exit node.
     /// </summary>
     /// <param name="node">The node.</param>
-    private void Visit(ExitNode node)
+    private Value Visit(ExitNode node)
     {
-        if (node.Condition == null || BooleanFunc.IsTruthy(Interpret(node.Condition)))
+        if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
             var exitValue = Interpret(node.ExitValue);
             long exitCode;
-            
+
             if (exitValue.IsInteger())
             {
                 exitCode = exitValue.GetInteger();
@@ -290,24 +164,294 @@ public class Interpreter
 
             Environment.Exit(Convert.ToInt32(exitCode));
         }
+
+        return Value.Default();
     }
 
-    private Value Visit(ThrowNode node) => throw new NotImplementedException();
-    private Value Visit(AssignmentNode node) => throw new NotImplementedException();
-    private Value Visit(ConstAssignmentNode node) => throw new NotImplementedException();
+    private Value Visit(ThrowNode node)
+    {
+        if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
+        {
+            string errorType = "KiwiError";
+            string errorMessage = string.Empty;
+            if (node.ErrorValue != null)
+            {
+                var errorValue = Interpret(node.ErrorValue);
+
+                if (errorValue.IsHashmap())
+                {
+                    var errorHash = errorValue.GetHashmap();
+                    var errorKey = Value.CreateString("error");
+                    var messageKey = Value.CreateString("error");
+                    if (errorHash.ContainsKey(errorKey) &&
+                        errorHash[errorKey].IsString())
+                    {
+                        errorType = errorHash[errorKey].GetString();
+                    }
+                    if (errorHash.ContainsKey(messageKey) && errorHash[messageKey].IsString())
+                    {
+                        errorMessage = errorHash[messageKey].GetString();
+                    }
+                }
+                else if (errorValue.IsString())
+                {
+                    errorMessage = errorValue.GetString();
+                }
+            }
+
+            throw new KiwiError(node.Token, errorType, errorMessage);
+        }
+
+        return Value.Default();
+    }
+
+    private Value Visit(AssignmentNode node)
+    {
+        const string Global = "global";
+
+        var frame = CallStack.Peek();
+        var value = Interpret(node.Initializer);
+        var type = node.Op;
+        var name = node.Name;
+
+        if (type == TokenName.Ops_Assign)
+        {
+            if (name == Global || Context.HasConstant(name))
+            {
+                throw new IllegalNameError(node.Token, name);
+            }
+
+            if (value.IsLambda())
+            {
+                // WIP: need to work on this.
+                var lambdaId = value.GetLambda().Identifier;
+                Context.Lambdas.Add(name, Context.Lambdas[lambdaId]);
+                return value;
+            }
+            else
+            {
+                if (frame.InObjectContext() && (node.Left?.Type == ASTNodeType.Self || name[0] == '@'))
+                {
+                    var obj = frame.GetObjectContext();
+                    if (obj != null)
+                    {
+                        obj.InstanceVariables[name] = value;
+                        return obj.InstanceVariables[name];
+                    }
+                }
+
+                if (value.IsObject())
+                {
+                    var obj = value.GetObject();
+                    obj.Identifier = name;
+                }
+
+                frame.Variables[name] = value;
+            }
+        }
+        else
+        {
+            if (Context.HasConstant(name))
+            {
+                throw new IllegalNameError(node.Token, name);
+            }
+
+            if (frame.HasVariable(name))
+            {
+                var oldValue = frame.Variables[name];
+
+                if (type == TokenName.Ops_BitwiseNotAssign)
+                {
+                    frame.Variables[name] = BitwiseOp.Not(node.Token, ref oldValue);
+                }
+                else
+                {
+                    frame.Variables[name] = OpDispatch.DoBinary(node.Token, type, ref oldValue, ref value);
+                }
+
+                return frame.Variables[name];
+            }
+            else if (frame.InObjectContext())
+            {
+                var obj = frame.GetObjectContext();
+
+                if (obj == null)
+                {
+                    return Value.Default();
+                }
+
+                if (!obj.HasVariable(name))
+                {
+                    throw new VariableUndefinedError(node.Token, name);
+                }
+
+                var oldValue = obj.InstanceVariables[name];
+
+                if (type == TokenName.Ops_BitwiseNotAssign)
+                {
+                    obj.InstanceVariables[name] = BitwiseOp.Not(node.Token, ref oldValue);
+                }
+                else
+                {
+                    obj.InstanceVariables[name] = OpDispatch.DoBinary(node.Token, type, ref oldValue, ref value);
+                }
+
+                return obj.InstanceVariables[name];
+            }
+
+            throw new VariableUndefinedError(node.Token, name);
+        }
+
+        return frame.Variables[name];
+    }
+
+    private Value Visit(ConstAssignmentNode node)
+    {
+
+        var frame = CallStack.Peek();
+        var name = node.Name;
+        var value = Interpret(node.Initializer);
+
+        if (PackageStack.Count > 0)
+        {
+            Stack<string> tmpStack = PackageStack;
+            var prefix = string.Empty;
+            while (tmpStack.Count > 0)
+            {
+                prefix += tmpStack.Peek() + ".";
+                tmpStack.Pop();
+            }
+            name = prefix + name;
+        }
+
+        if (Context.HasConstant(name))
+        {
+            throw new IllegalNameError(node.Token, name);
+        }
+
+        Context.Constants.Add(name, value);
+
+        return Value.Default();
+    }
+
     private Value Visit(IndexAssignmentNode node) => throw new NotImplementedException();
-    private Value Visit(MemberAssignmentNode node) => throw new NotImplementedException();
-    private Value Visit(PackAssignmentNode node) => throw new NotImplementedException();
+    private Value Visit(MemberAssignmentNode node)
+    {
+
+        var obj = Interpret(node.Object);
+        var memberName = node.MemberName;
+        var initializer = Interpret(node.Initializer);
+
+        if (obj.IsHashmap())
+        {
+            var hash = obj.GetHashmap();
+            var memberKey = Value.CreateString(memberName);
+
+            if (node.Op == TokenName.Ops_Assign)
+            {
+                hash.Add(memberKey, initializer);
+            }
+            else if (hash.TryGetValue(memberKey, out Value? value))
+            {
+                var newValue = OpDispatch.DoBinary(node.Token, node.Op, ref value, ref initializer);
+                hash.Add(memberKey, newValue);
+            }
+            else
+            {
+                throw new HashKeyError(node.Token, memberName);
+            }
+        }
+
+        return Value.Default();
+    }
+
+    private Value Visit(PackAssignmentNode node)
+    {
+        var frame = CallStack.Peek();
+
+        List<Value> rhsValues = [];
+        foreach (var rhs in node.Right)
+        {
+            rhsValues.Add(Interpret(rhs));
+        }
+
+        var rhsPosition = 0;
+        var lhsLength = node.Left.Count;
+
+        // unpack
+        if (rhsValues.Count == 1)
+        {
+            List<Value> unpacked = [];
+            var rhsValue = rhsValues.First();
+            if (!rhsValue.IsList())
+            {
+                throw new InvalidOperationError(node.Token, "Expected a list to unpack.");
+            }
+
+            foreach (var rhs in rhsValue.GetList())
+            {
+                unpacked.Add(rhs);
+            }
+
+            rhsValues.Clear();
+            rhsValues = unpacked;
+        }
+
+        foreach (var lhs in node.Left)
+        {
+            if (lhs == null)
+            {
+                continue;
+            }
+
+            var identifierName = Id(lhs);
+            if (rhsValues.Count == lhsLength)
+            {
+                frame.Variables[identifierName] = rhsValues[rhsPosition++];
+            }
+            else
+            {
+                frame.Variables[identifierName] = Value.CreateNull();
+            }
+        }
+
+        return Value.Default();
+    }
+
     private Value Visit(MemberAccessNode node) => throw new NotImplementedException();
 
     private static Value Visit(LiteralNode node) => node.Value;
 
-    private Value Visit(RangeLiteralNode node) => throw new NotImplementedException();
+    private Value Visit(RangeLiteralNode node)
+    {
+        var startValue = Interpret(node.RangeStart);
+        var stopValue = Interpret(node.RangeEnd);
+
+        if (!startValue.IsInteger() || !stopValue.IsInteger())
+        {
+            throw new RangeError(node.Token, "Range value must be an integer.");
+        }
+
+        var start = startValue.GetInteger();
+        var stop = stopValue.GetInteger();
+        var step = (stop < start) ? -1 : 1;
+
+        List<Value> list = [];
+
+        for (var i = start; i != stop; i += step)
+        {
+            list.Add(Value.CreateInteger(i));
+        }
+
+        list.Add(Value.CreateInteger(stop));
+
+        return Value.CreateList(list);
+    }
 
     private Value Visit(ListLiteralNode node)
     {
         List<Value> list = [];
-        
+
         foreach (var element in node.Elements)
         {
             var value = Interpret(element);
@@ -320,7 +464,7 @@ public class Interpreter
     private Value Visit(HashLiteralNode node)
     {
         Dictionary<Value, Value> hash = [];
-        
+
         foreach (var pair in node.Elements)
         {
             var key = Interpret(pair.Key);
@@ -370,7 +514,7 @@ public class Interpreter
         return Value.CreateNull();
     }
 
-    private void Visit(PrintNode node)
+    private Value Visit(PrintNode node)
     {
         var value = Interpret(node.Expression);
         var serializedValue = Serializer.Serialize(value);
@@ -397,32 +541,588 @@ public class Interpreter
                 Console.Write(serializedValue);
             }
         }
+
+        return Value.Default();
     }
 
     private Value Visit(PrintXyNode node) => throw new NotImplementedException();
-    private Value Visit(TernaryOperationNode node) => throw new NotImplementedException();
-    private Value Visit(BinaryOperationNode node) => throw new NotImplementedException();
-    private Value Visit(UnaryOperationNode node) => throw new NotImplementedException();
-    private Value Visit(IfNode node) => throw new NotImplementedException();
-    private Value Visit(CaseNode node) => throw new NotImplementedException();
-    private Value Visit(ForLoopNode node) => throw new NotImplementedException();
-    private Value Visit(WhileLoopNode node) => throw new NotImplementedException();
-    private Value Visit(RepeatLoopNode node) => throw new NotImplementedException();
-    private Value Visit(BreakNode node) => throw new NotImplementedException();
-    private Value Visit(NextNode node) => throw new NotImplementedException();
-    private Value Visit(TryNode node) => throw new NotImplementedException();
+
+    private Value Visit(TernaryOperationNode node)
+    {
+        var eval = Interpret(node.EvalExpression);
+
+        if (BooleanOp.IsTruthy(eval))
+        {
+            return Interpret(node.TrueExpression);
+        }
+
+        return Interpret(node.FalseExpression);
+    }
+
+    private Value Visit(BinaryOperationNode node)
+    {
+        var left = Interpret(node.Left);
+
+        if (node.Op == TokenName.Ops_And && !BooleanOp.IsTruthy(left))
+        {
+            return Value.CreateBoolean(false);
+        }
+        else if (node.Op == TokenName.Ops_Or && BooleanOp.IsTruthy(left))
+        {
+            return Value.CreateBoolean(true);
+        }
+
+        var right = Interpret(node.Right);
+        return OpDispatch.DoBinary(node.Token, node.Op, ref left, ref right);
+    }
+
+    private Value Visit(UnaryOperationNode node)
+    {
+        var right = Interpret(node.Operand);
+        return OpDispatch.DoUnary(node.Token, node.Op, ref right);
+    }
+
+    private Value Visit(IfNode node)
+    {
+        var conditionValue = Interpret(node.Condition);
+        var frame = CallStack.Peek();
+        var result = Value.Default();
+
+        if (BooleanOp.IsTruthy(conditionValue))
+        {
+            foreach (var stmt in node.Body)
+            {
+                result = Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            bool executed = false;
+            foreach (var elsifNode in node.ElsifNodes)
+            {
+                var elsifCondition = Interpret(elsifNode?.Condition);
+
+                if (BooleanOp.IsTruthy(elsifCondition))
+                {
+                    if (elsifNode == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var stmt in elsifNode.Body)
+                    {
+                        result = Interpret(stmt);
+                        if (frame.IsFlagSet(FrameFlags.Return))
+                        {
+                            break;
+                        }
+                    }
+                    executed = true;
+                    break;
+                }
+            }
+
+            if (!executed && node.ElseBody.Count > 0)
+            {
+                foreach (var stmt in node.ElseBody)
+                {
+                    result = Interpret(stmt);
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private Value Visit(CaseNode node)
+    {
+        var testValue = Interpret(node.TestValue);
+        var result = Value.Default();
+
+        foreach (var whenNode in node.WhenNodes)
+        {
+            Value whenCondition = Interpret(whenNode);
+
+            if (ComparisonOp.Equal(ref testValue, ref whenCondition))
+            {
+                var frame = CallStack.Peek();
+                foreach (var stmt in whenNode.Body)
+                {
+                    result = Interpret(stmt);
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
+                        result = frame.ReturnValue ?? result;
+                        break;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        if (node.ElseBody.Count > 0)
+        {
+            var frame = CallStack.Peek();
+
+            foreach (var stmt in node.ElseBody)
+            {
+                result = Interpret(stmt);
+
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    return frame.ReturnValue ?? result;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private Value Visit(ForLoopNode node)
+    {
+        var dataSetValue = Interpret(node.DataSet);
+
+        if (dataSetValue.IsList())
+        {
+            return ListLoop(node, dataSetValue.GetList());
+        }
+        else if (dataSetValue.IsHashmap())
+        {
+            return HashmapLoop(node, dataSetValue.GetHashmap());
+        }
+
+        throw new InvalidOperationError(node.Token, "Expected a list value in for-loop.");
+    }
+
+    private Value Visit(WhileLoopNode node)
+    {
+        var result = Value.Default();
+        var frame = CallStack.Peek();
+        frame.SetFlag(FrameFlags.InLoop);
+
+        var fallOut = false;
+        var iterations = 0;
+
+        while (BooleanOp.IsTruthy(Interpret(node.Condition)))
+        {
+            if (Safemode)
+            {
+                ++iterations;
+
+                if (iterations == SafemodeMaxIterations)
+                {
+                    throw new InfiniteLoopError(node.Token, "Detected an infinite loop in safemode.");
+                }
+            }
+
+            foreach (var stmt in node.Body)
+            {
+                if (stmt == null)
+                {
+                    continue;
+                }
+
+                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                {
+                    result = Interpret(stmt);
+
+                    if (frame.IsFlagSet(FrameFlags.Break))
+                    {
+                        frame.ClearFlag(FrameFlags.Break);
+                        fallOut = true;
+                        break;
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Next))
+                    {
+                        frame.ClearFlag(FrameFlags.Next);
+                        break;
+                    }
+                }
+
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    fallOut = true;
+                    break;
+                }
+
+                if (stmt.Type == ASTNodeType.Next)
+                {
+                    var condition = ((NextNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        break;
+                    }
+                }
+                else if (stmt.Type == ASTNodeType.Break)
+                {
+                    var condition = ((BreakNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        fallOut = true;
+                        break;
+                    }
+                }
+            }
+
+            if (fallOut)
+            {
+                break;
+            }
+        }
+
+        frame.ClearFlag(FrameFlags.InLoop);
+
+        return result;
+    }
+
+    private Value Visit(RepeatLoopNode node)
+    {
+        var countValue = Interpret(node.Count);
+
+        if (!countValue.IsInteger())
+        {
+            throw new InvalidOperationError(node.Token, "Repeat loop count must be an integer.");
+        }
+
+        var count = countValue.GetInteger();
+        var aliasName = string.Empty;
+        var result = Value.Default();
+        var aliasValue = Value.Default();
+        bool hasAlias = false;
+
+        if (node.Alias != null)
+        {
+            aliasName = Id(node.Alias);
+            hasAlias = true;
+        }
+
+        var frame = CallStack.Peek();
+        frame.SetFlag(FrameFlags.InLoop);
+
+        var variables = frame.Variables;
+        ASTNodeType statement = ASTNodeType.NoOp;
+
+        var fallOut = false;
+        for (int i = 1; i <= count; ++i)
+        {
+            if (fallOut)
+            {
+                break;
+            }
+
+            if (hasAlias)
+            {
+                aliasValue.SetValue(i);
+                variables[aliasName] = aliasValue;
+            }
+
+            foreach (var stmt in node.Body)
+            {
+                if (stmt == null)
+                {
+                    continue;
+                }
+
+                statement = stmt.Type;
+                if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
+                {
+                    result = Interpret(stmt);
+
+                    if (frame.IsFlagSet(FrameFlags.Break))
+                    {
+                        frame.ClearFlag(FrameFlags.Break);
+                        fallOut = true;
+                        break;
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Next))
+                    {
+                        frame.ClearFlag(FrameFlags.Next);
+                        break;
+                    }
+                }
+
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    break;
+                }
+
+                if (statement == ASTNodeType.Next)
+                {
+                    var condition = ((NextNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        break;
+                    }
+                }
+                else if (statement == ASTNodeType.Break)
+                {
+                    var condition = ((BreakNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        fallOut = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (hasAlias)
+        {
+            variables.Remove(aliasName);
+        }
+
+        frame.ClearFlag(FrameFlags.InLoop);
+
+        return result;
+    }
+
+    private Value Visit(BreakNode node)
+    {
+        var condition = node.Condition;
+        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+        {
+            var frame = CallStack.Peek();
+            frame.SetFlag(FrameFlags.Break);
+        }
+
+        return Value.Default();
+    }
+
+    private Value Visit(NextNode node)
+    {
+        var condition = node.Condition;
+        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+        {
+            var frame = CallStack.Peek();
+            frame.SetFlag(FrameFlags.Next);
+        }
+
+        return Value.Default();
+    }
+
+    private Value Visit(TryNode node)
+    {
+        var returnValue = Value.Default();
+        bool requireDrop = false;
+        bool setReturnValue = false;
+
+        try
+        {
+            var tryFrame = CreateFrame("try");
+            tryFrame.SetFlag(FrameFlags.InTry);
+            requireDrop = PushFrame(tryFrame);
+
+            foreach (var stmt in node.TryBody)
+            {
+                Interpret(stmt);
+                if (tryFrame.IsFlagSet(FrameFlags.Return))
+                {
+                    returnValue = tryFrame.ReturnValue ?? returnValue;
+                    setReturnValue = true;
+                    break;
+                }
+            }
+
+            DropFrame();
+        }
+        catch (KiwiError e)
+        {
+            if (requireDrop)
+            {
+                DropFrame();
+            }
+
+            if (node.CatchBody.Count > 0)
+            {
+                var catchFrame = CreateFrame("catch");
+                requireDrop = false;
+
+                var errorTypeName = string.Empty;
+                var errorMessageName = string.Empty;
+
+                try
+                {
+                    if (node.ErrorType != null)
+                    {
+                        errorTypeName = Id(node.ErrorType);
+                        catchFrame.Variables[errorTypeName] = Value.CreateString(e.GetType().Name);
+                    }
+
+                    if (node.ErrorMessage != null)
+                    {
+                        errorMessageName = Id(node.ErrorMessage);
+                        catchFrame.Variables[errorMessageName] = Value.CreateString(e.Message);
+                    }
+
+                    requireDrop = PushFrame(catchFrame);
+
+                    foreach (var stmt in node.CatchBody)
+                    {
+                        Interpret(stmt);
+                        if (catchFrame.IsFlagSet(FrameFlags.Return))
+                        {
+                            returnValue = catchFrame.ReturnValue ?? returnValue;
+                            setReturnValue = true;
+                            break;
+                        }
+                    }
+
+                    if (node.ErrorType != null)
+                    {
+                        catchFrame.Variables.Remove(errorTypeName);
+                    }
+
+                    if (node.ErrorMessage != null)
+                    {
+                        catchFrame.Variables.Remove(errorMessageName);
+                    }
+
+                    DropFrame();
+                }
+                catch (KiwiError)
+                {
+                    if (requireDrop && InTry())
+                    {
+                        DropFrame();
+                    }
+                    throw;
+                }
+            }
+        }
+
+        if (node.FinallyBody.Count > 0)
+        {
+            var frame = CallStack.Peek();
+            foreach (var stmt in node.FinallyBody)
+            {
+                Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    returnValue = frame.ReturnValue ?? returnValue;
+                    setReturnValue = true;
+                    break;
+                }
+            }
+        }
+
+        if (setReturnValue)
+        {
+            var frame = CallStack.Peek();
+
+            if (!frame.IsFlagSet(FrameFlags.InLambda))
+            {
+                frame.SetFlag(FrameFlags.Return);
+                frame.ReturnValue = returnValue;
+            }
+        }
+
+        return returnValue;
+    }
+
     private Value Visit(LambdaNode node) => throw new NotImplementedException();
     private Value Visit(FunctionNode node) => throw new NotImplementedException();
-    private Value Visit(VariableNode node) => throw new NotImplementedException();
+    private Value Visit(VariableNode node)
+    {
+        var typeHints = node.TypeHints;
+
+        // we're going to be injecting these into the stack frame
+        var frame = CallStack.Peek();
+
+        // for each declared variable
+        foreach (var pair in node.Variables)
+        {
+            var value = Value.Default(); // a variable value
+            var name = pair.Key;  // grab the name
+                                  // a flag to determine if a variable has an initializer
+            bool hasDefaultValue = pair.Value != null;
+
+            // if there is a default value, grab it
+            if (!hasDefaultValue)
+            {
+                // default to null
+                value = Value.CreateNull();
+            }
+            else
+            {
+                value = Interpret(pair.Value);
+                
+                // if the value is a lambda, register to the lambda map
+                if (value.IsLambda())
+                {
+                    var lambdaName = value.GetLambda().Identifier;
+                    Context.AddMappedLambda(name, lambdaName);
+                }
+            }
+
+            // check for a type-hint
+            if (typeHints.TryGetValue(name, out TokenName expectedType))
+            {
+                // if a default value was supplied, expect it to match the type
+                if (hasDefaultValue && !Serializer.AssertTypematch(value, expectedType))
+                {
+                    throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for variable  `{ASTTracer.Unmangle(name)}` but received `{Serializer.GetTypenameString(value)}`.");
+                }
+                else if (!hasDefaultValue)
+                {
+                    // give it a default value based on the type-hint
+                    switch (expectedType)
+                    {
+                        case TokenName.Types_Boolean:
+                            value.SetValue(false);
+                            break;
+
+                        case TokenName.Types_Integer:
+                            value.SetValue(0);
+                            break;
+
+                        case TokenName.Types_Float:
+                            value.SetValue(0.0);
+                            break;
+
+                        case TokenName.Types_String:
+                            value.SetValue("");
+                            break;
+
+                        case TokenName.Types_List:
+                            value.SetValue(Value.CreateList());
+                            break;
+
+                        case TokenName.Types_Hash:
+                            value.SetValue(Value.CreateHashmap());
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            // inject the variable
+            frame.Variables[name] = value;
+        }
+
+        return Value.Default();
+    }
+
     private Value Visit(LambdaCallNode node) => throw new NotImplementedException();
     private Value Visit(FunctionCallNode node) => throw new NotImplementedException();
     private Value Visit(MethodCallNode node) => throw new NotImplementedException();
-    
+
     private Value Visit(ReturnNode node)
     {
         var returnValue = Value.Default();
-        
-        if (node.Condition == null || BooleanFunc.IsTruthy(Interpret(node.Condition)))
+
+        if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
             if (node.ReturnValue != null)
             {
@@ -437,13 +1137,261 @@ public class Interpreter
 
         return returnValue;
     }
-    
+
     private Value Visit(IndexingNode node) => throw new NotImplementedException();
     private Value Visit(SliceNode node) => throw new NotImplementedException();
     /*
     private Value Visit(ParseNode node) => throw new NotImplementedException();
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
     */
+
+    private void ImportPackage(Token token, Value packageName)
+    {
+        if (!packageName.IsString())
+        {
+            throw new InvalidOperationError(token, "Expected the name of a package to import.");
+        }
+
+        var packageNameValue = packageName.GetString();
+
+        if (!Context.HasPackage(packageNameValue))
+        {
+            // Check if external package.
+            if (FileUtil.IsScript(token, packageNameValue))
+            {
+                ImportExternal(token, packageNameValue);
+                return;
+            }
+
+            throw new PackageUndefinedError(token, packageNameValue);
+        }
+
+        PackageStack.Push(packageNameValue);
+        var package = Context.Packages[packageNameValue];
+        var decl = package.Decl;
+
+        foreach (var stmt in decl.Body)
+        {
+            Interpret(stmt);
+        }
+
+        PackageStack.Pop();
+    }
+
+    private void ImportExternal(Token token, string packageName)
+    {
+        var packagePath = FileUtil.TryGetExtensionless(token, packageName);
+        var content = FileUtil.ReadFile(token, packagePath);
+        if (string.IsNullOrEmpty(content))
+        {
+            return;
+        }
+
+        var path = FileUtil.GetAbsolutePath(token, packagePath);
+        Lexer lexer = new(1, path);
+
+        Parser p = new(true);
+        var tokenStream = lexer.GetTokenStream();
+        var ast = p.ParseTokenStream(tokenStream, true);
+
+        Interpret(ast);
+
+        return;
+    }
+
+    private Value ListLoop(ForLoopNode node, List<Value> list)
+    {
+        var frame = CallStack.Peek();
+        var variables = frame.Variables;
+        frame.SetFlag(FrameFlags.InLoop);
+
+        var result = Value.Default();
+        var valueIteratorName = string.Empty;
+        var indexIteratorName = string.Empty;
+        bool hasIndexIterator = false;
+
+        valueIteratorName = Id(node.ValueIterator);
+
+        if (node.IndexIterator != null)
+        {
+            indexIteratorName = Id(node.IndexIterator);
+            hasIndexIterator = true;
+        }
+
+        bool fallOut = false;
+        var iteratorValue = Value.Default();
+        var iteratorIndex = Value.Default();
+
+        for (int i = 0; i < list.Count; ++i)
+        {
+            if (fallOut)
+            {
+                break;
+            }
+
+            iteratorValue.SetValue(list[i]);
+            variables[valueIteratorName] = iteratorValue;
+
+            if (hasIndexIterator)
+            {
+                iteratorIndex.SetValue((long)i);
+                variables[indexIteratorName] = iteratorIndex;
+            }
+
+            foreach (var stmt in node.Body)
+            {
+                if (stmt == null)
+                {
+                    continue;
+                }
+
+                ASTNodeType statement = stmt.Type;
+                if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
+                {
+                    result = Interpret(stmt);
+
+                    if (frame.IsFlagSet(FrameFlags.Break))
+                    {
+                        frame.ClearFlag(FrameFlags.Break);
+                        fallOut = true;
+                        break;
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Next))
+                    {
+                        frame.ClearFlag(FrameFlags.Next);
+                        break;
+                    }
+                }
+
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    break;
+                }
+
+                if (statement == ASTNodeType.Next)
+                {
+                    var condition = ((NextNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        break;
+                    }
+                }
+                else if (statement == ASTNodeType.Break)
+                {
+                    var condition = ((BreakNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        fallOut = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        variables.Remove(valueIteratorName);
+        if (hasIndexIterator)
+        {
+            variables.Remove(indexIteratorName);
+        }
+
+        frame.ClearFlag(FrameFlags.InLoop);
+
+        return result;
+    }
+
+    private Value HashmapLoop(ForLoopNode node, Dictionary<Value, Value> hash)
+    {
+        var frame = CallStack.Peek();
+        frame.SetFlag(FrameFlags.InLoop);
+        var indexIteratorName = string.Empty;
+        bool hasIndexIterator = false;
+
+        string? valueIteratorName = Id(node.ValueIterator);
+
+        if (node.IndexIterator != null)
+        {
+            indexIteratorName = Id(node.IndexIterator);
+            hasIndexIterator = true;
+        }
+
+        bool fallOut = false;
+        var result = Value.Default();
+
+        foreach (var key in hash.Keys)
+        {
+            if (fallOut)
+            {
+                break;
+            }
+
+            frame.Variables[valueIteratorName] = key;
+
+            if (hasIndexIterator)
+            {
+                frame.Variables[indexIteratorName] = hash[key];
+            }
+
+            foreach (var stmt in node.Body)
+            {
+                if (stmt == null)
+                {
+                    continue;
+                }
+
+                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                {
+                    result = Interpret(stmt);
+
+                    if (frame.IsFlagSet(FrameFlags.Break))
+                    {
+                        frame.ClearFlag(FrameFlags.Break);
+                        fallOut = true;
+                        break;
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Next))
+                    {
+                        frame.ClearFlag(FrameFlags.Next);
+                        break;
+                    }
+                }
+
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    break;
+                }
+
+                if (stmt.Type == ASTNodeType.Next)
+                {
+                    var condition = ((NextNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        break;
+                    }
+                }
+                else if (stmt.Type == ASTNodeType.Break)
+                {
+                    var condition = ((BreakNode)stmt).Condition;
+                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    {
+                        fallOut = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        frame.Variables.Remove(valueIteratorName);
+        if (hasIndexIterator)
+        {
+            frame.Variables.Remove(indexIteratorName);
+        }
+
+        frame.ClearFlag(FrameFlags.InLoop);
+
+        return result;
+    }
 
     private bool PushFrame(StackFrame frame)
     {
@@ -531,9 +1479,11 @@ public class Interpreter
         }
     }
 
-    private bool ShouldUpdateFrameVariables(string varName, StackFrame nextFrame) => nextFrame.HasVariable(varName);
+    private static string Id(ASTNode node) => ((IdentifierNode)node).Name;
 
-    private void UpdateVariablesInCallerFrame(Dictionary<string, Value> variables, StackFrame callerFrame)
+    private static bool ShouldUpdateFrameVariables(string varName, StackFrame nextFrame) => nextFrame.HasVariable(varName);
+
+    private static void UpdateVariablesInCallerFrame(Dictionary<string, Value> variables, StackFrame callerFrame)
     {
         var frameVariables = callerFrame.Variables;
         foreach (var v in variables)

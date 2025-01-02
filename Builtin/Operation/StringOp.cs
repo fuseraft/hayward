@@ -1,9 +1,8 @@
-using citrus.Parsing;
 using citrus.Typing;
 
 namespace citrus.Builtin;
 
-public struct StringFunc
+public struct StringOp
 {
     public static string StringMul(ref Value left, ref Value right)
     {

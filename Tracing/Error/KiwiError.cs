@@ -8,15 +8,13 @@ public class KiwiError : Exception
     {
     }
 
-    public KiwiError(Token token, string? message) : base(message)
+    public KiwiError(Token token, string type, string? message) : base(message)
     {
         Token = token;
-    }
-
-    public KiwiError(Token token, string? message, Exception? innerException) : base(message, innerException)
-    {
-        Token = token;
+        Type = type;
     }
 
     public Token Token { get; set; }
+
+    public string Type { get; set; } = "KiwiError";
 }
