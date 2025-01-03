@@ -151,17 +151,7 @@ public class Interpreter
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
             var exitValue = Interpret(node.ExitValue);
-            long exitCode;
-
-            if (exitValue.IsInteger())
-            {
-                exitCode = exitValue.GetInteger();
-            }
-            else
-            {
-                exitCode = 1L;
-            }
-
+            long exitCode = exitValue.IsInteger() ? exitValue.GetInteger() : 1L;
             Environment.Exit(Convert.ToInt32(exitCode));
         }
 
