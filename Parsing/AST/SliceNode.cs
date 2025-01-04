@@ -1,21 +1,11 @@
 namespace citrus.Parsing.AST;
 
-public class SliceNode : ASTNode
+public class SliceNode(ASTNode? slicedObject = null, ASTNode? startExpression = null, ASTNode? stopExpression = null, ASTNode? stepExpression = null) : ASTNode(ASTNodeType.Slice)
 {
-    public SliceNode() : base(ASTNodeType.Slice) { }
-    public SliceNode(ASTNode? slicedObject, ASTNode? startExpression = null, ASTNode? stopExpression = null, ASTNode? stepExpression = null)
-      : base(ASTNodeType.Slice)
-    {
-        SlicedObject = slicedObject;
-        StartExpression = startExpression;
-        StopExpression = stopExpression;
-        StepExpression = stepExpression;
-    }
-
-    public ASTNode? SlicedObject { get; }
-    public ASTNode? StartExpression { get; }
-    public ASTNode? StopExpression { get; }
-    public ASTNode? StepExpression { get; }
+    public ASTNode? SlicedObject { get; } = slicedObject;
+    public ASTNode? StartExpression { get; } = startExpression;
+    public ASTNode? StopExpression { get; } = stopExpression;
+    public ASTNode? StepExpression { get; } = stepExpression;
 
     public override void Print(int depth)
     {

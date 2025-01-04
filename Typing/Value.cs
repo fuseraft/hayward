@@ -26,11 +26,11 @@ public class StructRef
 
 public class NullRef { }
 
-public class SliceIndex
+public class SliceIndex(Value indexOrStart, Value stopIndex, Value stepValue)
 {
-    public Value? IndexOrStart { get; set; }
-    public Value? StopIndex { get; set; }
-    public Value? StepValue { get; set; }
+    public Value IndexOrStart { get; set; } = indexOrStart;
+    public Value StopIndex { get; set; } = stopIndex;
+    public Value StepValue { get; set; } = stepValue;
     public bool IsSlice { get; set; }
 };
 

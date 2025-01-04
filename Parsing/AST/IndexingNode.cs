@@ -1,23 +1,9 @@
 namespace citrus.Parsing.AST;
 
-public class IndexingNode : ASTNode
+public class IndexingNode(ASTNode? indexedObject, ASTNode indexExpression) : ASTNode(ASTNodeType.Index)
 {
-    public IndexingNode() : base(ASTNodeType.Index) { }
-    public IndexingNode(string? name, ASTNode? indexExpression)
-        : base(ASTNodeType.Index)
-    {
-        this.Name = name;
-        this.IndexExpression = indexExpression;
-    }
-    public IndexingNode(ASTNode? indexedObject, ASTNode? indexExpression)
-        : base(ASTNodeType.Index)
-    {
-        this.IndexedObject = indexedObject;
-        this.IndexExpression = indexExpression;
-    }
-
-    public ASTNode? IndexedObject { get; }
-    public ASTNode? IndexExpression { get; }
+    public ASTNode? IndexedObject { get; } = indexedObject;
+    public ASTNode IndexExpression { get; } = indexExpression;
     public string? Name { get; }
 
     public override void Print(int depth)
@@ -39,5 +25,5 @@ public class IndexingNode : ASTNode
         IndexExpression?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new IndexingNode(IndexedObject?.Clone(), IndexExpression?.Clone());
+    public override ASTNode Clone() => new IndexingNode(IndexedObject?.Clone(), IndexExpression.Clone());
 }

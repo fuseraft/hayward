@@ -13,7 +13,7 @@ namespace citrus.Runtime;
 
 public class Interpreter
 {
-    const int SafemodeMaxIterations = 1000000;
+    int SafemodeMaxIterations = 1000000;
 
     public bool Safemode { get; set; } = false;
     public KContext Context { get; private set; } = new();
@@ -141,11 +141,104 @@ public class Interpreter
         return Value.CreateInteger(0L);
     }
 
-    private Value Visit(SelfNode node) => throw new NotImplementedException();
-    private Value Visit(PackageNode node) => throw new NotImplementedException();
-    private Value Visit(StructNode node) => throw new NotImplementedException();
-    private Value Visit(ExportNode node) => throw new NotImplementedException();
-    private Value Visit(ImportNode node) => throw new NotImplementedException();
+    private Value Visit(SelfNode node)
+    {
+        var frame = CallStack.Peek();
+
+        if (!frame.InObjectContext())
+        {
+            throw new InvalidContextError(node.Token);
+        }
+
+        var obj = frame.GetObjectContext() ?? throw new NullObjectError(node.Token);
+
+        if (!string.IsNullOrEmpty(node.Name))
+        {
+            var name = node.Name;
+
+            if (!obj.HasVariable(name))
+            {
+                obj.InstanceVariables[name] = Value.Default();
+            }
+
+            return obj.InstanceVariables[name];
+        }
+
+        return Value.CreateObject(obj);
+    }
+
+    private Value Visit(StructNode node)
+    {
+        var structName = node.Name;
+        KStruct struc = new()
+        {
+            Name = structName
+        };
+
+        if (!string.IsNullOrEmpty(node.BaseStruct))
+        {
+            struc.BaseStruct = node.BaseStruct;
+
+            if (!Context.HasStruct(struc.BaseStruct))
+            {
+                throw new StructUndefinedError(node.Token, struc.BaseStruct);
+            }
+        }
+
+        StructStack.Push(structName);
+
+        foreach (var method in node.Methods)
+        {
+            if (method == null)
+            {
+                continue;
+            }
+
+            var funcDecl = (FunctionNode)method;
+            var methodName = funcDecl.Name;
+
+            Visit(funcDecl);
+
+            if (methodName == "new")
+            {
+                struc.Methods["new"] = Context.Methods[methodName];
+            }
+            else
+            {
+                struc.Methods[methodName] = Context.Methods[methodName];
+            }
+        }
+
+        Context.Structs[structName] = struc;
+        StructStack.Pop();
+        Context.Methods.Clear();
+
+        return Value.Default();
+    }
+
+    private Value Visit(PackageNode node)
+    {
+        var packageName = Id(node.PackageName ?? throw new PackageUndefinedError(node.Token, string.Empty));
+        Context.Packages[packageName] = new KPackage(node.Clone());
+
+        return Value.Default();
+    }
+
+    private Value Visit(ExportNode node)
+    {
+        var packageName = Interpret(node.PackageName);
+        ImportPackage(node.Token, packageName);
+
+        return Value.Default();
+    }
+
+    private Value Visit(ImportNode node)
+    {
+        var packageName = Interpret(node.PackageName);
+        ImportPackage(node.Token, packageName);
+
+        return Value.Default();
+    }
 
     /// <summary>
     /// Handle the exit node.
@@ -165,12 +258,13 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
-        const string DefaultErrorType = "KiwiError";
+        string DefaultErrorType = "KiwiError";
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
             string errorType = DefaultErrorType;
             string errorMessage = string.Empty;
+            
             if (node.ErrorValue != null)
             {
                 var errorValue = Interpret(node.ErrorValue);
@@ -181,13 +275,13 @@ public class Interpreter
                     var errorKey = Value.CreateString("error");
                     var messageKey = Value.CreateString("message");
 
-                    if (errorHash.ContainsKey(errorKey) && errorHash[errorKey].IsString())
+                    if (errorHash.TryGetValue(errorKey, out Value? errorTypeValue) && errorTypeValue.IsString())
                     {
-                        errorType = errorHash[errorKey].GetString();
+                        errorType = errorTypeValue.GetString();
                     }
-                    if (errorHash.ContainsKey(messageKey) && errorHash[messageKey].IsString())
+                    if (errorHash.TryGetValue(messageKey, out Value? messageValue) && messageValue.IsString())
                     {
-                        errorMessage = errorHash[messageKey].GetString();
+                        errorMessage = messageValue.GetString();
                     }
                 }
                 else if (errorValue.IsString())
@@ -204,7 +298,7 @@ public class Interpreter
 
     private Value Visit(AssignmentNode node)
     {
-        const string Global = "global";
+        string Global = "global";
 
         var frame = CallStack.Peek();
         var value = Interpret(node.Initializer);
@@ -331,7 +425,139 @@ public class Interpreter
         return Value.Default();
     }
 
-    private Value Visit(IndexAssignmentNode node) => throw new NotImplementedException();
+    private Value Visit(IndexAssignmentNode node)
+    {
+        var frame = CallStack.Peek();
+        var op = node.Op;
+        var newValue = Interpret(node.Initializer);
+
+        if (node.Object != null && node.Object.Type == ASTNodeType.Slice)
+        {
+            var sliceExpr = (SliceNode)node.Object;
+
+            if (sliceExpr.SlicedObject != null && sliceExpr.SlicedObject.Type == ASTNodeType.Identifier)
+            {
+                var identifierName = Id(sliceExpr.SlicedObject);
+                var slicedObj = Value.Default();
+                var objContext = frame.GetObjectContext();
+
+                // This is an instance variable.
+                if (frame.InObjectContext() && !string.IsNullOrEmpty(identifierName) && identifierName[0] == '@' && objContext != null && objContext.HasVariable(identifierName))
+                {
+                    slicedObj = objContext.InstanceVariables[identifierName];
+                }
+                else if (frame.HasVariable(identifierName))
+                {
+                    slicedObj = frame.Variables[identifierName];
+                }
+                else
+                {
+                    throw new VariableUndefinedError(node.Token, identifierName);
+                }
+
+                var slice = GetSlice(sliceExpr, slicedObj);
+
+                DoSliceAssignment(node.Token, ref slicedObj, slice, ref newValue);
+                frame.Variables[identifierName] = slicedObj;
+            }
+        }
+        else if (node.Object != null && node.Object.Type == ASTNodeType.Index)
+        {
+            var indexExpr = (IndexingNode)node.Object;
+
+            if (indexExpr.IndexedObject == null)
+            {
+                throw new IndexError(indexExpr.Token, "Invalid indexing expression.");
+            }
+
+            if (indexExpr.IndexedObject.Type == ASTNodeType.Identifier)
+            {
+                var identifierName = Id(indexExpr.IndexedObject);
+                var indexedObj = Value.Default();
+                var objContext = frame.GetObjectContext();
+
+                // This is an instance variable.
+                if (frame.InObjectContext() && !string.IsNullOrEmpty(identifierName) && identifierName[0] == '@' && objContext != null && objContext.HasVariable(identifierName))
+                {
+                    indexedObj = objContext.InstanceVariables[identifierName];
+                }
+                else if (frame.HasVariable(identifierName))
+                {
+                    indexedObj = frame.Variables[identifierName];
+                }
+                else
+                {
+                    throw new VariableUndefinedError(node.Token, identifierName);
+                }
+
+                var index = Interpret(indexExpr.IndexExpression);
+
+                if (indexedObj.IsList() && index.IsInteger())
+                {
+                    var listObj = indexedObj.GetList();
+                    var indexValue = (int)ConversionOp.GetInteger(node.Token, index);
+
+                    if (indexValue < 0 || indexValue >= listObj.Count)
+                    {
+                        throw new IndexError(node.Token, "The index was outside the bounds of the list.");
+                    }
+
+                    // Handle nested indexing
+                    if (indexExpr.IndexExpression.Type == ASTNodeType.Index)
+                    {
+                        listObj[indexValue] = HandleNestedIndexing(indexExpr, listObj[indexValue], op, newValue);
+                    }
+                    else
+                    {
+                        if (op == TokenName.Ops_Assign)
+                        {
+                            listObj[indexValue] = newValue;
+                        }
+                        else
+                        {
+                            var oldValue = listObj[indexValue];
+                            listObj[indexValue] = OpDispatch.DoBinary(node.Token, op, ref oldValue, ref newValue);
+                        }
+                    }
+
+                    frame.Variables[identifierName] = Value.CreateList(listObj);
+                }
+                else if (indexedObj.IsHashmap())
+                {
+                    var hashObj = indexedObj.GetHashmap();
+
+                    if (op == TokenName.Ops_Assign)
+                    {
+                        hashObj[index] = newValue;
+                    }
+                    else
+                    {
+                        if (!hashObj.TryGetValue(index, out Value? oldValue))
+                        {
+                            throw new HashKeyError(node.Token, Serializer.Serialize(index));
+                        }
+
+                        hashObj[index] = OpDispatch.DoBinary(node.Token, op, ref oldValue, ref newValue);
+                    }
+                }
+            }
+            else if (indexExpr.IndexedObject.Type == ASTNodeType.Index)
+            {
+                var indexedObj = (IndexingNode)indexExpr.IndexedObject;
+
+                if (indexedObj.IndexedObject == null || indexedObj.IndexedObject.Type != ASTNodeType.Identifier)
+                {
+                    throw new IndexError(indexExpr.Token, "Invalid nested indexing expression.");
+                }
+
+                var baseObj = Interpret(indexExpr.IndexedObject);
+                _ = HandleNestedIndexing(indexExpr, baseObj, op, newValue);
+            }
+        }
+
+        return Value.Default();
+    }
+
     private Value Visit(MemberAssignmentNode node)
     {
 
@@ -415,7 +641,26 @@ public class Interpreter
         return Value.Default();
     }
 
-    private Value Visit(MemberAccessNode node) => throw new NotImplementedException();
+    private Value Visit(MemberAccessNode node)
+    {
+        var obj = Interpret(node.Object);
+        var memberName = node.MemberName;
+
+        if (obj.IsHashmap())
+        {
+            var hash = obj.GetHashmap();
+            var memberKey = Value.CreateString(memberName);
+
+            if (!hash.TryGetValue(memberKey, out Value? memberValue))
+            {
+                throw new HashKeyError(node.Token, memberName);
+            }
+
+            return memberValue;
+        }
+
+        return Value.Default();
+    }
 
     private static Value Visit(LiteralNode node) => node.Value;
 
@@ -1026,8 +1271,67 @@ public class Interpreter
         return returnValue;
     }
 
-    private Value Visit(LambdaNode node) => throw new NotImplementedException();
-    private Value Visit(FunctionNode node) => throw new NotImplementedException();
+    private Value Visit(LambdaNode node)
+    {
+        List<KeyValuePair<string, Value>> parameters = [];
+        HashSet<string> defaultParameters = [];
+        var tmpId = GetTemporaryId();
+
+        foreach (var pair in node.Parameters)
+        {
+            var paramName = pair.Key;
+            var paramValue = Value.Default();
+
+            if (pair.Value != null)
+            {
+                paramValue = Interpret(pair.Value);
+                defaultParameters.Add(paramName);
+            }
+
+            parameters.Add(new(paramName, paramValue));
+        }
+
+        Context.Lambdas[tmpId] = new(node.Clone())
+        {
+            Parameters = parameters,
+            DefaultParameters = defaultParameters,
+            TypeHints = node.TypeHints,
+            ReturnTypeHint = node.ReturnTypeHint
+        };
+
+        Context.AddMappedLambda(tmpId, tmpId);
+
+        return Value.CreateLambda(new LambdaRef { Identifier = tmpId });
+    }
+
+    private Value Visit(FunctionNode node)
+    {
+        var name = node.Name;
+
+        if (PackageStack.Count > 0)
+        {
+            Stack<string> tmpStack = new(PackageStack);
+            var prefix = string.Empty;
+            while (tmpStack.Count > 0)
+            {
+                prefix += tmpStack.Peek() + "::";
+                tmpStack.Pop();
+            }
+            name = prefix + name;
+        }
+
+        if (StructStack.Count > 0)
+        {
+            Context.Methods[name] = CreateFunction(node, name);
+        }
+        else
+        {
+            Context.Functions[name] = CreateFunction(node, name);
+        }
+
+        return Value.Default();
+    }
+
     private Value Visit(VariableNode node)
     {
         var typeHints = node.TypeHints;
@@ -1111,7 +1415,29 @@ public class Interpreter
         return Value.Default();
     }
 
-    private Value Visit(LambdaCallNode node) => throw new NotImplementedException();
+    private Value Visit(LambdaCallNode node)
+    {
+        var nodeValue = Interpret(node.LambdaNode);
+        var lambdaName = nodeValue.GetLambda().Identifier;
+        var result = Value.Default();
+        bool requireDrop = false;
+
+        try
+        {
+            result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
+            DropFrame();
+        }
+        catch (KiwiError)
+        {
+            if (requireDrop && InTry())
+            {
+                DropFrame();
+            }
+            throw;
+        }
+
+        return result;
+    }
 
     private Value Visit(FunctionCallNode node)
     {
@@ -1159,7 +1485,29 @@ public class Interpreter
         return result;
     }
 
-    private Value Visit(MethodCallNode node) => throw new NotImplementedException();
+    private Value Visit(MethodCallNode node)
+    {
+        var obj = Interpret(node.Object);
+
+        if (obj.IsObject())
+        {
+            return CallObjectMethod(node, obj.GetObject());
+        }
+        else if (obj.IsStruct())
+        {
+            return CallStructMethod(node, obj.GetStruct());
+        }/*
+        else if (ListBuiltins.Is_builtin(node.Op))
+        {
+            return InterpretListBuiltin(node.Token, obj, node.Op, GetMethodCallArguments(node.Arguments));
+        }
+        else if (KiwiBuiltins.Is_builtin(node.Op))
+        {
+            return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
+        }*/
+
+        throw new FunctionUndefinedError(node.Token, node.MethodName);
+    }
 
     private Value Visit(ReturnNode node)
     {
@@ -1182,11 +1530,264 @@ public class Interpreter
     }
 
     private Value Visit(IndexingNode node) => throw new NotImplementedException();
-    private Value Visit(SliceNode node) => throw new NotImplementedException();
+
+    private Value Visit(SliceNode node)
+    {
+        var obj = Interpret(node.SlicedObject);
+        var slice = GetSlice(node, obj);
+
+        if (obj.IsString())
+        {
+            return SliceUtil.StringSlice(node.Token, slice, obj.GetString());
+        }
+        else if (obj.IsList())
+        {
+            return SliceUtil.ListSlice(node.Token, slice, obj.GetList());
+        }
+
+        throw new InvalidOperationError(node.Token, $"Non-sliceable type: `{Serializer.GetTypenameString(obj)}`");
+    }
+
     /*
     private Value Visit(ParseNode node) => throw new NotImplementedException();
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
     */
+
+    private KFunction CreateFunction(FunctionNode node, string name)
+    {
+        List<KeyValuePair<string, Value>> parameters = [];
+        HashSet<string> defaultParameters = [];
+        var typeHints = node.TypeHints;
+        var paramCount = 0;
+
+        foreach (var pair in node.Parameters)
+        {
+            var paramValue = Value.Default();
+            var paramName = pair.Key;
+            ++paramCount;
+
+            if (pair.Value != null)
+            {
+                paramValue = Interpret(pair.Value);
+
+                if (typeHints.TryGetValue(paramName, out TokenName expectedType))
+                {
+                    if (!Serializer.AssertTypematch(paramValue, expectedType))
+                    {
+                        throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {paramCount} of `{name}` but received `{Serializer.GetTypenameString(paramValue)}`.");
+                    }
+                }
+
+                defaultParameters.Add(paramName);
+            }
+
+            parameters.Add(new(paramName, paramValue));
+        }
+
+        return new(node.Clone())
+        {
+            Name = name,
+            Parameters = parameters,
+            DefaultParameters = defaultParameters,
+            IsPrivate = node.IsPrivate,
+            IsStatic = node.IsStatic,
+            TypeHints = node.TypeHints,
+            ReturnTypeHint = node.ReturnTypeHint
+        };
+    }
+
+    public static Value DoSliceAssignment(Token token, ref Value slicedObj, SliceIndex slice, ref Value newValue)
+    {
+        if (slicedObj.IsList() && newValue.IsList())
+        {
+            var targetList = slicedObj.GetList();
+            var rhsValues = newValue.GetList();
+            SliceUtil.UpdateListSlice(token, false, ref targetList, slice, rhsValues);
+
+            return Value.CreateList(targetList);
+        }
+
+        return slicedObj;
+    }
+
+    private Value HandleNestedIndexing(IndexingNode indexExpr, Value baseObj, TokenName op, Value newValue)
+    {
+        if (indexExpr.IndexExpression == null)
+        {
+            throw new IndexError(indexExpr.Token, "Invalid index expression.");
+        }
+
+        if (indexExpr.IndexExpression.Type == ASTNodeType.Index)
+        {
+            var nestedIndexExpr = (IndexingNode)indexExpr.IndexExpression;
+            var nestedIndex = Interpret(nestedIndexExpr.IndexExpression);
+
+            if (!baseObj.IsList() || !nestedIndex.IsInteger())
+            {
+                throw new IndexError(indexExpr.Token, "Nested index does not target a list.");
+            }
+
+            var listObj = baseObj.GetList();
+            var indexValue = (int)ConversionOp.GetInteger(indexExpr.Token, nestedIndex);
+
+            if (indexValue < 0 || indexValue >= listObj.Count)
+            {
+                throw new IndexError(indexExpr.Token, "The index was outside the bounds of the list.");
+            }
+
+            if (nestedIndexExpr.IndexExpression != null && nestedIndexExpr.IndexExpression.Type == ASTNodeType.Index)
+            {
+                listObj[indexValue] = HandleNestedIndexing(nestedIndexExpr, listObj[indexValue], op, newValue);
+            }
+            else if (op == TokenName.Ops_Assign)
+            {
+                listObj[indexValue] = newValue;
+            }
+            else
+            {
+                var oldValue = listObj[indexValue];
+                listObj[indexValue] = OpDispatch.DoBinary(indexExpr.Token, op, ref oldValue, ref newValue);
+            }
+
+            return Value.CreateList(listObj);
+        }
+        else if (indexExpr.IndexExpression.Type == ASTNodeType.Identifier && baseObj.IsHashmap())
+        {
+            var key = Id(indexExpr.IndexExpression);
+            var keyString = Value.CreateString(key);
+            var hashObj = baseObj.GetHashmap();
+
+            if (!hashObj.TryGetValue(keyString, out Value? nestedValue))
+            {
+                throw new HashKeyError(indexExpr.Token, key);
+            }
+
+            if (op == TokenName.Ops_Assign)
+            {
+                hashObj[keyString] = newValue;
+            }
+            else
+            {
+                var oldValue = hashObj[keyString];
+                hashObj[keyString] = OpDispatch.DoBinary(indexExpr.Token, op, ref oldValue, ref newValue);
+            }
+
+            return Value.CreateHashmap(hashObj);
+        }
+        else if (indexExpr.IndexExpression.Type == ASTNodeType.Identifier && baseObj.IsList())
+        {
+            var identifier = Interpret(indexExpr.IndexExpression);
+            var list = baseObj.GetList();
+            var listIndex = (int)ConversionOp.GetInteger(indexExpr.Token, identifier);
+
+            if (listIndex < 0 || listIndex >= list.Count)
+            {
+                throw new IndexError(indexExpr.Token, "The index was outside the bounds of the list.");
+            }
+
+            if (op == TokenName.Ops_Assign)
+            {
+                list[listIndex] = newValue;
+            }
+            else
+            {
+                var oldValue = list[listIndex];
+                list[listIndex] = OpDispatch.DoBinary(indexExpr.Token, op, ref oldValue, ref newValue);
+            }
+
+            return Value.CreateList(list);
+
+        }
+        else if (indexExpr.IndexExpression.Type == ASTNodeType.Literal)
+        {
+            var literal = Interpret(indexExpr.IndexExpression);
+
+            if (baseObj.IsList() && literal.IsInteger())
+            {
+                var list = baseObj.GetList();
+                var listIndex = (int)ConversionOp.GetInteger(indexExpr.Token, literal);
+
+                if (listIndex < 0 || listIndex >= list.Count)
+                {
+                    throw new IndexError(indexExpr.Token, "The index was outside the bounds of the list.");
+                }
+
+                if (op == TokenName.Ops_Assign)
+                {
+                    list[listIndex] = newValue;
+                }
+                else
+                {
+                    var oldValue = list[listIndex];
+                    list[listIndex] = OpDispatch.DoBinary(indexExpr.Token, op, ref oldValue, ref newValue);
+                }
+
+                return Value.CreateList(list);
+            }
+            else if (baseObj.IsHashmap())
+            {
+                var hash = baseObj.GetHashmap();
+
+                if (op == TokenName.Ops_Assign)
+                {
+                    hash[literal] = newValue;
+                }
+                else
+                {
+                    var oldValue = hash[literal];
+                    hash[literal] = OpDispatch.DoBinary(indexExpr.Token, op, ref oldValue, ref newValue);
+                }
+
+                return Value.CreateHashmap(hash);
+            }
+        }
+
+        throw new IndexError(indexExpr.Token, "Invalid index expression.");
+    }
+
+    private SliceIndex GetSlice(SliceNode node, Value obj)
+    {
+        var isSlice = true;
+        var indexOrStart = Value.Default();
+        var stopIndex = Value.Default();
+        var stepValue = Value.Default();
+
+        if (obj.IsList())
+        {
+            stopIndex.SetValue(obj.GetList().Count);
+        }
+        else if (obj.IsString())
+        {
+            stopIndex.SetValue(obj.GetString().Length);
+        }
+
+        stepValue.SetValue(1);
+
+        if (node.StartExpression != null)
+        {
+            indexOrStart.SetValue(Interpret(node.StartExpression));
+        }
+
+        if (node.StopExpression != null)
+        {
+            stopIndex.SetValue(Interpret(node.StopExpression));
+        }
+
+        if (node.StepExpression != null)
+        {
+            stepValue.SetValue(Interpret(node.StepExpression));
+        }
+
+        return new(indexOrStart, stopIndex, stepValue)
+        {
+            IsSlice = isSlice
+        };
+    }
+
+    private static string GetTemporaryId()
+    {
+        return "tmp_" + RNGUtil.Generate(8);
+    }
 
     private CallableType GetCallable(Token token, string name)
     {
@@ -1198,7 +1799,7 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        /*else if (KiwiBuiltins.is_builtin_method(name))
+        /*else if (KiwiBuiltins.Is_builtin_method(name))
         {
             return CallableType.Builtin;
         }*/
@@ -1212,13 +1813,7 @@ public class Interpreter
 
         if (frame.InObjectContext())
         {
-            var obj = frame.GetObjectContext();
-
-            if (obj == null)
-            {
-                throw new NullObjectError(token);
-            }
-
+            var obj = frame.GetObjectContext() ?? throw new NullObjectError(token);
             var struc = Context.Structs[obj.StructName];
             var strucMethods = struc.Methods;
 
@@ -1245,44 +1840,151 @@ public class Interpreter
         throw new FunctionUndefinedError(token, name);
     }
 
+    private List<Value> GetMethodCallArguments(List<ASTNode?> args)
+    {
+        List<Value> arguments = [];
+
+        foreach (var arg in args)
+        {
+            arguments.Add(Interpret(arg));
+        }
+
+        return arguments;
+    }
+
+    private Value CallObjectMethod(MethodCallNode node, InstanceRef obj)
+    {
+        var struc = Context.Structs[obj.StructName];
+        var methodName = node.MethodName;
+
+        if (!struc.Methods.TryGetValue(methodName, out KFunction? function))
+        {
+            var baseStruct = struc.BaseStruct;
+
+            if (string.IsNullOrEmpty(baseStruct))
+            {
+                throw new UnimplementedMethodError(node.Token, obj.StructName, methodName);
+            }
+
+            if (!Context.HasStruct(baseStruct))
+            {
+                throw new StructUndefinedError(node.Token, baseStruct);
+            }
+
+            return CallObjectBaseMethod(node, obj, baseStruct, methodName);
+        }
+
+        bool isCtor = methodName == "new";
+
+        var frame = CallStack.Peek();
+        var oldObjContext = frame.GetObjectContext();
+        bool contextSwitch = false;
+
+        if (frame.InObjectContext())
+        {
+            contextSwitch = true;
+        }
+
+        frame.SetObjectContext(obj);
+
+        if (function == null)
+        {
+            throw new UnimplementedMethodError(node.Token, obj.StructName, methodName);
+        }
+
+        if (function.IsPrivate)
+        {
+            throw new InvalidContextError(node.Token, "Cannot invoke private method outside of struct.");
+        }
+
+        var result = CallFunction(function, node.Arguments, node.Token, methodName);
+
+        if (contextSwitch)
+        {
+            frame.SetObjectContext(oldObjContext);
+        }
+        else
+        {
+            frame.ClearFlag(FrameFlags.InObject);
+        }
+
+        if (isCtor)
+        {
+            return Value.CreateObject(obj);
+        }
+
+        return result;
+    }
+
+    private Value CallStructMethod(MethodCallNode node, StructRef struc)
+    {
+        var methodName = node.MethodName;
+        var frame = CallStack.Peek();
+        var kstruct = Context.Structs[struc.Identifier];
+        var methods = kstruct.Methods;
+
+        // check base
+        if (!methods.ContainsKey(methodName))
+        {
+            if (string.IsNullOrEmpty(kstruct.BaseStruct))
+            {
+                throw new UnimplementedMethodError(node.Token, struc.Identifier,
+                                               methodName);
+            }
+
+            var baseStruct = Context.Structs[kstruct.BaseStruct];
+            var baseStructMethods = baseStruct.Methods;
+
+            if (!baseStructMethods.ContainsKey(methodName))
+            {
+                throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
+            }
+
+            return ExecuteStructMethod(baseStructMethods, methodName, frame, node,
+                                       struc);
+        }
+
+        return ExecuteStructMethod(methods, methodName, frame, node, struc);
+    }
+
     private Value CallBuiltin(FunctionCallNode node)
     {
-        return Value.Default();
-        /*
         var args = GetMethodCallArguments(node.Arguments);
         var op = node.Op;
 
-        if (SerializerBuiltins.is_builtin(op))
+        /*
+        if (SerializerBuiltins.Is_builtin(op))
         {
             return InterpretSerializerBuiltin(node.Token, op, args);
         }
-        else if (ReflectorBuiltins.is_builtin(op))
+        else if (ReflectorBuiltins.Is_builtin(op))
         {
             return InterpretReflectorBuiltin(node.Token, op, args);
         }
-        else if (WebServerBuiltins.is_builtin(op))
+        else if (WebServerBuiltins.Is_builtin(op))
         {
             return InterpretWebServerBuiltin(node.Token, op, args);
         }
-        else if (SignalBuiltins.is_builtin(op))
+        else if (SignalBuiltins.Is_builtin(op))
         {
             return InterpretSignalBuiltin(node.Token, op, args);
         }
-        else if (FFIBuiltins.is_builtin(op))
+        else if (FFIBuiltins.Is_builtin(op))
         {
             return BuiltinDispatch.Execute(ffimgr, node.Token, op, args);
         }
-        else if (SocketBuiltins.is_builtin(op))
+        else if (SocketBuiltins.Is_builtin(op))
         {
             return BuiltinDispatch.Execute(sockmgr, node.Token, op, args);
         }
-        else if (TaskBuiltins.is_builtin(op))
+        else if (TaskBuiltins.Is_builtin(op))
         {
             return BuiltinDispatch.Execute(taskmgr, node.Token, op, args);
         }
 
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
         */
+        return Value.Default();
     }
 
     private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
@@ -1303,6 +2005,7 @@ public class Interpreter
         foreach (var stmt in decl)
         {
             result = Interpret(stmt);
+
             if (functionFrame.IsFlagSet(FrameFlags.Return))
             {
                 result = functionFrame.ReturnValue ?? result;
@@ -1318,7 +2021,7 @@ public class Interpreter
         return result;
     }
 
-    private Value CallFunction(KFunction function, List<ASTNode> args, Token token, string functionName)
+    private Value CallFunction(KFunction function, List<ASTNode?> args, Token token, string functionName)
     {
         var defaultParameters = function.DefaultParameters;
         var functionFrame = CreateFrame(functionName);
@@ -1334,10 +2037,10 @@ public class Interpreter
             {
                 var param = function.Parameters[i];
                 var argValue = Value.Default();
+
                 if (i < args.Count)
                 {
-                    var arg = args[i];
-                    argValue = Interpret(arg);
+                    argValue = Interpret(args[i]);
                 }
                 else if (defaultParameters.Contains(param.Key))
                 {
@@ -1352,8 +2055,8 @@ public class Interpreter
             }
 
             requireDrop = PushFrame(functionFrame);
-
             result = ExecuteFunctionBody(function);
+
             DropFrame();
         }
         catch (KiwiError)
@@ -1419,6 +2122,53 @@ public class Interpreter
         return result;
     }
 
+    private Value CallObjectBaseMethod(MethodCallNode node, InstanceRef obj, string baseStruct, string methodName)
+    {
+        var struc = Context.Structs[baseStruct];
+        var function = struc.Methods[methodName];
+        bool isCtor = methodName == "new";
+
+        var frame = CallStack.Peek();
+        var objContext = obj;
+        bool contextSwitch = false;
+
+        if (frame.InObjectContext())
+        {
+            objContext = frame.GetObjectContext();
+            contextSwitch = true;
+        }
+
+        frame.SetObjectContext(obj);
+
+        if (function == null)
+        {
+            throw new UnimplementedMethodError(node.Token, obj.StructName, methodName);
+        }
+
+        if (function.IsPrivate)
+        {
+            throw new InvalidContextError(node.Token, "Cannot invoke private method outside of struct.");
+        }
+
+        var result = CallFunction(function, node.Arguments, node.Token, methodName);
+
+        if (contextSwitch)
+        {
+            frame.SetObjectContext(objContext);
+        }
+        else
+        {
+            frame.ClearFlag(FrameFlags.InObject);
+        }
+
+        if (isCtor)
+        {
+            return Value.CreateObject(obj);
+        }
+
+        return result;
+    }
+
     private void PrepareFunctionCall(KFunction func, FunctionCallNode node, HashSet<string> defaultParameters, Dictionary<string, TokenName> typeHints, StackFrame functionFrame)
     {
         var parms = func.Parameters;
@@ -1443,13 +2193,9 @@ public class Interpreter
                 throw new ParameterCountMismatchError(node.Token, node.FunctionName);
             }
 
-            if (typeHints.ContainsKey(param.Key))
+            if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
             {
-                var expectedType = typeHints[param.Key];
-                if (!Serializer.AssertTypematch(argValue, expectedType))
-                {
-                    throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{node.FunctionName}` but received `{Serializer.GetTypenameString(argValue)}`.");
-                }
+                throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{node.FunctionName}` but received `{Serializer.GetTypenameString(argValue)}`.");
             }
 
             if (argValue.IsLambda())
@@ -1512,6 +2258,7 @@ public class Interpreter
         {
             var param = parms[i];
             var argValue = Value.Default();
+
             if (i < args.Count)
             {
                 argValue = args[i];
@@ -1591,12 +2338,7 @@ public class Interpreter
             throw new InvalidContextError(node.Token);
         }
 
-        var obj = frame.GetObjectContext();
-        if (obj == null)
-        {
-            throw new NullObjectError(node.Token);
-        }
-
+        var obj = frame.GetObjectContext() ?? throw new NullObjectError(node.Token);
         var struc = Context.Structs[obj.StructName];
         var strucMethods = struc.Methods;
         var functionName = node.FunctionName;
@@ -1652,6 +2394,61 @@ public class Interpreter
         if (!Serializer.AssertTypematch(result, returnTypeHint))
         {
             throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{functionName}` but received `{Serializer.GetTypenameString(result)}`.");
+        }
+
+        return result;
+    }
+
+    private Value ExecuteStructMethod(Dictionary<string, KFunction> methods, string methodName, StackFrame frame, MethodCallNode node, StructRef struc)
+    {
+        var function = methods[methodName];
+        InstanceRef obj = new();
+        bool isCtor = methodName == "new";
+
+        var oldObjectContext = frame.GetObjectContext();
+        bool contextSwitch = false;
+
+        if (function == null && isCtor)
+        {
+            // default constructor
+            return Value.CreateObject(obj);
+        }
+
+        if (function != null && !function.IsStatic && !isCtor)
+        {
+            throw new InvalidContextError(node.Token, "Cannot invoke non-static method on struct.");
+        }
+
+        if (isCtor)
+        {
+            if (frame.InObjectContext())
+            {
+                contextSwitch = true;
+            }
+
+            obj.StructName = struc.Identifier;
+            frame.SetObjectContext(obj);
+        }
+
+        if (function == null)
+        {
+            // TODO: Need a new error/message.
+            throw new InvalidContextError(node.Token, "Invalid function context.");
+        }
+
+        var result = CallFunction(function, node.Arguments, node.Token, methodName);
+
+        if (isCtor)
+        {
+            if (contextSwitch)
+            {
+                frame.SetObjectContext(oldObjectContext);
+            }
+            else
+            {
+                frame.ClearFlag(FrameFlags.InObject);
+            }
+            return Value.CreateObject(obj);
         }
 
         return result;

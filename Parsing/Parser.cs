@@ -1370,8 +1370,7 @@ public partial class Parser
         return new ListLiteralNode(elements);
     }
 
-    private ASTNode? ParseIndexing(
-        ASTNode? indexedObject)
+    private ASTNode? ParseIndexing(ASTNode? indexedObject)
     {
         return ParseIndexingInternal(indexedObject);
     }
@@ -1382,8 +1381,7 @@ public partial class Parser
         return ParseIndexingInternal(baseNode);
     }
 
-    private ASTNode? ParseIndexingInternal(
-        ASTNode? baseNode)
+    private ASTNode? ParseIndexingInternal(ASTNode? baseNode)
     {
         if (!MatchType(TokenType.LBracket))
         {
