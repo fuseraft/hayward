@@ -78,7 +78,7 @@ public class Interpreter
             ASTNodeType.Return => Visit((ReturnNode)node),
             ASTNodeType.Index => Visit((IndexingNode)node),
             ASTNodeType.Slice => Visit((SliceNode)node),
-            ASTNodeType.Parse => Value.Default(),
+            ASTNodeType.Parse => Visit((ParseNode)node),
             ASTNodeType.NoOp => Value.Default(),
             ASTNodeType.Spawn => Value.Default(),
             _ => PrintNode(node),
@@ -264,7 +264,7 @@ public class Interpreter
         {
             string errorType = DefaultErrorType;
             string errorMessage = string.Empty;
-            
+
             if (node.ErrorValue != null)
             {
                 var errorValue = Interpret(node.ErrorValue);
@@ -1548,8 +1548,26 @@ public class Interpreter
         throw new InvalidOperationError(node.Token, $"Non-sliceable type: `{Serializer.GetTypenameString(obj)}`");
     }
 
+    private Value Visit(ParseNode node)
+    {
+        var content = Interpret(node.ParseValue);
+
+        if (!content.IsString()) {
+            throw new KiwiError(node.Token, "Invalid parse expression.");
+        }
+
+        Lexer lexer = new (node.Token.Span.File, content.GetString());
+
+        Parser p = new (true);
+        var tokenStream = lexer.GetTokenStream();
+        var ast = p.ParseTokenStream(tokenStream, true);
+
+        var result = Interpret(ast);
+
+        return result;
+    }
+    
     /*
-    private Value Visit(ParseNode node) => throw new NotImplementedException();
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
     */
 
@@ -1811,33 +1829,33 @@ public class Interpreter
 
         var frame = CallStack.Peek();
 
-        if (frame.InObjectContext())
+        if (!frame.InObjectContext())
         {
-            var obj = frame.GetObjectContext() ?? throw new NullObjectError(token);
-            var struc = Context.Structs[obj.StructName];
-            var strucMethods = struc.Methods;
+            throw new FunctionUndefinedError(token, name);
+        }
 
-            if (strucMethods.ContainsKey(name))
+        var obj = frame.GetObjectContext() ?? throw new NullObjectError(token);
+        var struc = Context.Structs[obj.StructName];
+        var strucMethods = struc.Methods;
+
+        if (strucMethods.ContainsKey(name))
+        {
+            return CallableType.Method;
+        }
+
+        // check the base
+        if (!string.IsNullOrEmpty(struc.BaseStruct))
+        {
+            var baseStruct = Context.Structs[struc.BaseStruct];
+            var baseStructMethods = baseStruct.Methods;
+
+            if (baseStructMethods.ContainsKey(name))
             {
                 return CallableType.Method;
             }
-
-            // check the base
-            if (!string.IsNullOrEmpty(struc.BaseStruct))
-            {
-                var baseStruct = Context.Structs[struc.BaseStruct];
-                var baseStructMethods = baseStruct.Methods;
-
-                if (baseStructMethods.ContainsKey(name))
-                {
-                    return CallableType.Method;
-                }
-            }
-
-            throw new UnimplementedMethodError(token, struc.Name, name);
         }
 
-        throw new FunctionUndefinedError(token, name);
+        throw new UnimplementedMethodError(token, struc.Name, name);
     }
 
     private List<Value> GetMethodCallArguments(List<ASTNode?> args)
@@ -1928,8 +1946,7 @@ public class Interpreter
         {
             if (string.IsNullOrEmpty(kstruct.BaseStruct))
             {
-                throw new UnimplementedMethodError(node.Token, struc.Identifier,
-                                               methodName);
+                throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
             }
 
             var baseStruct = Context.Structs[kstruct.BaseStruct];
@@ -1940,8 +1957,7 @@ public class Interpreter
                 throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
             }
 
-            return ExecuteStructMethod(baseStructMethods, methodName, frame, node,
-                                       struc);
+            return ExecuteStructMethod(baseStructMethods, methodName, frame, node, struc);
         }
 
         return ExecuteStructMethod(methods, methodName, frame, node, struc);
