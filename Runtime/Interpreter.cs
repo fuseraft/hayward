@@ -16,12 +16,12 @@ public class Interpreter
     int SafemodeMaxIterations = 1000000;
 
     public bool Safemode { get; set; } = false;
+    public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
     private Stack<string> FuncStack { get; set; } = [];
-    private Dictionary<string, string> CliArgs { get; set; } = [];
     private static Value DefaultValue = Value.Default();
 
     public void SetContext(KContext context) => Context = context;

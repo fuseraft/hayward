@@ -5,6 +5,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
+        // args = ["/home/scs/GitHub/citrus/debug.kiwi"];
         var runner = new ScriptRunner();
         return new CLIHost(args).ExecuteCLI(runner);
     }
