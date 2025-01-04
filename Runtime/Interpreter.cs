@@ -4,6 +4,11 @@ using citrus.Parsing;
 using citrus.Parsing.AST;
 using citrus.Typing;
 using citrus.Tracing.Error;
+using citrus.Runtime;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Reflection.Metadata;
+using System;
 namespace citrus.Runtime;
 
 public class Interpreter
@@ -160,9 +165,11 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
+        const string DefaultErrorType = "KiwiError";
+
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
-            string errorType = "KiwiError";
+            string errorType = DefaultErrorType;
             string errorMessage = string.Empty;
             if (node.ErrorValue != null)
             {
@@ -172,9 +179,9 @@ public class Interpreter
                 {
                     var errorHash = errorValue.GetHashmap();
                     var errorKey = Value.CreateString("error");
-                    var messageKey = Value.CreateString("error");
-                    if (errorHash.ContainsKey(errorKey) &&
-                        errorHash[errorKey].IsString())
+                    var messageKey = Value.CreateString("message");
+
+                    if (errorHash.ContainsKey(errorKey) && errorHash[errorKey].IsString())
                     {
                         errorType = errorHash[errorKey].GetString();
                     }
@@ -206,7 +213,7 @@ public class Interpreter
 
         if (type == TokenName.Ops_Assign)
         {
-            if (name == Global || Context.HasConstant(name))
+            if (Global.Equals(name) || Context.HasConstant(name))
             {
                 throw new IllegalNameError(node.Token, name);
             }
@@ -945,7 +952,7 @@ public class Interpreter
                     if (node.ErrorType != null)
                     {
                         errorTypeName = Id(node.ErrorType);
-                        catchFrame.Variables[errorTypeName] = Value.CreateString(e.GetType().Name);
+                        catchFrame.Variables[errorTypeName] = Value.CreateString(e.Type);
                     }
 
                     if (node.ErrorMessage != null)
@@ -1045,7 +1052,7 @@ public class Interpreter
             else
             {
                 value = Interpret(pair.Value);
-                
+
                 // if the value is a lambda, register to the lambda map
                 if (value.IsLambda())
                 {
@@ -1105,7 +1112,53 @@ public class Interpreter
     }
 
     private Value Visit(LambdaCallNode node) => throw new NotImplementedException();
-    private Value Visit(FunctionCallNode node) => throw new NotImplementedException();
+
+    private Value Visit(FunctionCallNode node)
+    {
+        var result = Value.Default();
+
+        var callableType = GetCallable(node.Token, node.FunctionName);
+        var requireDrop = false;
+
+        try
+        {
+            switch (callableType)
+            {
+                case CallableType.Builtin:
+                    result = CallBuiltin(node);
+                    break;
+
+                case CallableType.Method:
+                    result = ExecuteInstanceMethod(node, ref requireDrop);
+                    break;
+
+                case CallableType.Function:
+                    result = CallFunction(node, ref requireDrop);
+                    break;
+
+                case CallableType.Lambda:
+                    result = CallLambda(node.Token, node.FunctionName, node.Arguments, ref requireDrop);
+                    break;
+            }
+
+            if (requireDrop)
+            {
+                DropFrame();
+            }
+        }
+        catch (KiwiError)
+        {
+            if (requireDrop)
+            {
+                DropFrame();
+            }
+
+            throw;
+        }
+
+        return result;
+    }
+
     private Value Visit(MethodCallNode node) => throw new NotImplementedException();
 
     private Value Visit(ReturnNode node)
@@ -1134,6 +1187,475 @@ public class Interpreter
     private Value Visit(ParseNode node) => throw new NotImplementedException();
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
     */
+
+    private CallableType GetCallable(Token token, string name)
+    {
+        if (Context.HasFunction(name))
+        {
+            return CallableType.Function;
+        }
+        else if (Context.HasLambda(name))
+        {
+            return CallableType.Lambda;
+        }
+        /*else if (KiwiBuiltins.is_builtin_method(name))
+        {
+            return CallableType.Builtin;
+        }*/
+
+        if (Context.HasMappedLambda(name))
+        {
+            return CallableType.Lambda;
+        }
+
+        var frame = CallStack.Peek();
+
+        if (frame.InObjectContext())
+        {
+            var obj = frame.GetObjectContext();
+
+            if (obj == null)
+            {
+                throw new NullObjectError(token);
+            }
+
+            var struc = Context.Structs[obj.StructName];
+            var strucMethods = struc.Methods;
+
+            if (strucMethods.ContainsKey(name))
+            {
+                return CallableType.Method;
+            }
+
+            // check the base
+            if (!string.IsNullOrEmpty(struc.BaseStruct))
+            {
+                var baseStruct = Context.Structs[struc.BaseStruct];
+                var baseStructMethods = baseStruct.Methods;
+
+                if (baseStructMethods.ContainsKey(name))
+                {
+                    return CallableType.Method;
+                }
+            }
+
+            throw new UnimplementedMethodError(token, struc.Name, name);
+        }
+
+        throw new FunctionUndefinedError(token, name);
+    }
+
+    private Value CallBuiltin(FunctionCallNode node)
+    {
+        return Value.Default();
+        /*
+        var args = GetMethodCallArguments(node.Arguments);
+        var op = node.Op;
+
+        if (SerializerBuiltins.is_builtin(op))
+        {
+            return InterpretSerializerBuiltin(node.Token, op, args);
+        }
+        else if (ReflectorBuiltins.is_builtin(op))
+        {
+            return InterpretReflectorBuiltin(node.Token, op, args);
+        }
+        else if (WebServerBuiltins.is_builtin(op))
+        {
+            return InterpretWebServerBuiltin(node.Token, op, args);
+        }
+        else if (SignalBuiltins.is_builtin(op))
+        {
+            return InterpretSignalBuiltin(node.Token, op, args);
+        }
+        else if (FFIBuiltins.is_builtin(op))
+        {
+            return BuiltinDispatch.Execute(ffimgr, node.Token, op, args);
+        }
+        else if (SocketBuiltins.is_builtin(op))
+        {
+            return BuiltinDispatch.Execute(sockmgr, node.Token, op, args);
+        }
+        else if (TaskBuiltins.is_builtin(op))
+        {
+            return BuiltinDispatch.Execute(taskmgr, node.Token, op, args);
+        }
+
+        return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
+        */
+    }
+
+    private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
+    {
+        var functionName = node.FunctionName;
+        var func = Context.Functions[functionName];
+        var typeHints = func.TypeHints;
+        var returnTypeHint = func.ReturnTypeHint;
+        var defaultParameters = func.DefaultParameters;
+        var functionFrame = CreateFrame(functionName);
+        var result = Value.Default();
+
+        PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
+
+        requireDrop = PushFrame(functionFrame);
+
+        var decl = func.Decl.Body;
+        foreach (var stmt in decl)
+        {
+            result = Interpret(stmt);
+            if (functionFrame.IsFlagSet(FrameFlags.Return))
+            {
+                result = functionFrame.ReturnValue ?? result;
+                break;
+            }
+        }
+
+        if (!Serializer.AssertTypematch(result, returnTypeHint))
+        {
+            throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{functionName}` but received `{Serializer.GetTypenameString(result)}`.");
+        }
+
+        return result;
+    }
+
+    private Value CallFunction(KFunction function, List<ASTNode> args, Token token, string functionName)
+    {
+        var defaultParameters = function.DefaultParameters;
+        var functionFrame = CreateFrame(functionName);
+        var typeHints = function.TypeHints;
+        var returnTypeHint = function.ReturnTypeHint;
+
+        var result = Value.Default();
+        bool requireDrop = false;
+
+        try
+        {
+            for (int i = 0; i < function.Parameters.Count; ++i)
+            {
+                var param = function.Parameters[i];
+                var argValue = Value.Default();
+                if (i < args.Count)
+                {
+                    var arg = args[i];
+                    argValue = Interpret(arg);
+                }
+                else if (defaultParameters.Contains(param.Key))
+                {
+                    argValue = param.Value;
+                }
+                else
+                {
+                    throw new ParameterCountMismatchError(token, functionName);
+                }
+
+                PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, functionFrame);
+            }
+
+            requireDrop = PushFrame(functionFrame);
+
+            result = ExecuteFunctionBody(function);
+            DropFrame();
+        }
+        catch (KiwiError)
+        {
+            if (requireDrop)
+            {
+                DropFrame();
+            }
+            throw;
+        }
+
+        if (!Serializer.AssertTypematch(result, returnTypeHint))
+        {
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{functionName}` but received `{Serializer.GetTypenameString(result)}`.");
+        }
+
+        return result;
+    }
+
+    private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool requireDrop)
+    {
+        var lambdaFrame = CreateFrame(lambdaName);
+        var targetLambda = lambdaName;
+        var result = Value.Default();
+
+        if (!Context.HasLambda(targetLambda))
+        {
+            if (!Context.HasMappedLambda(targetLambda))
+            {
+                throw new CallableError(token, $"Could not find target lambda `{targetLambda}`");
+            }
+
+            targetLambda = Context.LambdaTable[targetLambda];
+        }
+
+        var func = Context.Lambdas[targetLambda];
+        var typeHints = func.TypeHints;
+        var returnTypeHint = func.ReturnTypeHint;
+        var defaultParameters = func.DefaultParameters;
+
+        PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, lambdaFrame);
+
+        lambdaFrame.SetFlag(FrameFlags.InLambda);
+        requireDrop = PushFrame(lambdaFrame);
+
+        var decl = func.Decl.Body;
+        foreach (var stmt in decl)
+        {
+            result = Interpret(stmt);
+            if (lambdaFrame.IsFlagSet(FrameFlags.Return))
+            {
+                result = lambdaFrame.ReturnValue ?? result;
+                break;
+            }
+        }
+
+        if (!Serializer.AssertTypematch(result, returnTypeHint))
+        {
+            throw new TypeError(
+                token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
+        }
+
+        return result;
+    }
+
+    private void PrepareFunctionCall(KFunction func, FunctionCallNode node, HashSet<string> defaultParameters, Dictionary<string, TokenName> typeHints, StackFrame functionFrame)
+    {
+        var parms = func.Parameters;
+        var nodeArguments = node.Arguments;
+
+        for (int i = 0; i < parms.Count; ++i)
+        {
+            var param = parms[i];
+            var argValue = Value.Default();
+
+            if (i < nodeArguments.Count)
+            {
+                var arg = nodeArguments[i];
+                argValue = Interpret(arg);
+            }
+            else if (defaultParameters.Contains(param.Key))
+            {
+                argValue = param.Value;
+            }
+            else
+            {
+                throw new ParameterCountMismatchError(node.Token, node.FunctionName);
+            }
+
+            if (typeHints.ContainsKey(param.Key))
+            {
+                var expectedType = typeHints[param.Key];
+                if (!Serializer.AssertTypematch(argValue, expectedType))
+                {
+                    throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{node.FunctionName}` but received `{Serializer.GetTypenameString(argValue)}`.");
+                }
+            }
+
+            if (argValue.IsLambda())
+            {
+                Context.AddMappedLambda(param.Key, argValue.GetLambda().Identifier);
+            }
+            else
+            {
+                functionFrame.Variables[param.Key] = argValue;
+            }
+        }
+    }
+
+    private void PrepareFunctionVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string functionName, StackFrame functionFrame)
+    {
+        if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
+        {
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{functionName}` but received `{Serializer.GetTypenameString(argValue)}`.");
+        }
+
+        if (argValue.IsLambda())
+        {
+            var lambdaId = argValue.GetLambda().Identifier;
+            Context.AddMappedLambda(param.Key, lambdaId);
+        }
+        else
+        {
+            functionFrame.Variables[param.Key] = argValue;
+        }
+    }
+
+    private void PrepareLambdaCall(KLambda func, List<ASTNode?> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
+    {
+        var parms = func.Parameters;
+        for (int i = 0; i < parms.Count; ++i)
+        {
+            var param = parms[i];
+            var argValue = Value.Default();
+            if (i < args.Count)
+            {
+                argValue = Interpret(args[i]);
+            }
+            else if (defaultParameters.Contains(param.Key))
+            {
+                argValue = param.Value;
+            }
+            else
+            {
+                throw new ParameterCountMismatchError(token, targetLambda);
+            }
+
+            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, lambdaFrame);
+        }
+    }
+
+    private void PrepareLambdaCall(KLambda func, List<Value> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
+    {
+        var parms = func.Parameters;
+        for (int i = 0; i < parms.Count; ++i)
+        {
+            var param = parms[i];
+            var argValue = Value.Default();
+            if (i < args.Count)
+            {
+                argValue = args[i];
+            }
+            else if (defaultParameters.Contains(param.Key))
+            {
+                argValue = param.Value;
+            }
+            else
+            {
+                throw new ParameterCountMismatchError(token, targetLambda);
+            }
+
+            if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
+            {
+                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
+            }
+
+            if (argValue.IsLambda())
+            {
+                Context.AddMappedLambda(param.Key, argValue.GetLambda().Identifier);
+            }
+            else
+            {
+                lambdaFrame.Variables[param.Key] = argValue;
+            }
+        }
+    }
+
+    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue,
+        Token token, int i, string lambdaName, StackFrame lambdaFrame)
+    {
+        if (typeHints.TryGetValue(param.Key, out TokenName expectedType))
+        {
+
+            if (!Serializer.AssertTypematch(argValue, expectedType))
+            {
+                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
+            }
+        }
+
+        if (argValue.IsLambda())
+        {
+            var lambdaId = argValue.GetLambda().Identifier;
+            Context.AddMappedLambda(param.Key, lambdaId);
+        }
+        else
+        {
+            lambdaFrame.Variables[param.Key] = argValue;
+        }
+    }
+
+    private Value ExecuteFunctionBody(KFunction function)
+    {
+        var result = Value.Default();
+        var decl = function.Decl;
+
+        foreach (var stmt in decl.Body)
+        {
+            result = Interpret(stmt);
+
+            if (CallStack.Peek().IsFlagSet(FrameFlags.Return))
+            {
+                result = CallStack.Peek().ReturnValue ?? result;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    private Value ExecuteInstanceMethod(FunctionCallNode node, ref bool requireDrop)
+    {
+        var frame = CallStack.Peek();
+        if (!frame.InObjectContext())
+        {
+            throw new InvalidContextError(node.Token);
+        }
+
+        var obj = frame.GetObjectContext();
+        if (obj == null)
+        {
+            throw new NullObjectError(node.Token);
+        }
+
+        var struc = Context.Structs[obj.StructName];
+        var strucMethods = struc.Methods;
+        var functionName = node.FunctionName;
+
+        if (!strucMethods.ContainsKey(functionName))
+        {
+            // check the base
+            if (string.IsNullOrEmpty(struc.BaseStruct))
+            {
+                throw new UnimplementedMethodError(node.Token, struc.Name, functionName);
+            }
+
+            var baseStruct = Context.Structs[struc.BaseStruct];
+            var baseStructMethods = baseStruct.Methods;
+
+            if (!baseStructMethods.ContainsKey(functionName))
+            {
+                throw new UnimplementedMethodError(node.Token, struc.Name, functionName);
+            }
+
+            return ExecuteInstanceMethodFunction(baseStructMethods, node, ref requireDrop);
+        }
+
+        return ExecuteInstanceMethodFunction(strucMethods, node, ref requireDrop);
+    }
+
+    private Value ExecuteInstanceMethodFunction(Dictionary<string, KFunction> strucMethods, FunctionCallNode node, ref bool requireDrop)
+    {
+        var functionName = node.FunctionName;
+        var func = strucMethods[functionName];
+        var defaultParameters = func.DefaultParameters;
+        var functionFrame = CreateFrame(functionName);
+        var result = Value.Default();
+
+        var typeHints = func.TypeHints;
+        var returnTypeHint = func.ReturnTypeHint;
+
+        PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
+
+        requireDrop = PushFrame(functionFrame);
+
+        var decl = func.Decl.Body;
+        foreach (var stmt in decl)
+        {
+            result = Interpret(stmt);
+            if (functionFrame.IsFlagSet(FrameFlags.Return))
+            {
+                result = functionFrame.ReturnValue ?? result;
+                break;
+            }
+        }
+
+        if (!Serializer.AssertTypematch(result, returnTypeHint))
+        {
+            throw new TypeError(node.Token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{functionName}` but received `{Serializer.GetTypenameString(result)}`.");
+        }
+
+        return result;
+    }
 
     private void ImportPackage(Token token, Value packageName)
     {

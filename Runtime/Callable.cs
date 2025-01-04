@@ -4,7 +4,7 @@ using citrus.Typing;
 
 namespace citrus.Runtime;
 
-public enum KCallableType
+public enum CallableType
 {
     Builtin,
     Function,
@@ -12,20 +12,20 @@ public enum KCallableType
     Lambda,
 };
 
-public class KCallable(KCallableType type)
+public class Callable(CallableType type)
 {
-    public KCallableType Type { get; set; } = type;
+    public CallableType Type { get; set; } = type;
     public List<KeyValuePair<string, Value>> Parameters { get; set; } = [];
     public HashSet<string> DefaultParameters { get; set; } = [];
 }
 
-public class KBuiltin(Token token, string name) : KCallable(KCallableType.Builtin)
+public class KBuiltin(Token token, string name) : Callable(CallableType.Builtin)
 {
     public string Name { get; set; } = name;
     public Token Token { get; set; } = token;
     public List<ASTNode?> Body { get; set; } = [];
 
-    public KCallable Clone()
+    public Callable Clone()
     {
         KBuiltin cloned = new(Token, Name)
         {
@@ -36,7 +36,7 @@ public class KBuiltin(Token token, string name) : KCallable(KCallableType.Builti
     }
 };
 
-public class KFunction(ASTNode node) : KCallable(KCallableType.Function)
+public class KFunction(ASTNode node) : Callable(CallableType.Function)
 {
     public string Name { get; set; } = string.Empty;
     public FunctionNode Decl { get; set; } = (FunctionNode)node.Clone();
@@ -63,16 +63,11 @@ public class KFunction(ASTNode node) : KCallable(KCallableType.Function)
     }
 }
 
-public class KLambda : KCallable
+public class KLambda(ASTNode node) : Callable(CallableType.Lambda)
 {
-    public LambdaNode Decl { get; set; }
+    public LambdaNode Decl { get; set; } = (LambdaNode)node.Clone();
     public Dictionary<string, TokenName> TypeHints { get; set; } = [];
     public TokenName ReturnTypeHint { get; set; } = TokenName.Types_Any;
-
-    public KLambda(ASTNode node) : base(KCallableType.Lambda)
-    {
-        Decl = (LambdaNode)node.Clone();
-    }
 
     public KLambda Clone()
     {
