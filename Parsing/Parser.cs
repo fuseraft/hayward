@@ -1270,7 +1270,7 @@ public partial class Parser
             return ParseIdentifier(false, false);
         }
 
-        var literalNode = new LiteralNode(Value.Create(token.Value));
+        LiteralNode literalNode = new(Value.Create(token.Value));
         Next();  // Consume literal
         return literalNode;
     }
