@@ -1,13 +1,8 @@
 namespace citrus.Parsing.AST;
 
-public class ListLiteralNode : ASTNode
+public class ListLiteralNode(List<ASTNode> elements) : ASTNode(ASTNodeType.ListLiteral)
 {
-    public ListLiteralNode()
-        : base(ASTNodeType.ListLiteral) { }
-    public ListLiteralNode(List<ASTNode?> elements)
-        : base(ASTNodeType.ListLiteral) => this.Elements = elements;
-
-    public List<ASTNode?> Elements { get; } = [];
+    public List<ASTNode> Elements { get; } = elements;
 
     public override void Print(int depth)
     {
@@ -22,11 +17,11 @@ public class ListLiteralNode : ASTNode
 
     public override ASTNode Clone()
     {
-        List<ASTNode?> clonedElements = [];
+        List<ASTNode> clonedElements = [];
 
         foreach (var element in Elements)
         {
-            clonedElements.Add(element?.Clone());
+            clonedElements.Add(element.Clone());
         }
 
         return new ListLiteralNode(clonedElements);

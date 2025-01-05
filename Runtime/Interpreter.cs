@@ -110,7 +110,7 @@ public class Interpreter
     private Value Visit(ProgramNode node)
     {
         // This is the program root
-        if (!node.IsEntryPoint)
+        if (node.IsEntryPoint)
         {
             StackFrame programFrame = new()
             {

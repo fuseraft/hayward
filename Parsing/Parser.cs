@@ -1264,8 +1264,7 @@ public partial class Parser
 
     private ASTNode? ParseLiteral()
     {
-        if (GetTokenType() == TokenType.Typename &&
-            Peek().Type == TokenType.Qualifier)
+        if (GetTokenType() == TokenType.Typename && Peek().Type == TokenType.Qualifier)
         {
             return ParseIdentifier(false, false);
         }
@@ -1321,14 +1320,14 @@ public partial class Parser
 
     private ASTNode? ParseListLiteral()
     {
-        List<ASTNode?> elements = [];
+        List<ASTNode> elements = [];
 
         MatchType(TokenType.LBracket);  // Consume '['
         var isRange = false;
 
         while (GetTokenType() != TokenType.RBracket)
         {
-            elements.Add(ParseExpression());
+            elements.Add(ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected an expression in list literal."));
 
             if (!isRange && GetTokenType() == TokenType.Comma)
             {

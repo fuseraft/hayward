@@ -34,13 +34,18 @@ public class SliceIndex(Value indexOrStart, Value stopIndex, Value stepValue)
     public bool IsSlice { get; set; }
 };
 
-public class Value(object? value = null, ValueType type = ValueType.None)
+public class Value(object value, ValueType type = ValueType.None)
 {
-    public object Value_ { get; set; } = value ?? new NullRef();
+    public object Value_ { get; set; } = value;
     public ValueType Type { get; set; } = type;
 
-    public static Value Create(object? value)
+    public static Value Create(object value)
     {
+        if (value is Value v)
+        {
+            return v;
+        }
+
         return value switch
         {
             null => CreateNull(),
@@ -64,7 +69,7 @@ public class Value(object? value = null, ValueType type = ValueType.None)
     public static Value CreateInteger(object value) => new(value, ValueType.Integer);
     public static Value CreateFloat(double value) => new(value, ValueType.Float);
     public static Value CreateFloat(object value) => new(value, ValueType.Float);
-    public static Value CreateBoolean(bool value) => new(value, ValueType.Float);
+    public static Value CreateBoolean(bool value) => new(value, ValueType.Boolean);
     public static Value CreateBoolean(object value) => new(value, ValueType.Boolean);
     public static Value CreateString(string value) => new(value, ValueType.String);
     public static Value CreateString(object value) => new(value, ValueType.String);

@@ -14,7 +14,7 @@ public partial class Serializer
         }
         else if (v.IsBoolean())
         {
-            return $"{v.GetBoolean()}";
+            return $"{v.GetBoolean()}".ToLower();
         }
         else if (v.IsNull())
         {

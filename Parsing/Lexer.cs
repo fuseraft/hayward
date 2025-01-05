@@ -295,7 +295,7 @@ public class Lexer(int file, string path) : IDisposable
             text += '\\';
         }
 
-        return CreateToken(TokenType.String, span, text);
+        return CreateStringLiteralToken(span, text, Value.CreateString(text));
     }
 
     private Token TokenizeBlockComment(TokenSpan span)
@@ -408,9 +408,9 @@ public class Lexer(int file, string path) : IDisposable
         {
             return text switch
             {
-                "null" => CreateLiteralToken(span, text, Value.CreateNull()),
-                "true" => CreateLiteralToken(span, text, Value.CreateBoolean(true)),
-                "false" => CreateLiteralToken(span, text, Value.CreateBoolean(false)),
+                "null" => CreateLiteralToken(span, text, Value.CreateNull(), kwLiteral),
+                "true" => CreateLiteralToken(span, text, Value.CreateBoolean(true), kwLiteral),
+                "false" => CreateLiteralToken(span, text, Value.CreateBoolean(false), kwLiteral),
                 _ => CreateToken(TokenType.Error, span, text)
             };
         }
@@ -769,12 +769,11 @@ public class Lexer(int file, string path) : IDisposable
         return name != TokenName.Default;
     }
 
-    private static Token CreateLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.Literal, name, span, text)
-    {
-        Value = value
-    };
+    private static Token CreateStringLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.String, name, span, text, value);
 
-    private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text);
+    private static Token CreateLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.Literal, name, span, text, value);
+
+    private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text, Value.Default());
 
     private TokenSpan CreateSpan() => new(File, LineNumber, Position);
 }

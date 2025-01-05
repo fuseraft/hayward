@@ -98,7 +98,7 @@ public class TokenStream(List<Token> tokens)
     }
 }
 
-public struct Token(TokenType type, TokenName name, TokenSpan span, string text)
+public struct Token(TokenType type, TokenName name, TokenSpan span, string text, Value value)
 {
     private readonly string text = text;
 
@@ -106,11 +106,11 @@ public struct Token(TokenType type, TokenName name, TokenSpan span, string text)
     public readonly TokenName Name { get; } = name;
     public readonly TokenSpan Span { get; } = span;
     public readonly string Text => text;
-    public Value? Value { get; set; }
+    public Value Value { get; set; } = value;
 
     public static Token CreateEof()
     {
-        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty);
+        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default());
     }
 }
 
