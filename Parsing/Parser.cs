@@ -386,12 +386,12 @@ public partial class Parser
         {
             throw new SyntaxError(GetErrorToken(), $"Expected '(' after the identifier `{functionName}`.");
         }
+        
+        var mangledNames = PushNameStack();
 
         if (GetTokenType() == TokenType.LParen)
         {
             Next();  // Consume '('
-
-            var mangledNames = GetNameMap();
 
             while (GetTokenType() != TokenType.RParen)
             {
@@ -491,7 +491,7 @@ public partial class Parser
         MatchName(TokenName.KW_For);  // Consume 'for'
 
         var mangledNames = GetNameMap();
-        string mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
+        string mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
         HashSet<string> subMangled = [];
         var valueIteratorName = string.Empty;
 

@@ -46,6 +46,7 @@ public enum TokenName
   Builtin_FileIO_WriteBytes,
   Builtin_FileIO_WriteLine,
   Builtin_FileIO_WriteText,
+  Builtin_Kiwi_Append,
   Builtin_Kiwi_Base,
   Builtin_Kiwi_BeginsWith,
   Builtin_Kiwi_Chars,

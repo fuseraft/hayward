@@ -1,3 +1,4 @@
+using citrus.Parsing.Builtins;
 using citrus.Typing;
 
 namespace citrus.Parsing;
@@ -422,6 +423,14 @@ public class Lexer(int file, string path) : IDisposable
         {
             return CreateToken(TokenType.Typename, span, text, kwTypename);
         }
+        else if (KiwiBuiltin.IsBuiltin(text))
+        {
+            return TokenizeKiwiBuiltin(span, text);
+        }
+        else if (KiwiBuiltin.IsBuiltinMethod(text))
+        {
+            return TokenizeBuiltinMethod(span, text);
+        }
 
         return CreateToken(TokenType.Identifier, span, text);
     }
@@ -442,6 +451,39 @@ public class Lexer(int file, string path) : IDisposable
     {
         var text = string.Empty + c;
         return CreateToken(c == '{' ? TokenType.LBrace : TokenType.RBrace, span, text);
+    }
+
+    private static Token TokenizeBuiltinMethod(TokenSpan span, string builtin)
+    {
+        if (ArgvBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
+        else if (ConsoleBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (EnvBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (FileIOBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (LoggingBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (MathBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (TaskBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (SysBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (TimeBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (WebServerBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (HttpBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (EncoderBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (SerializerBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (ReflectorBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (FFIBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (SocketBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (SignalBuiltin.Map.TryGetValue(builtin, out name)) { }
+
+        return CreateToken(TokenType.Identifier, span, builtin, name);
+    }
+
+    private static Token TokenizeKiwiBuiltin(TokenSpan span, string builtin)
+    {
+        if (KiwiBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
+        else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
+
+        return CreateToken(TokenType.Identifier, span, builtin, name);
+
     }
 
     private static TokenName GetOperatorName(string text)
