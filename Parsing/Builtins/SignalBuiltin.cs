@@ -14,5 +14,9 @@ public static class SignalBuiltin
             { Trap,  TokenName.Builtin_Signal_Trap }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }

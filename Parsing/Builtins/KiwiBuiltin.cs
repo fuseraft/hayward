@@ -145,6 +145,7 @@ public static class KiwiBuiltin
             { Tokens,       TokenName.Builtin_Kiwi_Tokens      },
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
 
     public static bool IsBuiltin(string arg)
@@ -159,12 +160,12 @@ public static class KiwiBuiltin
 
     public static bool IsBuiltin(TokenName arg)
     {
-        if (ListBuiltin.Map.Values.Contains(arg))
+        if (ListBuiltin.IsBuiltin(arg))
         {
             return true;
         }
 
-        return Map.Values.Contains(arg);
+        return _names.Contains(arg);
     }
 
     public static bool IsBuiltinMethod(string arg)
@@ -193,23 +194,23 @@ public static class KiwiBuiltin
 
     public static bool IsBuiltinMethod(TokenName arg)
     {
-        if (ConsoleBuiltin.Map.Values.Contains(arg))    return true;
-        if (EnvBuiltin.Map.Values.Contains(arg))        return true;
-        if (ArgvBuiltin.Map.Values.Contains(arg))       return true;
-        if (TimeBuiltin.Map.Values.Contains(arg))       return true;
-        if (FileIOBuiltin.Map.Values.Contains(arg))     return true;
-        if (MathBuiltin.Map.Values.Contains(arg))       return true;
-        if (SysBuiltin.Map.Values.Contains(arg))        return true;
-        if (HttpBuiltin.Map.Values.Contains(arg))       return true;
-        if (WebServerBuiltin.Map.Values.Contains(arg))  return true;
-        if (LoggingBuiltin.Map.Values.Contains(arg))    return true;
-        if (EncoderBuiltin.Map.Values.Contains(arg))    return true;
-        if (SerializerBuiltin.Map.Values.Contains(arg)) return true;
-        if (FFIBuiltin.Map.Values.Contains(arg))        return true;
-        if (ReflectorBuiltin.Map.Values.Contains(arg))  return true;
-        if (SignalBuiltin.Map.Values.Contains(arg))     return true;
-        if (SocketBuiltin.Map.Values.Contains(arg))     return true;
-        if (TaskBuiltin.Map.Values.Contains(arg))       return true;
+        if (ConsoleBuiltin.IsBuiltin(arg))    return true;
+        if (EnvBuiltin.IsBuiltin(arg))        return true;
+        if (ArgvBuiltin.IsBuiltin(arg))       return true;
+        if (TimeBuiltin.IsBuiltin(arg))       return true;
+        if (FileIOBuiltin.IsBuiltin(arg))     return true;
+        if (MathBuiltin.IsBuiltin(arg))       return true;
+        if (SysBuiltin.IsBuiltin(arg))        return true;
+        if (HttpBuiltin.IsBuiltin(arg))       return true;
+        if (WebServerBuiltin.IsBuiltin(arg))  return true;
+        if (LoggingBuiltin.IsBuiltin(arg))    return true;
+        if (EncoderBuiltin.IsBuiltin(arg))    return true;
+        if (SerializerBuiltin.IsBuiltin(arg)) return true;
+        if (FFIBuiltin.IsBuiltin(arg))        return true;
+        if (ReflectorBuiltin.IsBuiltin(arg))  return true;
+        if (SignalBuiltin.IsBuiltin(arg))     return true;
+        if (SocketBuiltin.IsBuiltin(arg))     return true;
+        if (TaskBuiltin.IsBuiltin(arg))       return true;
 
         // not a builtin method
         return false;

@@ -22,5 +22,9 @@ public static class HttpBuiltin
             { Options,TokenName.Builtin_WebClient_Options }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }

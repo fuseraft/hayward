@@ -4,6 +4,7 @@ using citrus.Parsing;
 using citrus.Parsing.AST;
 using citrus.Typing;
 using citrus.Tracing.Error;
+using citrus.Parsing.Builtins;
 namespace citrus.Runtime;
 
 public class Interpreter
@@ -1491,15 +1492,15 @@ public class Interpreter
         else if (obj.IsStruct())
         {
             return CallStructMethod(node, obj.GetStruct());
-        }/*
-        else if (ListBuiltins.Is_builtin(node.Op))
-        {
-            return InterpretListBuiltin(node.Token, obj, node.Op, GetMethodCallArguments(node.Arguments));
         }
-        else if (KiwiBuiltins.Is_builtin(node.Op))
+        else if (ListBuiltin.Map.Values.Contains(node.Op))
+        {
+            // return InterpretListBuiltin(node.Token, obj, node.Op, GetMethodCallArguments(node.Arguments));
+        }
+        else if (KiwiBuiltin.IsBuiltin(node.Op))
         {
             return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
-        }*/
+        }
 
         throw new FunctionUndefinedError(node.Token, node.MethodName);
     }
@@ -1963,39 +1964,37 @@ public class Interpreter
         var args = GetMethodCallArguments(node.Arguments);
         var op = node.Op;
 
-        /*
-        if (SerializerBuiltins.Is_builtin(op))
+        if (SerializerBuiltin.IsBuiltin(op))
         {
-            return InterpretSerializerBuiltin(node.Token, op, args);
+            // return InterpretSerializerBuiltin(node.Token, op, args);
         }
-        else if (ReflectorBuiltins.Is_builtin(op))
+        else if (ReflectorBuiltin.IsBuiltin(op))
         {
-            return InterpretReflectorBuiltin(node.Token, op, args);
+            // return InterpretReflectorBuiltin(node.Token, op, args);
         }
-        else if (WebServerBuiltins.Is_builtin(op))
+        else if (WebServerBuiltin.IsBuiltin(op))
         {
-            return InterpretWebServerBuiltin(node.Token, op, args);
+            // return InterpretWebServerBuiltin(node.Token, op, args);
         }
-        else if (SignalBuiltins.Is_builtin(op))
+        else if (SignalBuiltin.IsBuiltin(op))
         {
-            return InterpretSignalBuiltin(node.Token, op, args);
+            // return InterpretSignalBuiltin(node.Token, op, args);
         }
-        else if (FFIBuiltins.Is_builtin(op))
+        else if (FFIBuiltin.IsBuiltin(op))
         {
-            return BuiltinDispatch.Execute(ffimgr, node.Token, op, args);
+            // return BuiltinDispatch.Execute(ffimgr, node.Token, op, args);
         }
-        else if (SocketBuiltins.Is_builtin(op))
+        else if (SocketBuiltin.IsBuiltin(op))
         {
-            return BuiltinDispatch.Execute(sockmgr, node.Token, op, args);
+            // return BuiltinDispatch.Execute(sockmgr, node.Token, op, args);
         }
-        else if (TaskBuiltins.Is_builtin(op))
+        else if (TaskBuiltin.IsBuiltin(op))
         {
-            return BuiltinDispatch.Execute(taskmgr, node.Token, op, args);
+            // return BuiltinDispatch.Execute(taskmgr, node.Token, op, args);
         }
 
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
-        */
-        return Value.Default();
+        // return Value.Default();
     }
 
     private Value CallFunction(FunctionCallNode node, ref bool requireDrop)

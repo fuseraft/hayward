@@ -16,5 +16,9 @@ public static class FFIBuiltin
             { Unload, TokenName.Builtin_FFI_Unload }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }

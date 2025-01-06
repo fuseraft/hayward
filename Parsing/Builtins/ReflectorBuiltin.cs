@@ -20,5 +20,9 @@ public static class ReflectorBuiltin
             { RRetVal,  TokenName.Builtin_Reflector_RRetVal }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }

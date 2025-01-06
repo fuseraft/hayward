@@ -12,5 +12,9 @@ public static class ArgvBuiltin
             { GetXarg, TokenName.Builtin_Argv_GetXarg }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }

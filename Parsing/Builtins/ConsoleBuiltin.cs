@@ -10,5 +10,9 @@ public static class ConsoleBuiltin
             { Input, TokenName.Builtin_Console_Input }
         };
 
+    private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
+
     public static IReadOnlyDictionary<string, TokenName> Map => _map;
+
+    public static bool IsBuiltin(TokenName name) => _names.Contains(name);
 }
