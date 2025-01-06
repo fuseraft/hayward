@@ -30,9 +30,8 @@ public class Lexer(int file, string path) : IDisposable
             return null;
         }
 
-        char c = (char)byteValue;
         stream.Position = origin;
-        return c;
+        return (char)byteValue;
     }
 
     private char? GetChar()
@@ -68,7 +67,7 @@ public class Lexer(int file, string path) : IDisposable
         int byteValue;
         while ((byteValue = stream.ReadByte()) != -1)
         {
-            char c = (char)byteValue;
+            var c = (char)byteValue;
             if (!char.IsWhiteSpace(c) && c != '\n')
             {
                 --stream.Position;
@@ -102,8 +101,8 @@ public class Lexer(int file, string path) : IDisposable
         SkipWhitespace();
 
         var span = CreateSpan();
+        var ch = GetChar();
 
-        char? ch = GetChar();
         if (ch == null)
         {
             return CreateToken(TokenType.Eof, span, string.Empty);
@@ -129,74 +128,39 @@ public class Lexer(int file, string path) : IDisposable
 
     private Token TokenizeSymbol(TokenSpan span, char c)
     {
-        switch (c)
+        return c switch
         {
-            case '\n':
-                return CreateToken(TokenType.Newline, span, Environment.NewLine);
-            case ',':
-                return CreateToken(TokenType.Comma, span, ",");
-            case '@':
-                return CreateToken(TokenType.Keyword, span, "@", TokenName.KW_This);
-            case ':' when PeekChar() == ':':
-                GetChar();
-                return CreateToken(TokenType.Qualifier, span, "::");
-            case '.' when PeekChar() == '.':
-                GetChar();
-                return CreateToken(TokenType.Range, span, "..");
-            case ':':
-                return CreateToken(TokenType.Colon, span, ":");
-            case '.':
-                return CreateToken(TokenType.Dot, span, ".");
-            case '\\':
-                return TokenizeEscaped(span);
-            case '(' or ')':
-                return TokenizeParen(span, c);
-            case '[' or ']':
-                return TokenizeBracket(span, c);
-            case '{' or '}':
-                return TokenizeBrace(span, c);
-            case '#':
-                return TokenizeComment(span);
-            case '/' when PeekChar() == '#':
-                return TokenizeBlockComment(span);
-        }
-
-        return TokenizeOperator(span, c);
+            '\n' => CreateToken(TokenType.Newline, span, Environment.NewLine),
+            ',' => CreateToken(TokenType.Comma, span, ","),
+            '@' => CreateToken(TokenType.Keyword, span, "@", TokenName.KW_This),
+            ':' when PeekChar() == ':' => CreateToken(TokenType.Qualifier, span, $":{GetChar()}"),
+            '.' when PeekChar() == '.' => CreateToken(TokenType.Range, span, $".{GetChar()}"),
+            ':' => CreateToken(TokenType.Colon, span, ":"),
+            '.' => CreateToken(TokenType.Dot, span, "."),
+            '\\' => TokenizeEscaped(span),
+            '(' or ')' => TokenizeParen(span, c),
+            '[' or ']' => TokenizeBracket(span, c),
+            '{' or '}' => TokenizeBrace(span, c),
+            '#' => TokenizeComment(span),
+            '/' when PeekChar() == '#' => TokenizeBlockComment(span),
+            _ => TokenizeOperator(span, c),
+        };
     }
 
     private Token TokenizeEscaped(TokenSpan span)
     {
-        char? c = GetChar();
-
-        string? text;
-        switch (c)
+        var c = GetChar();
+        var text = c switch
         {
-            case '\\':
-                text = "\\";
-                break;
-            case 'b':
-                text = "\b";
-                break;
-            case 'r':
-                text = "\r";
-                break;
-            case 'n':
-                text = "\n";
-                break;
-            case 't':
-                text = "\t";
-                break;
-            case 'f':
-                text = "\f";
-                break;
-            case '"':
-                text = "\"";
-                break;
-            default:
-                text = $"\\{c}";
-                break;
-        }
-
+            '\\' => "\\",
+            'b' => "\b",
+            'r' => "\r",
+            'n' => "\n",
+            't' => "\t",
+            'f' => "\f",
+            '"' => "\"",
+            _ => $"\\{c}",
+        };
         return CreateToken(TokenType.Escape, span, text);
     }
 
@@ -344,8 +308,8 @@ public class Lexer(int file, string path) : IDisposable
     private Token TokenizeLiteral(TokenSpan span, char c)
     {
         var text = string.Empty + c;
+        var lastChar = '\0';
         char? ch;
-        char lastChar = '\0';
 
         while ((ch = PeekChar()) != null && (char.IsDigit(ch.Value) || ch == '.' || ch == 'e' || ch == 'E'))
         {
@@ -433,24 +397,6 @@ public class Lexer(int file, string path) : IDisposable
         }
 
         return CreateToken(TokenType.Identifier, span, text);
-    }
-
-    private static Token TokenizeParen(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '(' ? TokenType.LParen : TokenType.RParen, span, text);
-    }
-
-    private static Token TokenizeBracket(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '[' ? TokenType.LBracket : TokenType.RBracket, span, text);
-    }
-
-    private static Token TokenizeBrace(TokenSpan span, char c)
-    {
-        var text = string.Empty + c;
-        return CreateToken(c == '{' ? TokenType.LBrace : TokenType.RBrace, span, text);
     }
 
     private static Token TokenizeBuiltinMethod(TokenSpan span, string builtin)
@@ -611,205 +557,83 @@ public class Lexer(int file, string path) : IDisposable
 
     private static bool IsLiteralKeyword(string text, out TokenName name)
     {
-        name = TokenName.Default;
-
-        switch (text)
+        name = text switch
         {
-            case "null":
-                name = TokenName.KW_Null;
-                break;
-
-            case "true":
-                name = TokenName.KW_True;
-                break;
-
-            case "false":
-                name = TokenName.KW_False;
-                break;
-        }
+            "null" => TokenName.KW_Null,
+            "true" => TokenName.KW_True,
+            "false" => TokenName.KW_False,
+            _ => TokenName.Default,
+        };
 
         return name != TokenName.Default;
     }
 
     private static bool IsConditionalKeyword(string text, out TokenName name)
     {
-        name = TokenName.Default;
-
-        switch (text)
+        name = text switch
         {
-            case "if":
-                name = TokenName.KW_If;
-                break;
-            case "elsif":
-                name = TokenName.KW_ElseIf;
-                break;
-            case "else":
-                name = TokenName.KW_Else;
-                break;
-            case "end":
-                name = TokenName.KW_End;
-                break;
-            case "case":
-                name = TokenName.KW_Case;
-                break;
-        }
+            "if" => TokenName.KW_If,
+            "elsif" => TokenName.KW_ElseIf,
+            "else" => TokenName.KW_Else,
+            "end" => TokenName.KW_End,
+            "case" => TokenName.KW_Case,
+            _ => TokenName.Default,
+        };
 
         return name != TokenName.Default;
     }
 
     private static bool IsKeyword(string text, out TokenName name)
     {
-        name = TokenName.Default;
-
-        switch (text)
+        name = text switch
         {
-            case "abstract":
-                name = TokenName.KW_Abstract;
-                break;
-
-            case "as":
-                name = TokenName.KW_As;
-                break;
-
-            case "break":
-                name = TokenName.KW_Break;
-                break;
-
-            case "catch":
-                name = TokenName.KW_Catch;
-                break;
-
-            case "const":
-                name = TokenName.KW_Const;
-                break;
-
-            case "do":
-                name = TokenName.KW_Do;
-                break;
-
-            case "eprint":
-                name = TokenName.KW_EPrint;
-                break;
-
-            case "eprintln":
-                name = TokenName.KW_EPrintLn;
-                break;
-
-            case "exit":
-                name = TokenName.KW_Exit;
-                break;
-
-            case "export":
-                name = TokenName.KW_Export;
-                break;
-
-            case "finally":
-                name = TokenName.KW_Finally;
-                break;
-
-            case "for":
-                name = TokenName.KW_For;
-                break;
-
-            case "spawn":
-                name = TokenName.KW_Spawn;
-                break;
-
-            case "import":
-                name = TokenName.KW_Import;
-                break;
-
-            case "in":
-                name = TokenName.KW_In;
-                break;
-
-            case "interface":
-                name = TokenName.KW_Interface;
-                break;
-
-            case "def":
-            case "fn":
-                name = TokenName.KW_Method;
-                break;
-
-            case "package":
-                name = TokenName.KW_Package;
-                break;
-
-            case "next":
-                name = TokenName.KW_Next;
-                break;
-
-            case "override":
-                name = TokenName.KW_Override;
-                break;
-
-            case "parse":
-                name = TokenName.KW_Parse;
-                break;
-
-            case "pass":
-                name = TokenName.KW_Pass;
-                break;
-
-            case "print":
-                name = TokenName.KW_Print;
-                break;
-
-            case "println":
-                name = TokenName.KW_PrintLn;
-                break;
-
-            case "printxy":
-                name = TokenName.KW_PrintXy;
-                break;
-
-            case "private":
-                name = TokenName.KW_Private;
-                break;
-
-            case "repeat":
-                name = TokenName.KW_Repeat;
-                break;
-
-            case "return":
-                name = TokenName.KW_Return;
-                break;
-
-            case "static":
-                name = TokenName.KW_Static;
-                break;
-
-            case "struct":
-                name = TokenName.KW_Struct;
-                break;
-
-            case "throw":
-                name = TokenName.KW_Throw;
-                break;
-
-            case "try":
-                name = TokenName.KW_Try;
-                break;
-
-            case "var":
-                name = TokenName.KW_Var;
-                break;
-
-            case "when":
-                name = TokenName.KW_When;
-                break;
-
-            case "while":
-                name = TokenName.KW_While;
-                break;
-
-            default:
-                break;
-        }
+            "abstract" => TokenName.KW_Abstract,
+            "as" => TokenName.KW_As,
+            "break" => TokenName.KW_Break,
+            "catch" => TokenName.KW_Catch,
+            "const" => TokenName.KW_Const,
+            "do" => TokenName.KW_Do,
+            "eprint" => TokenName.KW_EPrint,
+            "eprintln" => TokenName.KW_EPrintLn,
+            "exit" => TokenName.KW_Exit,
+            "export" => TokenName.KW_Export,
+            "finally" => TokenName.KW_Finally,
+            "for" => TokenName.KW_For,
+            "spawn" => TokenName.KW_Spawn,
+            "import" => TokenName.KW_Import,
+            "in" => TokenName.KW_In,
+            "interface" => TokenName.KW_Interface,
+            "def" => TokenName.KW_Method,
+            "fn" => TokenName.KW_Method,
+            "package" => TokenName.KW_Package,
+            "next" => TokenName.KW_Next,
+            "override" => TokenName.KW_Override,
+            "parse" => TokenName.KW_Parse,
+            "pass" => TokenName.KW_Pass,
+            "print" => TokenName.KW_Print,
+            "println" => TokenName.KW_PrintLn,
+            "printxy" => TokenName.KW_PrintXy,
+            "private" => TokenName.KW_Private,
+            "repeat" => TokenName.KW_Repeat,
+            "return" => TokenName.KW_Return,
+            "static" => TokenName.KW_Static,
+            "struct" => TokenName.KW_Struct,
+            "throw" => TokenName.KW_Throw,
+            "try" => TokenName.KW_Try,
+            "var" => TokenName.KW_Var,
+            "when" => TokenName.KW_When,
+            "while" => TokenName.KW_While,
+            _ => TokenName.Default,
+        };
 
         return name != TokenName.Default;
     }
+
+    private static Token TokenizeParen(TokenSpan span, char c) => CreateToken(c == '(' ? TokenType.LParen : TokenType.RParen, span, $"{c}");
+
+    private static Token TokenizeBracket(TokenSpan span, char c) => CreateToken(c == '[' ? TokenType.LBracket : TokenType.RBracket, span, $"{c}");
+
+    private static Token TokenizeBrace(TokenSpan span, char c) => CreateToken(c == '{' ? TokenType.LBrace : TokenType.RBrace, span, $"{c}");
 
     private static Token CreateStringLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.String, name, span, text, value);
 
