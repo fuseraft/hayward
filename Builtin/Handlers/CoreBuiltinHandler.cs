@@ -39,6 +39,7 @@ public struct CoreBuiltinHandler
             TokenName.Builtin_Kiwi_Set => ExecuteSet(token, value, args),
             TokenName.Builtin_Kiwi_Truthy => ExecuteTruthy(token, value, args),
             TokenName.Builtin_Kiwi_Split => ExecuteSplit(token, value, args),
+            TokenName.Builtin_Kiwi_Lines => ExecuteLines(token, value, args),
             /*
             TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
             TokenName.Builtin_Kiwi_RSplit => ExecuteRSplit(token, value, args),
@@ -75,11 +76,25 @@ public struct CoreBuiltinHandler
             TokenName.Builtin_Kiwi_Matches => ExecuteMatches(token, value, args),
             TokenName.Builtin_Kiwi_MatchesAll => ExecuteMatchesAll(token, value, args),
             TokenName.Builtin_Kiwi_Scan => ExecuteScan(token, value, args),
-            TokenName.Builtin_Kiwi_Lines => ExecuteLines(token, value, args),
             TokenName.Builtin_Kiwi_Tokens => ExecuteTokens(token, value, args),
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value ExecuteLines(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Lines);
+        }
+
+        if (!value.IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+
+        return Value.CreateList(value.GetString().Split(Environment.NewLine, StringSplitOptions.None).Select(x => Value.CreateString(x)).ToList());
     }
 
     private static Value ExecuteSplit(Token token, Value value, List<Value> args)
