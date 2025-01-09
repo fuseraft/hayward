@@ -6,9 +6,8 @@ using citrus.Typing;
 
 namespace citrus.Builtin.Handlers;
 
-public struct CoreBuiltinHandler
+public static class CoreBuiltinHandler
 {
-
     public static Value Execute(Token token, TokenName builtin, Value value, List<Value> args)
     {
         return builtin switch
@@ -40,6 +39,14 @@ public struct CoreBuiltinHandler
             TokenName.Builtin_Kiwi_Truthy => ExecuteTruthy(token, value, args),
             TokenName.Builtin_Kiwi_Split => ExecuteSplit(token, value, args),
             TokenName.Builtin_Kiwi_Lines => ExecuteLines(token, value, args),
+            TokenName.Builtin_Kiwi_Clone => ExecuteClone(token, value, args),
+            TokenName.Builtin_Kiwi_Reverse => ExecuteReverse(token, value, args),
+            TokenName.Builtin_Kiwi_IndexOf => ExecuteIndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_LastIndexOf => ExecuteLastIndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_Substring => ExecuteSubstring(token, value, args),
+            TokenName.Builtin_Kiwi_Concat => ExecuteConcat(token, value, args),
+            TokenName.Builtin_Kiwi_Unique => ExecuteUnique(token, value, args),
+            TokenName.Builtin_Kiwi_Count => ExecuteCount(token, value, args),
             /*
             TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
             TokenName.Builtin_Kiwi_RSplit => ExecuteRSplit(token, value, args),
@@ -49,9 +56,6 @@ public struct CoreBuiltinHandler
             TokenName.Builtin_Kiwi_ToI => ExecuteToInteger(token, value, args),
             TokenName.Builtin_Kiwi_ToS => ExecuteToString(token, value, args),
             TokenName.Builtin_Kiwi_RReplace => ExecuteRReplace(token, value, args),
-            TokenName.Builtin_Kiwi_Reverse => ExecuteReverse(token, value, args),
-            TokenName.Builtin_Kiwi_IndexOf => ExecuteIndexOf(token, value, args),
-            TokenName.Builtin_Kiwi_LastIndexOf => ExecuteLastIndexOf(token, value, args),
             TokenName.Builtin_Kiwi_Keys => ExecuteKeys(token, value, args),
             TokenName.Builtin_Kiwi_Merge => ExecuteMerge(token, value, args),
             TokenName.Builtin_Kiwi_Values => ExecuteValues(token, value, args),
@@ -59,17 +63,12 @@ public struct CoreBuiltinHandler
             TokenName.Builtin_Kiwi_Dequeue => ExecuteDequeue(token, value, args),
             TokenName.Builtin_Kiwi_Shift => ExecuteShift(token, value, args),
             TokenName.Builtin_Kiwi_Unshift => ExecuteUnshift(token, value, args),
-            TokenName.Builtin_Kiwi_Substring => ExecuteSubstring(token, value, args),
             TokenName.Builtin_Kiwi_Rotate => ExecuteRotate(token, value, args),
             TokenName.Builtin_Kiwi_Insert => ExecuteInsert(token, value, args),
             TokenName.Builtin_Kiwi_Slice => ExecuteSlice(token, value, args),
             TokenName.Builtin_Kiwi_Swap => ExecuteSwap(token, value, args),
-            TokenName.Builtin_Kiwi_Concat => ExecuteConcat(token, value, args),
-            TokenName.Builtin_Kiwi_Unique => ExecuteUnique(token, value, args),
-            TokenName.Builtin_Kiwi_Count => ExecuteCount(token, value, args),
-            TokenName.Builtin_Kiwi_Flatten => ExecuteFlatten(token, value, args),
             TokenName.Builtin_Kiwi_Zip => ExecuteZip(token, value, args),
-            TokenName.Builtin_Kiwi_Clone => ExecuteClone(token, value, args),
+            TokenName.Builtin_Kiwi_Flatten => ExecuteFlatten(token, value, args),
             TokenName.Builtin_Kiwi_Pretty => ExecutePretty(token, value, args),
             TokenName.Builtin_Kiwi_Find => ExecuteFind(token, value, args),
             TokenName.Builtin_Kiwi_Match => ExecuteMatch(token, value, args),
@@ -80,6 +79,234 @@ public struct CoreBuiltinHandler
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value ExecuteConcat(Token token, Value value, List<Value> args)
+    {
+        if (args.Count == 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Concat);
+        }
+
+        if (value.IsString())
+        {
+            System.Text.StringBuilder sv = new();
+            sv.Append(value.GetString());
+
+            foreach (var arg in args)
+            {
+                sv.Append(Serializer.Serialize(arg));
+            }
+
+            return Value.CreateString(sv.ToString());
+        }
+        else if (value.IsList())
+        {
+            var lst = value.GetList();
+
+            foreach (var arg in args)
+            {
+                if (arg.IsList())
+                {
+                    lst.AddRange(arg.GetList());
+                }
+                else
+                {
+                    lst.Add(arg);
+                }
+            }
+
+            return value;
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list.");
+    }
+
+    private static Value ExecuteUnique(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unique);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var originalList = value.GetList();
+        var uniqueList = new List<Value>();
+
+        foreach (var item in originalList)
+        {
+            if (!uniqueList.Contains(item))
+            {
+                uniqueList.Add(item);
+            }
+        }
+
+        return Value.CreateList(uniqueList);
+    }
+
+
+    private static Value ExecuteCount(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Count);
+        }
+
+        if (value.IsString())
+        {
+            if (!args[0].IsString())
+            {
+                throw new InvalidOperationError(token, "Expected a string to match against.");
+            }
+
+            var s = value.GetString();
+            var target = args[0].GetString();
+            var count = 0;
+
+            if (string.IsNullOrEmpty(s) || string.IsNullOrEmpty(target) || target.Length > s.Length)
+            {
+                throw new InvalidOperationError(token, "Expected source string to be non-empty and longer than target string.");
+            }
+
+            for (int i = 0; i <= s.Length - target.Length; i++)
+            {
+                if (s.Substring(i, target.Length) == target)
+                {
+                    count++;
+                }
+            }
+
+            return Value.CreateInteger(count);
+        }
+        else if (value.IsList())
+        {
+            var list = value.GetList();
+            var count = 0;
+
+            foreach (var item in list)
+            {
+                if (item.Equals(args[0]))
+                {
+                    count++;
+                }
+            }
+
+            return Value.CreateInteger(count);
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list.");
+    }
+
+
+    private static Value ExecuteSubstring(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1 && args.Count != 2)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Substring);
+        }
+
+        if (!value.IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+
+        var s = value.GetString();
+        var index = (int)args[0].GetInteger();
+        var size = s.Length;
+
+        if (args.Count == 2)
+        {
+            if (!args[1].IsInteger())
+            {
+                throw new InvalidOperationError(token, "Expected an integer.");
+            }
+
+            size = (int)args[1].GetInteger();
+        }
+
+        return Value.CreateString(s.Substring(index, Math.Min(size, s.Length - index)));
+    }
+
+    private static Value ExecuteReverse(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Reverse);
+        }
+
+        if (value.IsString())
+        {
+            return Value.CreateString(string.Join(string.Empty, value.GetString().Reverse()));
+        }
+        else if (value.IsList())
+        {
+            value.GetList().Reverse();
+            return value;
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list.");
+    }
+
+    private static Value ExecuteIndexOf(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.IndexOf);
+        }
+
+        if (value.IsString())
+        {
+            if (!args[0].IsString())
+            {
+                throw new InvalidOperationError(token, "Expected a string.");
+            }
+
+            return Value.CreateInteger(value.GetString().IndexOf(args[0].GetString()));
+        }
+        else if (value.IsList())
+        {
+            return Value.CreateInteger(value.GetList().IndexOf(args[0]));
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list.");
+    }
+
+    private static Value ExecuteLastIndexOf(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.LastIndexOf);
+        }
+
+        if (value.IsString())
+        {
+            if (!args[0].IsString())
+            {
+                throw new InvalidOperationError(token, "Expected a string.");
+            }
+
+            return Value.CreateInteger(value.GetString().LastIndexOf(args[0].GetString()));
+        }
+        else if (value.IsList())
+        {
+            return Value.CreateInteger(value.GetList().LastIndexOf(args[0]));
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list.");
+    }
+
+    private static Value ExecuteClone(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Clone);
+        }
+
+        return value.Clone();
     }
 
     private static Value ExecuteLines(Token token, Value value, List<Value> args)
@@ -160,8 +387,8 @@ public struct CoreBuiltinHandler
             }
 
             var index = (int)args[0].GetInteger();
-            
-            if (index < 0 || index > value.GetList().Count)
+
+            if (index < 0 || index >= value.GetList().Count)
             {
                 throw new IndexError(token);
             }
@@ -199,7 +426,7 @@ public struct CoreBuiltinHandler
 
             var index = (int)args[0].GetInteger();
 
-            if (index < 0 || index > value.GetList().Count)
+            if (index < 0 || index >= value.GetList().Count)
             {
                 throw new IndexError(token);
             }
@@ -648,7 +875,7 @@ public struct CoreBuiltinHandler
         }
 
         return Value.CreateString(Serializer.GetTypenameString(value));
-      }
+    }
 
     private static Value ExecuteBeginsWith(Token token, Value value, List<Value> args)
     {
