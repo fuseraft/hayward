@@ -1,7 +1,15 @@
-fn hello(x)
+fn hashmaps()
+  x = {}
+  x.hello = "world"
   println x
 end
 
-for i in [1..10000] do
-  hello("Hello, World! " + i)
+fn add(a: integer, b: integer): integer
+  return a + b
 end
+
+fn test()
+  println add(5, 2)
+end
+
+test()

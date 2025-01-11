@@ -401,7 +401,114 @@ public class Value(object value, ValueType type = ValueType.None)
 
     public override int GetHashCode()
     {
-        return StructuralHashCode([]);
+        //HashSet<Value> visited = [];
+        //return StructuralHashCode(visited);
+
+        int hash = 17; // prime start
+        hash = hash * 31 + (int)Type;
+
+        switch (Type)
+        {
+            case ValueType.Integer:
+                {
+                    hash = hash * 31 + GetInteger().GetHashCode();
+                    break;
+                }
+            case ValueType.Float:
+                {
+                    hash = hash * 31 + GetFloat().GetHashCode();
+                    break;
+                }
+            case ValueType.Boolean:
+                {
+                    hash = hash * 31 + GetBoolean().GetHashCode();
+                    break;
+                }
+            case ValueType.String:
+                {
+                    var s = GetString();
+                    hash = hash * 31 + (s?.GetHashCode() ?? 0);
+                    break;
+                }
+            case ValueType.List:
+            case ValueType.Hashmap:
+            case ValueType.Object:
+                {
+                    hash = hash * 31 + GetStructuralHashCode();
+                    break;
+                }
+            case ValueType.Lambda:
+            case ValueType.Struct:
+            case ValueType.None:
+            default:
+                {
+                    break;
+                }
+        }
+
+        return hash;
+    }
+
+    private int GetStructuralHashCode()
+    {
+        int hash = 17; // prime start
+        hash = hash * 31 + (int)Type;
+
+        switch (Type)
+        {
+            case ValueType.Integer:
+            case ValueType.Float:
+            case ValueType.Boolean:
+            case ValueType.String:
+                return GetHashCode();
+
+            case ValueType.List:
+                {
+                    var list = GetList();
+                    foreach (var item in list)
+                    {
+                        hash = hash * 31 + item.GetStructuralHashCode();
+                    }
+                    break;
+                }
+
+            case ValueType.Hashmap:
+                {
+                    var map = GetHashmap();
+                    foreach (var kvp in map)
+                    {
+                        int keyHash = kvp.Key.GetStructuralHashCode();
+                        int valHash = kvp.Value.GetStructuralHashCode();
+                        hash = hash * 31 + (keyHash ^ valHash);
+                    }
+                    break;
+                }
+
+            case ValueType.Object:
+                {
+                    var obj = GetObject();
+                    hash = hash * 31 + (obj.StructName?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (obj.Identifier?.GetHashCode() ?? 0);
+
+                    foreach (var kvp in obj.InstanceVariables)
+                    {
+                        int keyHash = kvp.Key.GetHashCode();
+                        int valHash = kvp.Value.GetStructuralHashCode();
+                        hash = hash * 31 + (keyHash ^ valHash);
+                    }
+                    break;
+                }
+
+            case ValueType.Lambda:
+            case ValueType.Struct:
+            case ValueType.None:
+            default:
+                {
+                    break;
+                }
+        }
+
+        return hash;
     }
 
     private int StructuralHashCode(HashSet<Value> visitedValues)
@@ -474,17 +581,7 @@ public class Value(object value, ValueType type = ValueType.None)
                     break;
                 }
             case ValueType.Lambda:
-                {
-                    var lambda = GetLambda();
-                    hash = hash * 31 + (lambda.Identifier?.GetHashCode() ?? 0);
-                    break;
-                }
             case ValueType.Struct:
-                {
-                    var st = GetStruct();
-                    hash = hash * 31 + (st.Identifier?.GetHashCode() ?? 0);
-                    break;
-                }
             case ValueType.None:
             default:
                 {

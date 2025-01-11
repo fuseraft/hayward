@@ -1437,7 +1437,6 @@ public class Interpreter
     private Value Visit(FunctionCallNode node)
     {
         var result = Value.Default();
-
         var callableType = GetCallable(node.Token, node.FunctionName);
         var requireDrop = false;
 
@@ -1812,10 +1811,10 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        /*else if (KiwiBuiltins.Is_builtin_method(name))
+        else if (KiwiBuiltin.IsBuiltinMethod(name))
         {
             return CallableType.Builtin;
-        }*/
+        }
 
         if (Context.HasMappedLambda(name))
         {
