@@ -1205,6 +1205,7 @@ public static class CoreBuiltinHandler
         else if (value.IsHashmap())
         {
             value.GetHashmap()[args[0]] = args[1];
+            return value;
         }
 
         throw new InvalidOperationError(token, "Expected a list or hashmap.");

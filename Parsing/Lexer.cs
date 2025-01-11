@@ -1,11 +1,12 @@
 using citrus.Parsing.Builtins;
+using citrus.Tracing.Error;
 using citrus.Typing;
 
 namespace citrus.Parsing;
 
-public class Lexer(int file, string path) : IDisposable
+public class Lexer(int file, string path, bool isFile = true) : IDisposable
 {
-    private readonly FileStream stream = System.IO.File.OpenRead(path);
+    private readonly Stream stream = isFile ? System.IO.File.OpenRead(path) : new MemoryStream(System.Text.Encoding.UTF8.GetBytes(path));
     private readonly int File = file;
     private int LineNumber = 0;
     private int Position = 0;
@@ -18,6 +19,63 @@ public class Lexer(int file, string path) : IDisposable
     public void Dispose()
     {
         stream?.Close();
+    }
+
+    private List<Token> GetTokens()
+    {
+        List<Token> tokens = [];
+        stream.Seek(0, SeekOrigin.Begin);
+
+        while (stream.CanRead)
+        {
+            var token = GetToken();
+
+            if (token.Type == TokenType.String)
+            {
+                TokenizeStringInterpolation(ref tokens, token);
+            }
+            else
+            {
+                tokens.Add(token);
+            }
+
+            if (token.Type == TokenType.Eof)
+            {
+                break;
+            }
+        }
+
+        return tokens;
+    }
+
+    private Token GetToken()
+    {
+        SkipWhitespace();
+
+        var span = CreateSpan();
+        var ch = GetChar();
+
+        if (ch == null)
+        {
+            return CreateToken(TokenType.Eof, span, string.Empty);
+        }
+
+        var c = ch.Value;
+
+        if (char.IsAsciiLetter(c) || c == '_')
+        {
+            return TokenizeKeywordOrIdentifier(span, c);
+        }
+        else if (char.IsDigit(c))
+        {
+            return TokenizeLiteral(span, c);
+        }
+        else if (c == '"')
+        {
+            return TokenizeString(span);
+        }
+
+        return TokenizeSymbol(span, c);
     }
 
     private char? PeekChar()
@@ -76,54 +134,111 @@ public class Lexer(int file, string path) : IDisposable
         }
     }
 
-    private List<Token> GetTokens()
+    private static void TokenizeStringInterpolation(ref List<Token> tokens, Token token)
     {
-        List<Token> tokens = [];
-        stream.Seek(0, SeekOrigin.Begin);
+        var file = token.Span.File;
+        var span = token.Span;
+        var text = token.Text;
+        System.Text.StringBuilder sv = new();
 
-        while (stream.CanRead)
+        if (!text.Contains("${"))
         {
-            var token = GetToken();
-
             tokens.Add(token);
+            return;
+        }
 
-            if (token.Type == TokenType.Eof)
+        for (int i = 0, braces = 0; i < text.Length; ++i)
+        {
+            var c = text[i];
+            switch (c)
             {
+                case '$':
+                {
+                    if (1 + i < text.Length && text[1 + i] == '{')
+                    {
+                        ++i; // skip "${"
+                        ++braces;
+                        
+                        var s = sv.ToString();
+                        sv.Clear();
+
+                        var st = CreateStringLiteralToken(span, s, Value.CreateString(s));
+                        tokens.Add(st);
+                    }
+                }
+                break;
+
+                case '{':
+                    ++braces;
+                    sv.Append(c);
+                break;
+                
+                case '}':
+                {
+                    if (braces > 0)
+                    {
+                        --braces;
+                    }
+
+                    if (braces > 0)
+                    {
+                        sv.Append(c);
+                        break;
+                    }
+                    
+                    Lexer lex = new(file, sv.ToString(), false);
+                    sv.Clear();
+                    
+                    var tmpTokens = lex.GetTokens();
+                    if (tmpTokens == null || tmpTokens.Count == 0)
+                    {
+                        // empty interpolation
+                        break;
+                    }
+                    
+                    // string: "your name repeated ${repeater} time(s) is ${name * repeater}"
+                    // interp: "your name repeated " + (repeater) + " time(s) is " + (name * repeater)
+                    
+                    // if we aren't at the beginning of the string, concatenate.
+                    if (i > 2)
+                    {
+                        tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                    }
+
+                    // wrap inner tokens in parentheses
+                    tokens.Add(CreateToken(TokenType.LParen, span, "("));
+                    foreach (var tmpToken in tmpTokens)
+                    {
+                        if (tmpToken.Type == TokenType.Eof)
+                        {
+                            continue;
+                        }
+
+                        tmpToken.SetSpan(span);
+                        tokens.Add(tmpToken);
+                    }
+                    tokens.Add(CreateToken(TokenType.RParen, span, ")"));
+
+                    // if we aren't at the end of the string, concatenate
+                    if (i + 1 < text.Length)
+                    {
+                        tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                    }   
+                }
+                break;
+
+                default:
+                    sv.Append(c);
                 break;
             }
         }
 
-        return tokens;
-    }
-
-    private Token GetToken()
-    {
-        SkipWhitespace();
-
-        var span = CreateSpan();
-        var ch = GetChar();
-
-        if (ch == null)
+        var lastToken = tokens.LastOrDefault();
+        if (lastToken.Name == TokenName.Ops_Add && sv.Length > 0)
         {
-            return CreateToken(TokenType.Eof, span, string.Empty);
+            var s = sv.ToString();
+            tokens.Add(CreateStringLiteralToken(span, s, Value.CreateString(s)));
         }
-
-        var c = ch.Value;
-
-        if (char.IsAsciiLetter(c) || c == '_')
-        {
-            return TokenizeKeywordOrIdentifier(span, c);
-        }
-        else if (char.IsDigit(c))
-        {
-            return TokenizeLiteral(span, c);
-        }
-        else if (c == '"')
-        {
-            return TokenizeString(span);
-        }
-
-        return TokenizeSymbol(span, c);
     }
 
     private Token TokenizeSymbol(TokenSpan span, char c)

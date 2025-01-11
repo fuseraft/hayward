@@ -8,7 +8,7 @@ namespace citrus.Builtin.Handlers;
 public static class FileIOBuiltinHandler
 {
 
-    public static Value Execute(Token token, TokenName builtin, Value value, List<Value> args)
+    public static Value Execute(Token token, TokenName builtin, List<Value> args)
     {
         return builtin switch
         {

@@ -31,6 +31,7 @@ public class ScriptRunner : IRunner
         catch (KiwiError ex)
         {
             Console.Error.WriteLine($"{ex.Type}: {ex.Message}");
+            Console.Error.WriteLine($"{ex.Token.Span.File}:{ex.Token.Span.Line}:{ex.Token.Span.Pos}");
         }
         catch (Exception ex)
         {
