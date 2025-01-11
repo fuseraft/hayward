@@ -1,3 +1,3 @@
 # citrus 🍋
 
-.NET-flavored kiwi.
+A dynamically-typed object-oriented scripting language that runs on .NET.
