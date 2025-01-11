@@ -93,7 +93,7 @@ public enum TokenName
   Builtin_Kiwi_Substring,
   Builtin_Kiwi_ToBytes,
   Builtin_Kiwi_ToHex,
-  Builtin_Kiwi_ToD,
+  Builtin_Kiwi_ToF,
   Builtin_Kiwi_ToI,
   Builtin_Kiwi_ToS,
   Builtin_Kiwi_Tokens,
