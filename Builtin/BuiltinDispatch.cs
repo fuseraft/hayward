@@ -23,11 +23,11 @@ public struct BuiltinDispatch
     {
         if (FileIOBuiltin.IsBuiltin(builtin))
         {
-            // return FileIOBuiltinHandler::execute(token, builtin, args);
+            return FileIOBuiltinHandler.Execute(token, builtin, args);
         }
         else if (TimeBuiltin.IsBuiltin(builtin))
         {
-            // return TimeBuiltinHandler::execute(token, builtin, args);
+            return TimeBuiltinHandler.Execute(token, builtin, args);
         }
         else if (MathBuiltin.IsBuiltin(builtin))
         {
