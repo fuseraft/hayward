@@ -18,7 +18,6 @@ public class Interpreter
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
     private Stack<string> FuncStack { get; set; } = [];
-    private static Value DefaultValue = Value.Default();
 
     public void SetContext(KContext context) => Context = context;
 
@@ -122,7 +121,7 @@ public class Interpreter
             PushFrame(programFrame);
         }
 
-        Value result = DefaultValue;
+        var result = Value.Default();
 
         foreach (var stmt in node.Statements)
         {

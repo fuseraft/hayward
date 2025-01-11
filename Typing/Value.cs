@@ -84,10 +84,10 @@ public class Value(object value, ValueType type = ValueType.None)
     public static Value CreateNull() => new(new NullRef(), ValueType.None);
     public static Value CreateObject(InstanceRef value) => new(value, ValueType.Object);
     public static Value CreateObject(object value) => new(value, ValueType.Object);
-    public static Value CreateLambda(LambdaRef value) => new (value, ValueType.Lambda);
-    public static Value CreateLambda(object value) => new (value, ValueType.Lambda);
-    public static Value CreateStruct(StructRef value) => new (value, ValueType.Struct);
-    public static Value CreateStruct(object value) => new (value, ValueType.Struct);
+    public static Value CreateLambda(LambdaRef value) => new(value, ValueType.Lambda);
+    public static Value CreateLambda(object value) => new(value, ValueType.Lambda);
+    public static Value CreateStruct(StructRef value) => new(value, ValueType.Struct);
+    public static Value CreateStruct(object value) => new(value, ValueType.Struct);
     // public static Value CreatePointer(object value) => new(value, ValueType.Pointer);
 
     public long GetInteger() => (long)Value_;
@@ -120,19 +120,19 @@ public class Value(object value, ValueType type = ValueType.None)
     public static List<Value> Clone(List<Value> list)
     {
         List<Value> clone = [];
-        
+
         foreach (var value in list)
         {
             clone.Add(value.Clone());
         }
-        
+
         return clone;
     }
 
     public static Dictionary<Value, Value> Clone(Dictionary<Value, Value> hash)
     {
         Dictionary<Value, Value> clone = [];
-        
+
         foreach (var key in hash.Keys)
         {
             clone.Add(key, hash[key].Clone());
@@ -243,8 +243,257 @@ public class Value(object value, ValueType type = ValueType.None)
         Value_ = value;
         Type = ValueType.Pointer;
     }*/
-}
 
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Value other)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        if (Type != other.Type)
+        {
+            return false;
+        }
+
+        // deeper structural check with cycle-protection
+        HashSet<(Value, Value)> visitedPairs = [];
+        return StructuralEquals(other, visitedPairs);
+    }
+
+    private bool StructuralEquals(Value other, HashSet<(Value, Value)> visitedPairs)
+    {
+        // prevent infinite loops in cyclic structures
+        var pair = (this, other);
+        if (visitedPairs.Contains(pair))
+        {
+            return true;
+        }
+
+        visitedPairs.Add(pair);
+
+        switch (Type)
+        {
+            case ValueType.Integer:
+                return GetInteger() == other.GetInteger();
+
+            case ValueType.Float:
+                return GetFloat().Equals(other.GetFloat());
+
+            case ValueType.Boolean:
+                return GetBoolean() == other.GetBoolean();
+
+            case ValueType.String:
+                return GetString().Equals(other.GetString());
+
+            case ValueType.List:
+                {
+                    var thisList = GetList();
+                    var otherList = other.GetList();
+                    if (thisList.Count != otherList.Count)
+                    {
+                        return false;
+                    }
+
+                    for (int i = 0; i < thisList.Count; i++)
+                    {
+                        if (!thisList[i].StructuralEquals(otherList[i], visitedPairs))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+            case ValueType.Hashmap:
+                {
+                    var thisMap = GetHashmap();
+                    var otherMap = other.GetHashmap();
+                    if (thisMap.Count != otherMap.Count)
+                    {
+                        return false;
+                    }
+
+                    foreach (var kvp in thisMap)
+                    {
+                        var key = kvp.Key;
+                        var val = kvp.Value;
+
+                        if (!otherMap.TryGetValue(key, out Value? otherVal))
+                        {
+                            return false;
+                        }
+
+                        if (!val.StructuralEquals(otherVal, visitedPairs))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+            case ValueType.Object:
+                {
+                    var thisObj = GetObject();
+                    var otherObj = other.GetObject();
+
+                    if (thisObj.StructName != otherObj.StructName)
+                    {
+                        return false;
+                    }
+
+                    if (thisObj.Identifier != otherObj.Identifier)
+                    {
+                        return false;
+                    }
+
+                    var thisVars = thisObj.InstanceVariables;
+                    var otherVars = otherObj.InstanceVariables;
+                    if (thisVars.Count != otherVars.Count)
+                    {
+                        return false;
+                    }
+
+                    foreach (var kvp in thisVars)
+                    {
+                        var key = kvp.Key;
+                        var val = kvp.Value;
+
+                        if (!otherVars.TryGetValue(key, out Value? otherVarVal))
+                        {
+                            return false;
+                        }
+
+                        if (!val.StructuralEquals(otherVarVal, visitedPairs))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+            case ValueType.Lambda:
+                {
+                    var thisLambda = GetLambda();
+                    var otherLambda = other.GetLambda();
+                    return thisLambda.Identifier == otherLambda.Identifier;
+                }
+
+            case ValueType.Struct:
+                {
+                    var thisStruct = GetStruct();
+                    var otherStruct = other.GetStruct();
+                    return thisStruct.Identifier == otherStruct.Identifier;
+                }
+
+            case ValueType.None:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public override int GetHashCode()
+    {
+        return StructuralHashCode([]);
+    }
+
+    private int StructuralHashCode(HashSet<Value> visitedValues)
+    {
+        if (visitedValues.Contains(this))
+        {
+            return 0;
+        }
+
+        visitedValues.Add(this);
+
+        int hash = 17; // prime start
+        hash = hash * 31 + (int)Type;
+
+        switch (Type)
+        {
+            case ValueType.Integer:
+                {
+                    hash = hash * 31 + GetInteger().GetHashCode();
+                    break;
+                }
+            case ValueType.Float:
+                {
+                    hash = hash * 31 + GetFloat().GetHashCode();
+                    break;
+                }
+            case ValueType.Boolean:
+                {
+                    hash = hash * 31 + GetBoolean().GetHashCode();
+                    break;
+                }
+            case ValueType.String:
+                {
+                    var s = GetString();
+                    hash = hash * 31 + (s?.GetHashCode() ?? 0);
+                    break;
+                }
+            case ValueType.List:
+                {
+                    var list = GetList();
+                    foreach (var item in list)
+                    {
+                        hash = hash * 31 + item.StructuralHashCode(visitedValues);
+                    }
+                    break;
+                }
+            case ValueType.Hashmap:
+                {
+                    var map = GetHashmap();
+                    foreach (var kvp in map)
+                    {
+                        int keyHash = kvp.Key.StructuralHashCode(visitedValues);
+                        int valHash = kvp.Value.StructuralHashCode(visitedValues);
+                        hash = hash * 31 + (keyHash ^ valHash);
+                    }
+                    break;
+                }
+            case ValueType.Object:
+                {
+                    var obj = GetObject();
+                    hash = hash * 31 + (obj.StructName?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (obj.Identifier?.GetHashCode() ?? 0);
+
+                    foreach (var kvp in obj.InstanceVariables)
+                    {
+                        int keyHash = kvp.Key.GetHashCode();
+                        int valHash = kvp.Value.StructuralHashCode(visitedValues);
+                        hash = hash * 31 + (keyHash ^ valHash);
+                    }
+                    break;
+                }
+            case ValueType.Lambda:
+                {
+                    var lambda = GetLambda();
+                    hash = hash * 31 + (lambda.Identifier?.GetHashCode() ?? 0);
+                    break;
+                }
+            case ValueType.Struct:
+                {
+                    var st = GetStruct();
+                    hash = hash * 31 + (st.Identifier?.GetHashCode() ?? 0);
+                    break;
+                }
+            case ValueType.None:
+            default:
+                {
+                    break;
+                }
+        }
+        return hash;
+    }
+}
 
 public enum ValueType
 {

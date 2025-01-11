@@ -1,3 +1,4 @@
+using citrus.Builtin.Handlers;
 using citrus.Parsing;
 using citrus.Parsing.Builtins;
 using citrus.Tracing.Error;
@@ -12,7 +13,7 @@ public struct BuiltinDispatch
     {
         if (KiwiBuiltin.IsBuiltin(builtin))
         {
-            // return CoreBuiltinHandler::execute(token, builtin, v, args);
+            return CoreBuiltinHandler.Execute(token, builtin, v, args);
         }
 
         throw new FunctionUndefinedError(token, token.Text);

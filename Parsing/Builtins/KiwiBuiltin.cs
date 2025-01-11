@@ -15,7 +15,7 @@ public static class KiwiBuiltin
     public const string RightTrim    = "rtrim";
     public const string Trim         = "trim";
     public const string Size         = "size";
-    public const string ToD          = "to_float";
+    public const string ToF          = "to_float";
     public const string ToI          = "to_int";
     public const string ToS          = "to_string";
     public const string ToBytes      = "to_bytes";
@@ -89,7 +89,7 @@ public static class KiwiBuiltin
             { RightTrim,    TokenName.Builtin_Kiwi_RightTrim   },
             { Trim,         TokenName.Builtin_Kiwi_Trim        },
             { Size,         TokenName.Builtin_Kiwi_Size        },
-            { ToD,          TokenName.Builtin_Kiwi_ToD         },
+            { ToF,          TokenName.Builtin_Kiwi_ToF         },
             { ToI,          TokenName.Builtin_Kiwi_ToI         },
             { ToS,          TokenName.Builtin_Kiwi_ToS         },
             { ToBytes,      TokenName.Builtin_Kiwi_ToBytes     },
