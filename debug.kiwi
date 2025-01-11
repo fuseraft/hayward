@@ -1,15 +1,5 @@
-fn hashmaps()
-  x = {}
-  x.hello = "world"
-  println x
-end
+var (str: string  = "beetlejuice ")
 
-fn add(a: integer, b: integer): integer
-  return a + b
+repeat 3 as mul do
+  println "'${str.trim()}' said ${mul} time(s) is: '${(str * mul).trim()}'"
 end
-
-fn test()
-  println add(5, 2)
-end
-
-test()

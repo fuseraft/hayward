@@ -104,9 +104,11 @@ public struct Token(TokenType type, TokenName name, TokenSpan span, string text,
 
     public readonly TokenType Type { get; } = type;
     public readonly TokenName Name { get; } = name;
-    public readonly TokenSpan Span { get; } = span;
+    public TokenSpan Span { get; private set; } = span;
     public readonly string Text => text;
     public Value Value { get; set; } = value;
+
+    public void SetSpan(TokenSpan span) { Span = span; }
 
     public static Token CreateEof()
     {
