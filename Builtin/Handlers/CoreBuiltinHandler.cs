@@ -47,29 +47,29 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Kiwi_Concat => ExecuteConcat(token, value, args),
             TokenName.Builtin_Kiwi_Unique => ExecuteUnique(token, value, args),
             TokenName.Builtin_Kiwi_Count => ExecuteCount(token, value, args),
-            /*
-            TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
-            TokenName.Builtin_Kiwi_RSplit => ExecuteRSplit(token, value, args),
-            TokenName.Builtin_Kiwi_ToBytes => ExecuteToBytes(token, value, args),
-            TokenName.Builtin_Kiwi_ToHex => ExecuteToHex(token, value, args),
-            TokenName.Builtin_Kiwi_ToD => ExecuteToDouble(token, value, args),
-            TokenName.Builtin_Kiwi_ToI => ExecuteToInteger(token, value, args),
-            TokenName.Builtin_Kiwi_ToS => ExecuteToString(token, value, args),
-            TokenName.Builtin_Kiwi_RReplace => ExecuteRReplace(token, value, args),
-            TokenName.Builtin_Kiwi_Keys => ExecuteKeys(token, value, args),
-            TokenName.Builtin_Kiwi_Merge => ExecuteMerge(token, value, args),
-            TokenName.Builtin_Kiwi_Values => ExecuteValues(token, value, args),
             TokenName.Builtin_Kiwi_Enqueue => ExecuteEnqueue(token, value, args),
             TokenName.Builtin_Kiwi_Dequeue => ExecuteDequeue(token, value, args),
             TokenName.Builtin_Kiwi_Shift => ExecuteShift(token, value, args),
             TokenName.Builtin_Kiwi_Unshift => ExecuteUnshift(token, value, args),
-            TokenName.Builtin_Kiwi_Rotate => ExecuteRotate(token, value, args),
             TokenName.Builtin_Kiwi_Insert => ExecuteInsert(token, value, args),
-            TokenName.Builtin_Kiwi_Slice => ExecuteSlice(token, value, args),
-            TokenName.Builtin_Kiwi_Swap => ExecuteSwap(token, value, args),
+            TokenName.Builtin_Kiwi_Keys => ExecuteKeys(token, value, args),
+            TokenName.Builtin_Kiwi_Values => ExecuteValues(token, value, args),
             TokenName.Builtin_Kiwi_Zip => ExecuteZip(token, value, args),
             TokenName.Builtin_Kiwi_Flatten => ExecuteFlatten(token, value, args),
+            TokenName.Builtin_Kiwi_Merge => ExecuteMerge(token, value, args),
+            TokenName.Builtin_Kiwi_Rotate => ExecuteRotate(token, value, args),
+            TokenName.Builtin_Kiwi_Slice => ExecuteSlice(token, value, args),
+            TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
+            TokenName.Builtin_Kiwi_ToBytes => ExecuteToBytes(token, value, args),
+            TokenName.Builtin_Kiwi_ToHex => ExecuteToHex(token, value, args),
+            TokenName.Builtin_Kiwi_ToF => ExecuteToFloat(token, value, args),
+            TokenName.Builtin_Kiwi_ToI => ExecuteToInteger(token, value, args),
+            TokenName.Builtin_Kiwi_ToS => ExecuteToString(token, value, args),
+            TokenName.Builtin_Kiwi_Swap => ExecuteSwap(token, value, args),
             TokenName.Builtin_Kiwi_Pretty => ExecutePretty(token, value, args),
+            /*
+            TokenName.Builtin_Kiwi_RReplace => ExecuteRReplace(token, value, args),
+            TokenName.Builtin_Kiwi_RSplit => ExecuteRSplit(token, value, args),
             TokenName.Builtin_Kiwi_Find => ExecuteFind(token, value, args),
             TokenName.Builtin_Kiwi_Match => ExecuteMatch(token, value, args),
             TokenName.Builtin_Kiwi_Matches => ExecuteMatches(token, value, args),
@@ -79,6 +79,774 @@ public static class CoreBuiltinHandler
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value ExecutePretty(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Pretty);
+        }
+
+        var pretty = Serializer.PrettySerialize(value);
+        return Value.CreateString(pretty);
+    }
+
+    private static Value ExecuteIsA(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1 && !args[0].IsString())
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.IsA);
+        }
+
+        var typeName = args[0].GetString();
+
+        return value.Type switch
+        {
+            Typing.ValueType.Integer => Value.CreateBoolean(typeName.Equals("Integer") || typeName.Equals("integer")),
+            Typing.ValueType.Float => Value.CreateBoolean(typeName.Equals("Float") || typeName.Equals("float")),
+            Typing.ValueType.Boolean => Value.CreateBoolean(typeName.Equals("Boolean") || typeName.Equals("boolean")),
+            Typing.ValueType.String => Value.CreateBoolean(typeName.Equals("String") || typeName.Equals("string")),
+            Typing.ValueType.List => Value.CreateBoolean(typeName.Equals("List") || typeName.Equals("list")),
+            Typing.ValueType.Hashmap => Value.CreateBoolean(typeName.Equals("Hashmap") || typeName.Equals("hashmap")),
+            Typing.ValueType.Object => Value.CreateBoolean(typeName.Equals("Object") || typeName.Equals("object")),
+            Typing.ValueType.Lambda => Value.CreateBoolean(typeName.Equals("Lambda") || typeName.Equals("lambda")),
+            Typing.ValueType.None => Value.CreateBoolean(typeName.Equals("None") || typeName.Equals("none")),
+            _ => Value.CreateBoolean(false),
+        };
+    }
+
+    private static Value ExecuteToBytes(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToBytes);
+        }
+
+        if (value.IsString())
+        {
+            var stringValue = value.GetString();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(stringValue);
+            var byteList = new List<Value>(bytes.Length);
+
+            foreach (var b in bytes)
+            {
+                byteList.Add(Value.CreateInteger(b));
+            }
+
+            return Value.CreateList(byteList);
+        }
+        else if (value.IsList())
+        {
+            var listElements = value.GetList();
+            var resultBytes = new List<Value>();
+
+            foreach (var item in listElements)
+            {
+                if (!item.IsString())
+                {
+                    throw new InvalidOperationError(token, "Expected a list of strings for byte conversion.");
+                }
+
+                var stringValue = item.GetString();
+                var bytes = System.Text.Encoding.UTF8.GetBytes(stringValue);
+
+                foreach (var b in bytes)
+                {
+                    resultBytes.Add(Value.CreateInteger(b));
+                }
+            }
+
+            return Value.CreateList(resultBytes);
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or list of strings to convert to bytes.");
+    }
+
+    private static Value ExecuteToHex(Token token, Value value, List<Value> args)
+    {
+        if (args.Count > 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToHex);
+        }
+
+        // value is an integer
+        if (value.IsInteger())
+        {
+            var number = value.GetInteger();
+            var hexString = number.ToString("x");
+            return Value.CreateString(hexString);
+        }
+
+        // if not an integer, we expect a list of integers (bytes)
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list value for byte-to-hex conversion.");
+        }
+
+        var elements = value.GetList();
+        if (elements.Count == 0)
+        {
+            throw new InvalidOperationError(token, "Cannot convert an empty list to hex.");
+        }
+
+        var width = 2;
+
+        if (args.Count == 1)
+        {
+            if (!args[0].IsInteger())
+            {
+                throw new ConversionError(token, "Expected an integer as the width argument.");
+            }
+
+            width = (int)args[0].GetInteger();
+            if (width < 2)
+            {
+                throw new InvalidOperationError(token, "Width must be >= 2.");
+            }
+        }
+
+        var sb = new System.Text.StringBuilder();
+
+        foreach (var item in elements)
+        {
+            if (!item.IsInteger())
+            {
+                throw new InvalidOperationError(token, "Expected a list of integers.");
+            }
+
+            var byteValue = item.GetInteger();
+            var b = (byte)(byteValue & 0xFF);
+            sb.Append(b.ToString("x").PadLeft(width, '0'));
+        }
+
+        return Value.CreateString(sb.ToString());
+    }
+
+    private static Value ExecuteToFloat(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToF);
+        }
+
+        if (value.IsString())
+        {
+            var stringValue = value.GetString();
+
+            if (double.TryParse(stringValue, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.InvariantCulture, out double f))
+            {
+                return Value.CreateFloat(f);
+            }
+            else
+            {
+                throw new ConversionError(token, $"Cannot convert non-numeric value to a float: `{stringValue}`");
+            }
+        }
+        else if (value.IsInteger())
+        {
+            return Value.CreateFloat(value.GetInteger());
+        }
+        else if (value.IsFloat())
+        {
+            return value;
+        }
+
+        throw new ConversionError(token, "Cannot convert non-numeric value to a float.");
+    }
+
+    private static Value ExecuteToInteger(Token token, Value value, List<Value> args)
+    {
+        if (args.Count > 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToI);
+        }
+
+        var numberBase = 10;
+
+        // validate base if detected
+        if (args.Count == 1)
+        {
+            if (!args[0].IsInteger())
+            {
+                throw new ConversionError(token, "Expected an integer as the base argument.");
+            }
+
+            numberBase = (int)args[0].GetInteger();
+            if (numberBase < 2 || numberBase > 36)
+            {
+                throw new InvalidOperationError(
+                    token, "Base must be between 2 and 36, inclusive."
+                );
+            }
+        }
+
+        if (value.IsString())
+        {
+            var stringValue = value.GetString();
+
+            try
+            {
+                var parsed = ParseStringToIntBase(token, stringValue, numberBase);
+                return Value.CreateInteger(parsed);
+            }
+            catch (Exception)
+            {
+                throw new ConversionError(token, $"Cannot convert non-numeric string to an integer: `{stringValue}`");
+            }
+        }
+        else if (value.IsFloat())
+        {
+            // truncate decimal part
+            var intValue = (long)value.GetFloat();
+            return Value.CreateInteger(intValue);
+        }
+        else if (value.IsInteger())
+        {
+            // already an integer, return as-is
+            return value;
+        }
+        else
+        {
+            // we can't convert
+            throw new ConversionError(token, "Cannot convert non-numeric value to an integer.");
+        }
+    }
+
+    /// <summary>
+    /// Parses a string to a long using the specified base (2 to 36).
+    /// Throws an exception if the string has invalid characters or overflows long.
+    /// </summary>
+    /// <param name="token">The tracing token.</param>
+    /// <param name="s">The input string (e.g., "FF", "1010", "-1A").</param>
+    /// <param name="numberBase">Base from 2 to 36 inclusive.</param>
+    /// <returns>A long integer parsed from the string in the given base.</returns>
+    private static long ParseStringToIntBase(Token token, string s, int numberBase)
+    {
+        s = s.Trim();
+
+        if (string.IsNullOrEmpty(s))
+        {
+            throw new InvalidOperationError(token, "Empty string cannot be converted to an integer.");
+        }
+
+        var negative = false;
+        if (s.StartsWith('-'))
+        {
+            negative = true;
+            s = s[1..];
+            if (string.IsNullOrEmpty(s))
+            {
+                // just "-" is not valid
+                throw new InvalidOperationError(token, "Invalid numeric string.");
+            }
+        }
+
+        var result = 0L;
+
+        foreach (char c in s)
+        {
+            var digit = CharToDigit(token, c);
+            if (digit < 0 || digit >= numberBase)
+            {
+                throw new InvalidOperationError(token, $"Invalid digit '{c}' for base {numberBase}.");
+            }
+
+            checked // to detect overflow
+            {
+                result = result * numberBase + digit;
+            }
+        }
+
+        return negative ? -result : result;
+    }
+
+    /// <summary>
+    /// Converts a single character ('0'-'9', 'a'-'z', 'A'-'Z') to its numeric value.
+    /// For digits 0-9 => 0..9
+    /// For letters a-z => 10..35
+    /// For letters A-Z => 10..35
+    /// Throws an exception if the character is not in a valid range.
+    /// </summary>
+    private static int CharToDigit(Token token, char c)
+    {
+        if (c >= '0' && c <= '9')
+        {
+            return c - '0';
+        }
+
+        if (c >= 'a' && c <= 'z')
+        {
+            return c - 'a' + 10;
+        }
+
+        if (c >= 'A' && c <= 'Z')
+        {
+            return c - 'A' + 10;
+        }
+
+        throw new InvalidOperationError(token, $"Invalid character '{c}' in numeric string.");
+    }
+
+
+    private static Value ExecuteToString(Token token, Value value, List<Value> args)
+    {
+        // 0 or 1 argument is allowed
+        if (args.Count != 0 && args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToS);
+        }
+
+        // no format argument provided
+        if (args.Count == 0)
+        {
+            var serialized = Serializer.Serialize(value);
+            return Value.CreateString(serialized);
+        }
+
+        // format argument must be a string
+        if (!args[0].IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+
+        var format = args[0].GetString().Trim();
+
+        // if empty, just serialize
+        if (string.IsNullOrEmpty(format))
+        {
+            var serialized = Serializer.Serialize(value);
+            return Value.CreateString(serialized);
+        }
+
+        // numeric formatting requires integer or float
+        var needsNumeric =
+            format.Equals("b", StringComparison.OrdinalIgnoreCase) ||
+            format.Equals("x", StringComparison.OrdinalIgnoreCase) ||
+            format.Equals("o", StringComparison.OrdinalIgnoreCase) ||
+            format.StartsWith("f", StringComparison.OrdinalIgnoreCase);
+
+        if (needsNumeric && !value.IsInteger() && !value.IsFloat())
+        {
+            throw new InvalidOperationError(token, "Expected an integer or float.");
+        }
+
+        string formatted;
+        switch (format.ToLowerInvariant())
+        {
+            case "b":
+            case "B":
+                {
+                    long num = value.IsInteger() ? value.GetInteger() : (long)value.GetFloat();
+                    var bin = Convert.ToString(num, 2).PadLeft(16, '0');
+                    formatted = bin;
+                    break;
+                }
+
+            case "x":
+            case "X":
+                {
+                    long num = value.IsInteger() ? value.GetInteger() : (long)value.GetFloat();
+                    formatted = Convert.ToString(num, 16);
+                    if (format == "X")
+                    {
+                        // Uppercase hex
+                        formatted = formatted.ToUpperInvariant();
+                    }
+                    break;
+                }
+
+            case "o":
+            case "O":
+                {
+                    long num = value.IsInteger() ? value.GetInteger() : (long)value.GetFloat();
+                    formatted = Convert.ToString(num, 8);
+                    if (format == "O")
+                    {
+                        formatted = formatted.ToUpperInvariant();
+                    }
+                    break;
+                }
+
+            default:
+                {
+                    // "f" or "fN" (fixed-point)
+                    if (format.StartsWith("f", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var precisionPart = format[1..];
+                        var numericVal = value.IsInteger() ? value.GetInteger() : value.GetFloat();
+
+                        try
+                        {
+                            if (string.IsNullOrEmpty(precisionPart))
+                            {
+                                // default to 0 decimals
+                                formatted = numericVal.ToString("F0", System.Globalization.CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                var precision = int.Parse(precisionPart);
+                                var spec = "F" + precision;
+                                formatted = numericVal.ToString(spec, System.Globalization.CultureInfo.InvariantCulture);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            throw new InvalidOperationError(token, $"Invalid fixed-point format `{format}`.");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationError(token, $"Unknown format specifier `{format}`.");
+                    }
+
+                    break;
+                }
+        }
+
+        return Value.CreateString(formatted);
+    }
+
+
+    private static Value ExecuteSwap(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 2 && !args[0].IsInteger() && !args[1].IsInteger())
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Swap);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var firstIndex = (int)args[0].GetInteger();
+        var secondIndex = (int)args[1].GetInteger();
+        var lst = value.GetList();
+
+        if (firstIndex < 0 || firstIndex >= lst.Count)
+        {
+            throw new RangeError(token);
+        }
+
+        if (secondIndex < 0 || secondIndex >= lst.Count)
+        {
+            throw new RangeError(token);
+        }
+
+        var firstValue = lst[firstIndex];
+        var secondValue = lst[secondIndex];
+        lst[firstIndex] = secondValue;
+        lst[secondIndex] = firstValue;
+        return value;
+    }
+
+    private static Value ExecuteRotate(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1 || !args[0].IsInteger())
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Rotate);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var elements = value.GetList();
+        var rotation = (int)args[0].GetInteger();
+
+        if (elements.Count == 0)
+        {
+            return value;
+        }
+
+        // normalize the rotation (mod by the list size)
+        rotation %= elements.Count;
+        if (rotation < 0)
+        {
+            // convert negative rotation to an equivalent positive rotation
+            rotation += elements.Count;
+        }
+
+        var leftRotation = elements.Count - rotation;
+
+        if (leftRotation > 0 && leftRotation < elements.Count)
+        {
+            var front = elements.GetRange(0, leftRotation);
+            var back = elements.GetRange(leftRotation, elements.Count - leftRotation);
+
+            elements.Clear();
+            elements.AddRange(back);
+            elements.AddRange(front);
+        }
+
+        return value;
+    }
+
+    private static Value ExecuteSlice(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 2)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Slice);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var elements = value.GetList();
+        var start = (int)args[0].GetInteger();
+        var end = (int)args[1].GetInteger();
+
+        if (start < 0 || end < 0 || start > end || end > elements.Count)
+        {
+            throw new IndexError(token);
+        }
+
+        var sliceSize = end - start;
+        var slice = elements.GetRange(start, sliceSize);
+
+        return Value.CreateList(slice);
+    }
+
+    private static Value ExecuteMerge(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Merge);
+        }
+
+        if (!value.IsHashmap())
+        {
+            throw new InvalidOperationError(token, "Expected a hashmap.");
+        }
+
+        if (!args[0].IsHashmap())
+        {
+            throw new InvalidOperationError(token, "Expected a hashmap.");
+        }
+
+        var targetMap = value.GetHashmap();
+        var sourceMap = args[0].GetHashmap();
+
+        foreach (var kvp in sourceMap)
+        {
+            targetMap[kvp.Key] = kvp.Value;
+        }
+
+        return value;
+    }
+
+    private static Value ExecuteZip(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1 || !args[0].IsList())
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Zip);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var elements1 = value.GetList();
+        var elements2 = args[0].GetList();
+        var zipped = new List<Value>();
+        var winMin = Math.Min(elements1.Count, elements2.Count);
+
+        for (var i = 0; i < winMin; i++)
+        {
+            List<Value> pair = [elements1[i], elements2[i]];
+            zipped.Add(Value.CreateList(pair));
+        }
+
+        return Value.CreateList(zipped);
+    }
+
+
+    private static Value ExecuteFlatten(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Flatten);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var originalList = value.GetList();
+        var flattened = FlattenListRecursive(originalList);
+
+        return Value.CreateList(flattened);
+    }
+
+    private static List<Value> FlattenListRecursive(List<Value> input)
+    {
+        var result = new List<Value>();
+
+        foreach (var item in input)
+        {
+            if (item.IsList())
+            {
+                var subList = item.GetList();
+                var flattenedSubList = FlattenListRecursive(subList);
+                result.AddRange(flattenedSubList);
+            }
+            else
+            {
+                result.Add(item);
+            }
+        }
+
+        return result;
+    }
+
+    private static Value ExecuteInsert(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 2)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Insert);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var lst = value.GetList();
+        var index = 0;
+
+        // note: in kiwi, the second parameter of `.insert()` is the index.
+        if (!args[1].IsInteger())
+        {
+            throw new InvalidOperationError(token, "Expected an integer.");
+        }
+
+        index = (int)args[1].GetInteger();
+
+        if (index >= lst.Count)
+        {
+            throw new IndexError(token);
+        }
+
+        lst.Insert(index, args[0]);
+        return value;
+    }
+
+    private static Value ExecuteKeys(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Keys);
+        }
+
+        if (!value.IsHashmap())
+        {
+            throw new InvalidOperationError(token, "Expected a hashmap.");
+        }
+
+        var keys = value.GetHashmap().Keys.ToList();
+        return Value.CreateList(keys);
+    }
+
+    private static Value ExecuteValues(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Values);
+        }
+
+        if (!value.IsHashmap())
+        {
+            throw new InvalidOperationError(token, "Expected a hashmap.");
+        }
+
+        var values = value.GetHashmap().Values.ToList();
+        return Value.CreateList(values);
+    }
+
+    private static Value ExecuteEnqueue(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Enqueue);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        value.GetList().Add(args[0]);
+        return value;
+    }
+
+    private static Value ExecuteDequeue(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Dequeue);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var lst = value.GetList();
+
+        if (lst.Count == 0)
+        {
+            return Value.CreateNull();
+        }
+
+        var front = lst.First().Clone();
+        lst.RemoveAt(0);
+        return front;
+    }
+
+    private static Value ExecuteShift(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Shift);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        var lst = value.GetList();
+
+        if (lst.Count == 0)
+        {
+            return Value.CreateNull();
+        }
+
+        var front = lst.First().Clone();
+        lst.RemoveAt(0);
+        return front;
+    }
+
+    private static Value ExecuteUnshift(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unshift);
+        }
+
+        if (!value.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list.");
+        }
+
+        value.GetList().Insert(0, args[0]);
+        return value;
     }
 
     private static Value ExecuteConcat(Token token, Value value, List<Value> args)
@@ -172,7 +940,7 @@ public static class CoreBuiltinHandler
                 throw new InvalidOperationError(token, "Expected source string to be non-empty and longer than target string.");
             }
 
-            for (int i = 0; i <= s.Length - target.Length; i++)
+            for (var i = 0; i <= s.Length - target.Length; i++)
             {
                 if (s.Substring(i, target.Length) == target)
                 {
