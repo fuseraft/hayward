@@ -135,8 +135,11 @@ public partial class Parser
                 node = ParseExpression();
                 break;
 
+            case TokenType.Newline:
+                return null;
+
             default:
-                throw new TokenStreamError(GetErrorToken(), "Unexpected token in statement.");
+                throw new TokenStreamError(GetErrorToken(), $"Unexpected token in statement: {Enum.GetName(typeof(TokenType), nodeToken.Type)}: `{nodeToken.Text}`");
         }
 
         if (node != null)

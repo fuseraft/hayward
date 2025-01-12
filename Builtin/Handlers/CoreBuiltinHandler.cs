@@ -781,7 +781,7 @@ public static class CoreBuiltinHandler
             throw new InvalidOperationError(token, "Expected a list.");
         }
 
-        value.GetList().Add(args[0]);
+        value.GetList().Add(args[0].Clone());
         return value;
     }
 
@@ -845,7 +845,7 @@ public static class CoreBuiltinHandler
             throw new InvalidOperationError(token, "Expected a list.");
         }
 
-        value.GetList().Insert(0, args[0]);
+        value.GetList().Insert(0, args[0].Clone());
         return value;
     }
 
@@ -876,11 +876,11 @@ public static class CoreBuiltinHandler
             {
                 if (arg.IsList())
                 {
-                    lst.AddRange(arg.GetList());
+                    lst.AddRange(arg.Clone().GetList());
                 }
                 else
                 {
-                    lst.Add(arg);
+                    lst.Add(arg.Clone());
                 }
             }
 
@@ -915,7 +915,6 @@ public static class CoreBuiltinHandler
 
         return Value.CreateList(uniqueList);
     }
-
 
     private static Value ExecuteCount(Token token, Value value, List<Value> args)
     {
@@ -1199,12 +1198,12 @@ public static class CoreBuiltinHandler
                 throw new IndexError(token);
             }
 
-            value.GetList()[index] = args[1];
+            value.GetList()[index] = args[1].Clone();
             return value;
         }
         else if (value.IsHashmap())
         {
-            value.GetHashmap()[args[0]] = args[1];
+            value.GetHashmap()[args[0]] = args[1].Clone();
             return value;
         }
 
@@ -1376,7 +1375,7 @@ public static class CoreBuiltinHandler
             throw new InvalidOperationError(token, "Expected a list.");
         }
 
-        value.GetList().Add(args[0]);
+        value.GetList().Add(args[0].Clone());
         return value;
     }
 

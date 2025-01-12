@@ -1549,7 +1549,7 @@ public class Interpreter
             throw new KiwiError(node.Token, "Invalid parse expression.");
         }
 
-        Lexer lexer = new (node.Token.Span.File, content.GetString());
+        Lexer lexer = new (content.GetString(), false);
 
         Parser p = new (true);
         var tokenStream = lexer.GetTokenStream();
@@ -2504,7 +2504,7 @@ public class Interpreter
         }
 
         var path = FileUtil.GetAbsolutePath(token, packagePath);
-        Lexer lexer = new(1, path);
+        Lexer lexer = new(path, true);
 
         Parser p = new(true);
         var tokenStream = lexer.GetTokenStream();
