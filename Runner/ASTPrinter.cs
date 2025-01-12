@@ -16,7 +16,7 @@ public class ASTPrinter : IRunner
     /// <returns>Returns <c>0</c> for now.</returns>
     public int Run(string script, List<string> args)
     {
-        using Lexer lexer = new(0, script);
+        using Lexer lexer = new(script);
         var stream = lexer.GetTokenStream();
 
         Console.WriteLine($"Generating AST: {script}\n");
