@@ -1046,7 +1046,6 @@ public class Interpreter
         frame.SetFlag(FrameFlags.InLoop);
 
         var variables = frame.Variables;
-        ASTNodeType statement = ASTNodeType.NoOp;
 
         var fallOut = false;
         for (int i = 1; i <= count; ++i)
@@ -1069,7 +1068,7 @@ public class Interpreter
                     continue;
                 }
 
-                statement = stmt.Type;
+                var statement = stmt.Type;
                 if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
                 {
                     result = Interpret(stmt);

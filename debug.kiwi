@@ -1,5 +1,25 @@
-var (str: string  = "beetlejuice ")
+/#
+e = [], o = []
+repeat 5 as i do
+  if i % 2 == 0
+    println "${i} is even"
+    e.push(i)
+  else
+    println "${i} is odd"
+    o.push(i)
+  end
+end
 
-repeat 3 as mul do
-  println "'${str.trim()}' said ${mul} time(s) is: '${(str * mul).trim()}'"
+println "e: ${e}"
+println "o: ${o}"
+#/
+
+e = []
+e.push(1)
+e.push(2)
+e.push(3)
+println "e: ${e}"
+
+for i in e do
+  println i.type()
 end
