@@ -6,11 +6,11 @@ public partial class Serializer
     {
         if (v.IsInteger())
         {
-            return $"{v.GetInteger()}";
+            return v.GetInteger().ToString();
         }
         else if (v.IsFloat())
         {
-            return $"{v.GetFloat()}";
+            return v.GetFloat().ToString();
         }
         else if (v.IsBoolean())
         {
@@ -72,7 +72,7 @@ public partial class Serializer
                 first = false;
             }
 
-            if (!element.IsString())
+            if (element.IsString())
             {
                 sv.Append($"\"{Serialize(element)}\"");
             }

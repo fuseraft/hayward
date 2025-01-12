@@ -1046,7 +1046,6 @@ public class Interpreter
         frame.SetFlag(FrameFlags.InLoop);
 
         var variables = frame.Variables;
-        ASTNodeType statement = ASTNodeType.NoOp;
 
         var fallOut = false;
         for (int i = 1; i <= count; ++i)
@@ -1069,7 +1068,7 @@ public class Interpreter
                     continue;
                 }
 
-                statement = stmt.Type;
+                var statement = stmt.Type;
                 if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
                 {
                     result = Interpret(stmt);
@@ -1550,7 +1549,7 @@ public class Interpreter
             throw new KiwiError(node.Token, "Invalid parse expression.");
         }
 
-        Lexer lexer = new (node.Token.Span.File, content.GetString());
+        Lexer lexer = new (content.GetString(), false);
 
         Parser p = new (true);
         var tokenStream = lexer.GetTokenStream();
@@ -2505,7 +2504,7 @@ public class Interpreter
         }
 
         var path = FileUtil.GetAbsolutePath(token, packagePath);
-        Lexer lexer = new(1, path);
+        Lexer lexer = new(path, true);
 
         Parser p = new(true);
         var tokenStream = lexer.GetTokenStream();

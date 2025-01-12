@@ -1,15 +1,15 @@
 using citrus.Parsing.Builtins;
-using citrus.Tracing.Error;
+using citrus.Tracing;
 using citrus.Typing;
 
 namespace citrus.Parsing;
 
-public class Lexer(int file, string path, bool isFile = true) : IDisposable
+public class Lexer(string path, bool isFile = true) : IDisposable
 {
     private readonly Stream stream = isFile ? System.IO.File.OpenRead(path) : new MemoryStream(System.Text.Encoding.UTF8.GetBytes(path));
-    private readonly int File = file;
-    private int LineNumber = 0;
-    private int Position = 0;
+    private readonly int File = isFile ? FileRegistry.Instance.RegisterFile(path) : 0;
+    private int LineNumber = 1;
+    private int Position = 1;
 
     public TokenStream GetTokenStream()
     {
@@ -80,41 +80,55 @@ public class Lexer(int file, string path, bool isFile = true) : IDisposable
 
     private char? PeekChar()
     {
-        long origin = stream.Position;
+        if (!stream.CanRead)
+        {
+            return null;
+        }
 
+        long origin = stream.Position;
         int byteValue = stream.ReadByte();
+
         if (byteValue == -1)
         {
             return null;
         }
 
         stream.Position = origin;
+
         return (char)byteValue;
     }
 
     private char? GetChar()
     {
+        if (!stream.CanRead)
+        {
+            return null;
+        }
+
         int byteValue = stream.ReadByte();
         if (byteValue == -1)
         {
             return null;
         }
 
-        var c = (char)byteValue;
+        char c = (char)byteValue;
+        ++Position;
 
-        if (c == '\r' && PeekChar() == '\n')
+        // for Windows
+        if (c == '\r')
         {
-            c = (char)stream.ReadByte();
-        }
-
-        if (c == '\n')
-        {
-            ++LineNumber;
-            Position = 0;
-        }
-        else
-        {
-            ++Position;
+            // '\r\n'
+            char? next = PeekChar();
+            if (next == '\n')
+            {
+                stream.ReadByte();
+                c = '\n';
+                ++Position;
+            }
+            else
+            {
+                c = '\n';
+            }
         }
 
         return c;
@@ -126,9 +140,21 @@ public class Lexer(int file, string path, bool isFile = true) : IDisposable
         while ((byteValue = stream.ReadByte()) != -1)
         {
             var c = (char)byteValue;
+
+            if (c == '\n' || c == '\r')
+            {
+                ++LineNumber;
+                Position = 1;
+            }
+            else
+            {
+                ++Position;
+            }
+
             if (!char.IsWhiteSpace(c) && c != '\n')
             {
                 --stream.Position;
+                --Position;
                 break;
             }
         }
@@ -153,83 +179,83 @@ public class Lexer(int file, string path, bool isFile = true) : IDisposable
             switch (c)
             {
                 case '$':
-                {
-                    if (1 + i < text.Length && text[1 + i] == '{')
                     {
-                        ++i; // skip "${"
-                        ++braces;
-                        
-                        var s = sv.ToString();
-                        sv.Clear();
+                        if (1 + i < text.Length && text[1 + i] == '{')
+                        {
+                            ++i; // skip "${"
+                            ++braces;
 
-                        var st = CreateStringLiteralToken(span, s, Value.CreateString(s));
-                        tokens.Add(st);
+                            var s = sv.ToString();
+                            sv.Clear();
+
+                            var st = CreateStringLiteralToken(span, s, Value.CreateString(s));
+                            tokens.Add(st);
+                        }
                     }
-                }
-                break;
+                    break;
 
                 case '{':
                     ++braces;
                     sv.Append(c);
-                break;
-                
+                    break;
+
                 case '}':
-                {
-                    if (braces > 0)
                     {
-                        --braces;
-                    }
-
-                    if (braces > 0)
-                    {
-                        sv.Append(c);
-                        break;
-                    }
-                    
-                    Lexer lex = new(file, sv.ToString(), false);
-                    sv.Clear();
-                    
-                    var tmpTokens = lex.GetTokens();
-                    if (tmpTokens == null || tmpTokens.Count == 0)
-                    {
-                        // empty interpolation
-                        break;
-                    }
-                    
-                    // string: "your name repeated ${repeater} time(s) is ${name * repeater}"
-                    // interp: "your name repeated " + (repeater) + " time(s) is " + (name * repeater)
-                    
-                    // if we aren't at the beginning of the string, concatenate.
-                    if (i > 2)
-                    {
-                        tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
-                    }
-
-                    // wrap inner tokens in parentheses
-                    tokens.Add(CreateToken(TokenType.LParen, span, "("));
-                    foreach (var tmpToken in tmpTokens)
-                    {
-                        if (tmpToken.Type == TokenType.Eof)
+                        if (braces > 0)
                         {
-                            continue;
+                            --braces;
                         }
 
-                        tmpToken.SetSpan(span);
-                        tokens.Add(tmpToken);
-                    }
-                    tokens.Add(CreateToken(TokenType.RParen, span, ")"));
+                        if (braces > 0)
+                        {
+                            sv.Append(c);
+                            break;
+                        }
 
-                    // if we aren't at the end of the string, concatenate
-                    if (i + 1 < text.Length)
-                    {
-                        tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
-                    }   
-                }
-                break;
+                        Lexer lex = new(sv.ToString(), false);
+                        sv.Clear();
+
+                        var tmpTokens = lex.GetTokens();
+                        if (tmpTokens == null || tmpTokens.Count == 0)
+                        {
+                            // empty interpolation
+                            break;
+                        }
+
+                        // string: "your name repeated ${repeater} time(s) is ${name * repeater}"
+                        // interp: "your name repeated " + (repeater) + " time(s) is " + (name * repeater)
+
+                        // if we aren't at the beginning of the string, concatenate.
+                        if (i > 2)
+                        {
+                            tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                        }
+
+                        // wrap inner tokens in parentheses
+                        tokens.Add(CreateToken(TokenType.LParen, span, "("));
+                        foreach (var tmpToken in tmpTokens)
+                        {
+                            if (tmpToken.Type == TokenType.Eof)
+                            {
+                                continue;
+                            }
+
+                            tmpToken.SetSpan(span);
+                            tokens.Add(tmpToken);
+                        }
+                        tokens.Add(CreateToken(TokenType.RParen, span, ")"));
+
+                        // if we aren't at the end of the string, concatenate
+                        if (i + 1 < text.Length)
+                        {
+                            tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                        }
+                    }
+                    break;
 
                 default:
                     sv.Append(c);
-                break;
+                    break;
             }
         }
 

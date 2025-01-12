@@ -1,5 +1,0 @@
-var (str: string  = "beetlejuice ")
-
-repeat 3 as mul do
-  println "'${str.trim()}' said ${mul} time(s) is: '${(str * mul).trim()}'"
-end

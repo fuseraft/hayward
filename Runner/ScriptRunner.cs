@@ -1,6 +1,7 @@
 namespace citrus.Runner;
 using citrus.Parsing;
 using citrus.Runtime;
+using citrus.Tracing;
 using citrus.Tracing.Error;
 
 public class ScriptRunner : IRunner
@@ -18,7 +19,7 @@ public class ScriptRunner : IRunner
     /// <returns>Returns <c>0</c> for now.</returns>
     public int Run(string script, List<string> args)
     {
-        using Lexer lexer = new(0, script);
+        using Lexer lexer = new(script);
         var stream = lexer.GetTokenStream();
         var ast = new Parser().ParseTokenStream(stream, isEntryPoint: true);
         
@@ -28,10 +29,9 @@ public class ScriptRunner : IRunner
         {
             interpreter.Interpret(ast);
         }
-        catch (KiwiError ex)
+        catch (KiwiError e)
         {
-            Console.Error.WriteLine($"{ex.Type}: {ex.Message}");
-            Console.Error.WriteLine($"{ex.Token.Span.File}:{ex.Token.Span.Line}:{ex.Token.Span.Pos}");
+            ErrorHandler.PrintError(e);
         }
         catch (Exception ex)
         {

@@ -17,10 +17,10 @@ public class TokenPrinter : IRunner
     public int Run(string script, List<string> args)
     {
         Console.WriteLine($"Tokenizing: {script}\n");
-        Console.WriteLine($"{"Token #",-10} {"Type",15}  {"Name",-15} {"Text",-20}");
-        Console.WriteLine($"{"-------",-10} {"----",15}  {"----",-15} {"----",-20}");
+        Console.WriteLine($"{"Token #",-10} {"Type",15}  {"Name",-20} {"Text",-20}");
+        Console.WriteLine($"{"-------",-10} {"----",15}  {"----",-20} {"----",-20}");
 
-        using Lexer lexer = new(0, script);
+        using Lexer lexer = new(script);
         var stream = lexer.GetTokenStream();
         var counter = 0;
 
@@ -28,7 +28,7 @@ public class TokenPrinter : IRunner
         {
             var token = stream.Current();
 
-            Console.WriteLine($"{++counter,-10} {token.Type,15}  {token.Name,-15} {token.Text,-20}");
+            Console.WriteLine($"{++counter,-10} {token.Type,15}  {token.Name,-20} {token.Text,-20}");
 
             stream.Next();
         }
