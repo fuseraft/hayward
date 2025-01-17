@@ -16,7 +16,7 @@ public struct ComparisonOp
 
     public static Value GreaterThanOrEqual(ref Value left, ref Value right) => Value.CreateBoolean(GetGteResult(ref left, ref right));
 
-    private static bool GetLtResult(ref Value lhs, ref Value rhs)
+    public static bool GetLtResult(ref Value lhs, ref Value rhs)
     {
         if (lhs.Type != rhs.Type)
         {
@@ -54,7 +54,7 @@ public struct ComparisonOp
         };
     }
 
-    private static bool GetGtResult(ref Value lhs, ref Value rhs)
+    public static bool GetGtResult(ref Value lhs, ref Value rhs)
     {
         if (lhs.Type != rhs.Type)
         {

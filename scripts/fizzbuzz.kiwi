@@ -1,0 +1,20 @@
+fn fizzbuzz(n)
+  i = 1
+  println "n.type = ${n.type()}, n = {n}"
+  println "i.type = ${i.type()}, i = {i}"
+  while i <= n do
+    if i % 15 == 0
+      println("FizzBuzz")
+    elsif i % 3 == 0
+      println("Fizz")
+    elsif i % 5 == 0
+      println("Buzz")
+    else
+      println("${i}")
+    end
+    
+    i += 1
+  end
+end
+
+fizzbuzz(100)

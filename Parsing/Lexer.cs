@@ -212,7 +212,8 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                             break;
                         }
 
-                        Lexer lex = new(sv.ToString(), false);
+                        var code = sv.ToString();
+                        Lexer lex = new(code, false);
                         sv.Clear();
 
                         var tmpTokens = lex.GetTokens();
@@ -283,6 +284,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             '[' or ']' => TokenizeBracket(span, c),
             '{' or '}' => TokenizeBrace(span, c),
             '#' => TokenizeComment(span),
+            '?' => CreateToken(TokenType.Question, span, "?"),
             '/' when PeekChar() == '#' => TokenizeBlockComment(span),
             _ => TokenizeOperator(span, c),
         };
