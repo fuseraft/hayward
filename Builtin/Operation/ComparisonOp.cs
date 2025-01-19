@@ -16,7 +16,7 @@ public struct ComparisonOp
 
     public static Value GreaterThanOrEqual(ref Value left, ref Value right) => Value.CreateBoolean(GetGteResult(ref left, ref right));
 
-    private static bool GetLtResult(ref Value lhs, ref Value rhs)
+    public static bool GetLtResult(ref Value lhs, ref Value rhs)
     {
         if (lhs.Type != rhs.Type)
         {
@@ -29,6 +29,7 @@ public struct ComparisonOp
             Typing.ValueType.Float => lhs.GetFloat() < rhs.GetFloat(),
             Typing.ValueType.Boolean => lhs.GetBoolean().CompareTo(rhs.GetBoolean()) < 0,
             Typing.ValueType.String => lhs.GetString().CompareTo(rhs.GetString()) < 0,
+            Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) < 0,
             Typing.ValueType.List => lhs.GetList().Count < rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count < rhs.GetHashmap().Count,
             _ => false,
@@ -48,13 +49,14 @@ public struct ComparisonOp
             Typing.ValueType.Float => lhs.GetFloat() <= rhs.GetFloat(),
             Typing.ValueType.Boolean => lhs.GetBoolean().CompareTo(rhs.GetBoolean()) <= 0,
             Typing.ValueType.String => lhs.GetString().CompareTo(rhs.GetString()) <= 0,
+            Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) <= 0,
             Typing.ValueType.List => lhs.GetList().Count <= rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count <= rhs.GetHashmap().Count,
             _ => false,
         };
     }
 
-    private static bool GetGtResult(ref Value lhs, ref Value rhs)
+    public static bool GetGtResult(ref Value lhs, ref Value rhs)
     {
         if (lhs.Type != rhs.Type)
         {
@@ -67,6 +69,7 @@ public struct ComparisonOp
             Typing.ValueType.Float => lhs.GetFloat() > rhs.GetFloat(),
             Typing.ValueType.Boolean => lhs.GetBoolean().CompareTo(rhs.GetBoolean()) > 0,
             Typing.ValueType.String => lhs.GetString().CompareTo(rhs.GetString()) > 0,
+            Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) > 0,
             Typing.ValueType.List => lhs.GetList().Count > rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count > rhs.GetHashmap().Count,
             _ => false,
@@ -86,6 +89,7 @@ public struct ComparisonOp
             Typing.ValueType.Float => lhs.GetFloat() >= rhs.GetFloat(),
             Typing.ValueType.Boolean => lhs.GetBoolean().CompareTo(rhs.GetBoolean()) >= 0,
             Typing.ValueType.String => lhs.GetString().CompareTo(rhs.GetString()) >= 0,
+            Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) >= 0,
             Typing.ValueType.List => lhs.GetList().Count >= rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count >= rhs.GetHashmap().Count,
             _ => false,

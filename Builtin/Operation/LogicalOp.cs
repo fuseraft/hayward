@@ -52,6 +52,10 @@ public struct LogicalOp
         {
             return Value.CreateBoolean(string.IsNullOrEmpty(right.GetString()));
         }
+        else if (right.IsDate())
+        {
+            return Value.CreateBoolean(right.GetDate() == default);
+        }
         else if (right.IsList())
         {
             return Value.CreateBoolean(right.GetList().Count == 0);

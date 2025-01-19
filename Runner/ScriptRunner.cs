@@ -33,9 +33,9 @@ public class ScriptRunner : IRunner
         {
             ErrorHandler.PrintError(e);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.Error.WriteLine($"{ex.Message}: {ex.StackTrace}");
+            ErrorHandler.DumpCrashLog(e);
         }
 
         return SuccessReturnCode;

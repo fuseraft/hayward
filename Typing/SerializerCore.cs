@@ -20,6 +20,17 @@ public partial class Serializer
         {
             return "null";
         }
+        else if (v.IsDate())
+        {
+            if (wrapStrings)
+            {
+                return $"\"{v.GetDate()}\"";
+            }
+            else
+            {
+                return $"{v.GetDate()}";
+            }
+        }
         else if (v.IsString())
         {
             if (wrapStrings)
@@ -134,6 +145,10 @@ public partial class Serializer
         else if (v.IsBoolean())
         {
             return $"{v.GetBoolean()}";
+        }
+        else if (v.IsDate())
+        {
+            return $"\"{v.GetDate()}\"";
         }
         else if (v.IsNull())
         {
