@@ -1,4 +1,5 @@
 using citrus.Parsing.AST;
+using citrus.Tracing;
 using citrus.Tracing.Error;
 
 namespace citrus.Parsing;
@@ -90,18 +91,16 @@ public partial class Parser(bool rethrowErrors = false)
                 throw;
             }
 
-            // ErrorHandler.HandleError(e);
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
+            ErrorHandler.PrintError(e);
         }
-        catch (Exception)
+        catch (Exception e)
         {
             if (rethrow)
             {
                 throw;
             }
 
-            // ErrorHandler.HandleError(e);
+            ErrorHandler.PrintError(e, stream.Current());
         }
 
         return root;

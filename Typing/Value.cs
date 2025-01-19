@@ -51,6 +51,7 @@ public class Value(object value, ValueType type = ValueType.None)
             double => CreateFloat(value),
             bool => CreateBoolean(value),
             string => CreateString(value),
+            DateTime => CreateDate(value),
             List<Value> => CreateList(value),
             Dictionary<Value, Value> => CreateHashmap(value),
             InstanceRef => CreateObject(value),
@@ -63,6 +64,8 @@ public class Value(object value, ValueType type = ValueType.None)
 
     public static Value EmptyString() { return CreateString(string.Empty); }
     public static Value Default() => new(0L, ValueType.Integer);
+    public static Value CreateDate(DateTime value) => new(value, ValueType.Date);
+    public static Value CreateDate(object value) => new(value, ValueType.Date);
     public static Value CreateInteger(long value) => new(value, ValueType.Integer);
     public static Value CreateInteger(object value) => new(value, ValueType.Integer);
     public static Value CreateFloat(double value) => new(value, ValueType.Float);
@@ -86,12 +89,27 @@ public class Value(object value, ValueType type = ValueType.None)
     public static Value CreateLambda(object value) => new(value, ValueType.Lambda);
     public static Value CreateStruct(StructRef value) => new(value, ValueType.Struct);
     public static Value CreateStruct(object value) => new(value, ValueType.Struct);
-    // public static Value CreatePointer(object value) => new(value, ValueType.Pointer);
+    public static Value CreatePointer(object value) => new(value, ValueType.Pointer);
+
+    public double GetNumber()
+    {
+        if (IsInteger())
+        {
+            return (double)GetInteger();
+        }
+        else if (IsFloat())
+        {
+            return GetFloat();
+        }
+
+        return 0D;
+    }
 
     public long GetInteger() => (long)Value_;
     public double GetFloat() => (double)Value_;
     public bool GetBoolean() => (bool)Value_;
     public string GetString() => (string)Value_;
+    public DateTime GetDate() => (DateTime)Value_;
     public List<Value> GetList() => (List<Value>)Value_;
     public Dictionary<Value, Value> GetHashmap() => (Dictionary<Value, Value>)Value_;
     public InstanceRef GetObject() => (InstanceRef)Value_;
@@ -103,10 +121,12 @@ public class Value(object value, ValueType type = ValueType.None)
         return (NullRef)Value_;
     }
 
+    public bool IsNumber() => Type == ValueType.Integer || Type == ValueType.Float;
     public bool IsInteger() => Type == ValueType.Integer;
     public bool IsFloat() => Type == ValueType.Float;
     public bool IsBoolean() => Type == ValueType.Boolean;
     public bool IsString() => Type == ValueType.String;
+    public bool IsDate() => Type == ValueType.Date;
     public bool IsList() => Type == ValueType.List;
     public bool IsHashmap() => Type == ValueType.Hashmap;
     public bool IsObject() => Type == ValueType.Object;
@@ -147,6 +167,7 @@ public class Value(object value, ValueType type = ValueType.None)
             ValueType.Float => CreateFloat(GetFloat()),
             ValueType.Boolean => CreateBoolean(GetBoolean()),
             ValueType.String => CreateString(GetString()),
+            ValueType.Date => CreateDate(GetDate()),
             ValueType.List => CreateList(Clone(GetList())),
             ValueType.Hashmap => CreateHashmap(Clone(GetHashmap())),
             ValueType.Object => CreateObject(GetObject()),
@@ -160,6 +181,12 @@ public class Value(object value, ValueType type = ValueType.None)
     public void Set(object? value, ValueType type)
     {
         Value_ = value ?? new NullRef();
+        Type = type;
+    }
+
+    public void Set(Value value, ValueType type)
+    {
+        Value_ = value.Value_;
         Type = type;
     }
 
@@ -194,6 +221,12 @@ public class Value(object value, ValueType type = ValueType.None)
     }
 
     public void SetValue(string value)
+    {
+        Value_ = value;
+        Type = ValueType.String;
+    }
+
+    public void SetValue(DateTime value)
     {
         Value_ = value;
         Type = ValueType.String;
@@ -234,13 +267,6 @@ public class Value(object value, ValueType type = ValueType.None)
         Value_ = value;
         Type = ValueType.None;
     }
-
-    /*
-    public void SetValue(const kPointer& value)
-    {
-        Value_ = value;
-        Type = ValueType.Pointer;
-    }*/
 
     public override bool Equals(object? obj)
     {
@@ -288,6 +314,9 @@ public class Value(object value, ValueType type = ValueType.None)
 
             case ValueType.String:
                 return GetString().Equals(other.GetString());
+
+            case ValueType.Date:
+                return GetDate().Equals(other.GetDate());
 
             case ValueType.List:
                 {
@@ -399,9 +428,6 @@ public class Value(object value, ValueType type = ValueType.None)
 
     public override int GetHashCode()
     {
-        //HashSet<Value> visited = [];
-        //return StructuralHashCode(visited);
-
         int hash = 17; // prime start
         hash = hash * 31 + (int)Type;
 
@@ -426,6 +452,12 @@ public class Value(object value, ValueType type = ValueType.None)
                 {
                     var s = GetString();
                     hash = hash * 31 + (s?.GetHashCode() ?? 0);
+                    break;
+                }
+            case ValueType.Date:
+                {
+                    var d = GetDate();
+                    hash = hash * 31 + d.GetHashCode();
                     break;
                 }
             case ValueType.List:
@@ -458,6 +490,7 @@ public class Value(object value, ValueType type = ValueType.None)
             case ValueType.Float:
             case ValueType.Boolean:
             case ValueType.String:
+            case ValueType.Date:
                 return GetHashCode();
 
             case ValueType.List:
@@ -544,6 +577,12 @@ public class Value(object value, ValueType type = ValueType.None)
                     hash = hash * 31 + (s?.GetHashCode() ?? 0);
                     break;
                 }
+            case ValueType.Date:
+                {
+                    var d = GetDate();
+                    hash = hash * 31 + d.GetHashCode();
+                    break;
+                }
             case ValueType.List:
                 {
                     var list = GetList();
@@ -603,5 +642,6 @@ public enum ValueType
     None = 8,
     Struct = 9,
     Pointer = 10,
+    Date = 11,
     Unset = 20
 };

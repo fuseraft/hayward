@@ -1,3 +1,4 @@
+using System.Reflection;
 using citrus.Builtin.Operation;
 using citrus.Parsing;
 using citrus.Parsing.Builtins;
@@ -62,9 +63,10 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
             TokenName.Builtin_Kiwi_ToBytes => ExecuteToBytes(token, value, args),
             TokenName.Builtin_Kiwi_ToHex => ExecuteToHex(token, value, args),
-            TokenName.Builtin_Kiwi_ToF => ExecuteToFloat(token, value, args),
-            TokenName.Builtin_Kiwi_ToI => ExecuteToInteger(token, value, args),
-            TokenName.Builtin_Kiwi_ToS => ExecuteToString(token, value, args),
+            TokenName.Builtin_Kiwi_ToFloat => ExecuteToFloat(token, value, args),
+            TokenName.Builtin_Kiwi_ToInteger => ExecuteToInteger(token, value, args),
+            TokenName.Builtin_Kiwi_ToString => ExecuteToString(token, value, args),
+            TokenName.Builtin_Kiwi_ToDate => ExecuteToDate(token, value, args),
             TokenName.Builtin_Kiwi_Swap => ExecuteSwap(token, value, args),
             TokenName.Builtin_Kiwi_Pretty => ExecutePretty(token, value, args),
             /*
@@ -388,6 +390,49 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, $"Invalid character '{c}' in numeric string.");
     }
 
+    private static Value ExecuteToDate(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0 && args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToD);
+        }
+
+        try
+        {
+            if (args.Count == 0)
+            {
+                if (value.IsString())
+                {
+                    if (!DateTime.TryParse(value.GetString(), out DateTime dt))
+                    {
+                        return Value.CreateDate(default);
+                    }
+
+                    return Value.CreateDate(dt);
+                }
+                else if (value.IsInteger())
+                {
+                    var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(value.GetInteger());
+                    return Value.CreateDate(dateTimeOffset.UtcDateTime);
+                }
+            }
+            else if (args.Count == 1 && value.IsString() && args[0].IsString())
+            {
+                if (!DateTime.TryParseExact(value.GetString(), args[0].GetString(), null, System.Globalization.DateTimeStyles.None, out DateTime dt))
+                {
+                    return Value.CreateDate(default);
+                }
+
+                return Value.CreateDate(dt);
+            }
+        }
+        catch
+        {
+            throw new InvalidOperationError(token, "Invalid date expression.");
+        }
+        
+        throw new InvalidOperationError(token, "Invalid date expression.");
+    }
 
     private static Value ExecuteToString(Token token, Value value, List<Value> args)
     {
@@ -431,6 +476,20 @@ public static class CoreBuiltinHandler
             throw new InvalidOperationError(token, "Expected an integer or float.");
         }
 
+        if (needsNumeric)
+        {
+            return GetFormattedNumericValue(token, value, format);
+        }
+        else if (value.IsDate())
+        {
+            return Value.CreateString(value.GetDate().ToString(format));
+        }
+
+        throw new InvalidOperationError(token, $"Unable to format type: {Serializer.GetTypenameString(value)}");
+    }
+
+    private static Value GetFormattedNumericValue(Token token, Value value, string format)
+    {
         string formatted;
         switch (format.ToLowerInvariant())
         {

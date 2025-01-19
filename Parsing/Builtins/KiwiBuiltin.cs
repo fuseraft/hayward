@@ -15,8 +15,9 @@ public static class KiwiBuiltin
     public const string RightTrim    = "rtrim";
     public const string Trim         = "trim";
     public const string Size         = "size";
+    public const string ToD          = "to_date";
     public const string ToF          = "to_float";
-    public const string ToI          = "to_int";
+    public const string ToI          = "to_integer";
     public const string ToS          = "to_string";
     public const string ToBytes      = "to_bytes";
     public const string ToHex        = "to_hex";
@@ -70,11 +71,6 @@ public static class KiwiBuiltin
     public const string Lines        = "lines";
     public const string Tokens       = "tokens";
 
-    //
-    // 2) Put them into a read-only dictionary: string → TokenName
-    //    (Mirroring your "SysBuiltin" pattern.)
-    //
-
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>
         {
@@ -89,9 +85,10 @@ public static class KiwiBuiltin
             { RightTrim,    TokenName.Builtin_Kiwi_RightTrim   },
             { Trim,         TokenName.Builtin_Kiwi_Trim        },
             { Size,         TokenName.Builtin_Kiwi_Size        },
-            { ToF,          TokenName.Builtin_Kiwi_ToF         },
-            { ToI,          TokenName.Builtin_Kiwi_ToI         },
-            { ToS,          TokenName.Builtin_Kiwi_ToS         },
+            { ToD,          TokenName.Builtin_Kiwi_ToDate      },
+            { ToF,          TokenName.Builtin_Kiwi_ToFloat     },
+            { ToI,          TokenName.Builtin_Kiwi_ToInteger   },
+            { ToS,          TokenName.Builtin_Kiwi_ToString    },
             { ToBytes,      TokenName.Builtin_Kiwi_ToBytes     },
             { ToHex,        TokenName.Builtin_Kiwi_ToHex       },
             { Type,         TokenName.Builtin_Kiwi_Type        },

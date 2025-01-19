@@ -8,7 +8,6 @@ namespace citrus.Builtin;
 
 public struct BuiltinDispatch
 {
-
     public static Value Execute(Token token, TokenName builtin, Value v, List<Value> args)
     {
         if (KiwiBuiltin.IsBuiltin(builtin))

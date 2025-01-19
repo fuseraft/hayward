@@ -1392,7 +1392,7 @@ public class Interpreter
                             value.SetValue(Value.CreateList());
                             break;
 
-                        case TokenName.Types_Hash:
+                        case TokenName.Types_Hashmap:
                             value.SetValue(Value.CreateHashmap());
                             break;
 
@@ -1490,13 +1490,13 @@ public class Interpreter
         {
             return CallStructMethod(node, obj.GetStruct());
         }
-        else if (ListBuiltin.Map.Values.Contains(node.Op))
-        {
-            // return InterpretListBuiltin(node.Token, obj, node.Op, GetMethodCallArguments(node.Arguments));
-        }
         else if (KiwiBuiltin.IsBuiltin(node.Op))
         {
             return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
+        }
+        else if (ListBuiltin.IsBuiltin(node.Op))
+        {
+            return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
         }
 
         throw new FunctionUndefinedError(node.Token, node.MethodName);
@@ -1545,13 +1545,14 @@ public class Interpreter
     {
         var content = Interpret(node.ParseValue);
 
-        if (!content.IsString()) {
+        if (!content.IsString())
+        {
             throw new KiwiError(node.Token, "Invalid parse expression.");
         }
 
-        Lexer lexer = new (content.GetString(), false);
+        Lexer lexer = new(content.GetString(), false);
 
-        Parser p = new (true);
+        Parser p = new(true);
         var tokenStream = lexer.GetTokenStream();
         var ast = p.ParseTokenStream(tokenStream, true);
 
@@ -1559,7 +1560,7 @@ public class Interpreter
 
         return result;
     }
-    
+
     /*
     private Value Visit(SpawnNode node) => throw new NotImplementedException();
     */
@@ -2707,6 +2708,480 @@ public class Interpreter
         frame.ClearFlag(FrameFlags.InLoop);
 
         return result;
+    }
+
+    private Value InterpretListBuiltin(Token token, ref Value obj, TokenName op, List<Value> args)
+    {
+        if (!obj.IsList())
+        {
+            throw new InvalidOperationError(token, "Expected a list for specialized list builtin.");
+        }
+
+        var list = obj.GetList();
+
+        switch (op)
+        {
+            case TokenName.Builtin_List_Max:
+                return ListMax(token, list);
+
+            case TokenName.Builtin_List_Min:
+                return ListMin(token, list);
+
+            case TokenName.Builtin_List_Sort:
+                return ListSort(list);
+
+            case TokenName.Builtin_List_Sum:
+                return ListSum(list);
+
+            default:
+                break;
+        }
+
+        if (args.Count == 1)
+        {
+            var arg = args[0];
+            if (!arg.IsLambda())
+            {
+                throw new InvalidOperationError(token, "Expected a lambda in specialized list builtin.");
+            }
+
+            var lambdaRef = arg.GetLambda();
+
+            if (!Context.HasLambda(lambdaRef.Identifier))
+            {
+                throw new InvalidOperationError(token, $"Unrecognized lambda '{lambdaRef.Identifier}'.");
+            }
+
+            var lambda = Context.Lambdas[lambdaRef.Identifier];
+            var isReturnSet = CallStack.Peek().IsFlagSet(FrameFlags.Return);
+            var result = Value.Default();
+
+            switch (op)
+            {
+                case TokenName.Builtin_List_Each:
+                    result = LambdaEach(lambda, list);
+                    break;
+
+                case TokenName.Builtin_List_Map:
+                    result = LambdaMap(lambda, list);
+                    break;
+
+                case TokenName.Builtin_List_None:
+                    result = LambdaNone(lambda, list);
+                    break;
+
+                case TokenName.Builtin_List_Select:
+                    result = LambdaSelect(lambda, list);
+                    break;
+
+                case TokenName.Builtin_List_All:
+                    result = LambdaAll(lambda, list);
+                    break;
+
+                default:
+                    break;
+            }
+
+            var frame = CallStack.Peek();
+            if (!isReturnSet && frame.IsFlagSet(FrameFlags.Return) && frame.ReturnValue != null)
+            {
+                if (!BooleanOp.IsSame(frame.ReturnValue, result))
+                {
+                    frame.ReturnValue = result;
+                }
+            }
+
+            return result;
+        }
+        else if (args.Count == 2 && op == TokenName.Builtin_List_Reduce)
+        {
+            var arg = args[1];
+
+            if (!arg.IsLambda())
+            {
+                throw new InvalidOperationError(token, "Expected a lambda in specialized list builtin.");
+            }
+            var lambdaRef = arg.GetLambda();
+
+            if (!Context.HasLambda(lambdaRef.Identifier))
+            {
+                throw new InvalidOperationError(
+                    token, $"Unrecognized lambda '{lambdaRef.Identifier}'.");
+            }
+
+            var lambda = Context.Lambdas[lambdaRef.Identifier];
+
+            return LambdaReduce(lambda, args[0], list);
+        }
+
+        throw new InvalidOperationError(token, "Invalid specialized list builtin invocation.");
+    }
+
+    private static Value ListSum(List<Value> list)
+    {
+        var sum = 0D;
+        var isFloatResult = false;
+
+        foreach (var val in list)
+        {
+            if (val.IsInteger())
+            {
+                sum += val.GetInteger();
+            }
+            else if (val.IsFloat())
+            {
+                sum += val.GetFloat();
+                isFloatResult = true;
+            }
+        }
+
+        if (isFloatResult)
+        {
+            return Value.CreateFloat(sum);
+        }
+
+        return Value.CreateInteger(sum);
+    }
+
+    private static Value ListMin(Token token, List<Value> list)
+    {
+        if (list.Count == 0)
+        {
+            return Value.CreateNull();
+        }
+
+        var minValue = list[0];
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var val = list[i];
+
+            if (ComparisonOp.GetLtResult(ref val, ref minValue))
+            {
+                minValue = val;
+            }
+        }
+
+        return minValue;
+    }
+
+    private static Value ListMax(Token token, List<Value> list)
+    {
+        if (list.Count == 0)
+        {
+            return Value.CreateNull();
+        }
+
+        var maxValue = list[0];
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var val = list[i];
+
+            if (ComparisonOp.GetGtResult(ref val, ref maxValue))
+            {
+                maxValue = val;
+            }
+        }
+
+        return maxValue;
+    }
+
+    private static Value ListSort(List<Value> list)
+    {
+        list.Sort();
+        return Value.CreateList(list);
+    }
+
+    private Value LambdaEach(KLambda lambda, List<Value> list)
+    {
+        var defaultParameters = lambda.DefaultParameters;
+        var frame = CallStack.Peek();
+
+        var valueVariable = string.Empty;
+        var indexVariable = string.Empty;
+        var hasIndexVariable = false;
+
+        if (lambda.Parameters.Count == 0)
+        {
+            return Value.Default();
+        }
+
+        for (var i = 0; i < lambda.Parameters.Count; ++i)
+        {
+            var param = lambda.Parameters[i];
+            if (i == 0)
+            {
+                valueVariable = param.Key;
+                frame.Variables[valueVariable] = Value.Default();
+            }
+            else if (i == 1)
+            {
+                indexVariable = param.Key;
+                hasIndexVariable = true;
+                frame.Variables[indexVariable] = Value.Default();
+            }
+        }
+
+        var result = Value.Default();
+        var indexValue = Value.Default();
+        var decl = lambda.Decl;
+
+        for (var i = 0; i < list.Count; ++i)
+        {
+            frame.Variables[valueVariable] = list[i];
+
+            if (hasIndexVariable)
+            {
+                indexValue.SetValue(i);
+                frame.Variables[indexVariable] = indexValue;
+            }
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+            }
+        }
+
+        frame.Variables.Remove(valueVariable);
+        if (hasIndexVariable)
+        {
+            frame.Variables.Remove(indexVariable);
+        }
+
+        return result;
+    }
+
+    private Value LambdaNone(KLambda lambda,
+                                    List<Value> list)
+    {
+        var selected = LambdaSelect(lambda, list);
+        var noneFound = Value.CreateBoolean(false);
+
+        if (selected.IsList())
+        {
+            var isEmpty = selected.GetList().Count == 0;
+            noneFound.SetValue(isEmpty);
+        }
+
+        return noneFound;
+    }
+
+    private Value LambdaMap(KLambda lambda, List<Value> list)
+    {
+        var defaultParameters = lambda.DefaultParameters;
+        var frame = CallStack.Peek();
+
+        var mapVariable = string.Empty;
+
+        if (lambda.Parameters.Count == 0)
+        {
+            return Value.CreateList(list);
+        }
+
+        for (var i = 0; i < lambda.Parameters.Count; ++i)
+        {
+            var param = lambda.Parameters[i];
+            if (i == 0)
+            {
+                mapVariable = param.Key;
+                frame.Variables[mapVariable] = Value.Default();
+            }
+        }
+
+        var decl = lambda.Decl;
+        List<Value> resultList = [];
+        Value result = Value.Default();
+
+        for (var i = 0; i < list.Count; ++i)
+        {
+            frame.Variables[mapVariable] = list[i];
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    frame.ClearFlag(FrameFlags.Return);
+                }
+                resultList.Add(result);
+            }
+        }
+
+        frame.Variables.Remove(mapVariable);
+
+        return Value.CreateList(resultList);
+    }
+
+    private Value LambdaReduce(KLambda lambda, Value accumulator, List<Value> list)
+    {
+        var defaultParameters = lambda.DefaultParameters;
+        var frame = CallStack.Peek();
+
+        var accumVariable = string.Empty;
+        var valueVariable = string.Empty;
+
+        if (lambda.Parameters.Count != 2)
+        {
+            return accumulator;
+        }
+
+        for (var i = 0; i < lambda.Parameters.Count; ++i)
+        {
+            var param = lambda.Parameters[i];
+            if (i == 0)
+            {
+                accumVariable = param.Key;
+                frame.Variables[accumVariable] = accumulator;
+            }
+            else if (i == 1)
+            {
+                valueVariable = param.Key;
+                frame.Variables[valueVariable] = Value.Default();
+            }
+        }
+
+        var decl = lambda.Decl;
+        Value result;
+
+        for (var i = 0; i < list.Count; ++i)
+        {
+            frame.Variables[valueVariable] = list[i];
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+            }
+        }
+
+        result = frame.Variables[accumVariable];
+
+        frame.Variables.Remove(accumVariable);
+        frame.Variables.Remove(valueVariable);
+
+        return result;
+    }
+
+    private Value LambdaAll(KLambda lambda, List<Value> list)
+    {
+        var defaultParameters = lambda.DefaultParameters;
+        var frame = CallStack.Peek();
+
+        var valueVariable = string.Empty;
+        var indexVariable = string.Empty;
+        var hasIndexVariable = false;
+
+        var listSize = list.Count;
+        var newListSize = 0;
+
+        for (var i = 0; i < lambda.Parameters.Count; ++i)
+        {
+            var param = lambda.Parameters[i];
+            if (i == 0)
+            {
+                valueVariable = param.Key;
+                frame.Variables[valueVariable] = Value.Default();
+            }
+            else if (i == 1)
+            {
+                indexVariable = param.Key;
+                hasIndexVariable = true;
+                frame.Variables[indexVariable] = Value.Default();
+            }
+        }
+
+        var result = Value.Default();
+        var indexValue = Value.Default();
+        var decl = lambda.Decl;
+
+        for (var i = 0; i < list.Count; ++i)
+        {
+            frame.Variables[valueVariable] = list[i];
+
+            if (hasIndexVariable)
+            {
+                indexValue.SetValue(i);
+                frame.Variables[indexVariable] = indexValue;
+            }
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+
+                if (BooleanOp.IsTruthy(result))
+                {
+                    ++newListSize;
+                }
+            }
+        }
+
+        frame.Variables.Remove(valueVariable);
+        if (hasIndexVariable)
+        {
+            frame.Variables.Remove(indexVariable);
+        }
+
+        return Value.CreateBoolean(newListSize == listSize);
+    }
+
+    private Value LambdaSelect(KLambda lambda, List<Value> list)
+    {
+        var defaultParameters = lambda.DefaultParameters;
+        var frame = CallStack.Peek();
+
+        var valueVariable = string.Empty;
+        var indexVariable = string.Empty;
+        var hasIndexVariable = false;
+
+        for (var i = 0; i < lambda.Parameters.Count; ++i)
+        {
+            var param = lambda.Parameters[i];
+            if (i == 0)
+            {
+                valueVariable = param.Key;
+                frame.Variables[valueVariable] = Value.Default();
+            }
+            else if (i == 1)
+            {
+                indexVariable = param.Key;
+                hasIndexVariable = true;
+                frame.Variables[indexVariable] = Value.Default();
+            }
+        }
+
+        var result = Value.Default();
+        var indexValue = Value.Default();
+        var decl = lambda.Decl;
+        List<Value> resultList = [];
+
+        for (var i = 0; i < list.Count; ++i)
+        {
+            frame.Variables[valueVariable] = list[i];
+
+            if (hasIndexVariable)
+            {
+                indexValue.SetValue(i);
+                frame.Variables[indexVariable] = indexValue;
+            }
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+
+                if (BooleanOp.IsTruthy(result))
+                {
+                    resultList.Add(list[i]);
+                }
+            }
+        }
+
+        frame.Variables.Remove(valueVariable);
+        if (hasIndexVariable)
+        {
+            frame.Variables.Remove(indexVariable);
+        }
+
+        return Value.CreateList(resultList);
     }
 
     private bool PushFrame(StackFrame frame)
