@@ -1392,7 +1392,7 @@ public class Interpreter
                             value.SetValue(Value.CreateList());
                             break;
 
-                        case TokenName.Types_Hash:
+                        case TokenName.Types_Hashmap:
                             value.SetValue(Value.CreateHashmap());
                             break;
 

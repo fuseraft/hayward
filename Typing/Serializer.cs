@@ -11,8 +11,9 @@ public partial class Serializer
             TokenName.Types_Any => true,
             TokenName.Types_Boolean => v.IsBoolean(),
             TokenName.Types_Float => v.IsFloat(),
-            TokenName.Types_Hash => v.IsHashmap(),
+            TokenName.Types_Hashmap => v.IsHashmap(),
             TokenName.Types_Integer => v.IsInteger(),
+            TokenName.Types_Date => v.IsDate(),
             TokenName.Types_Lambda => v.IsLambda(),
             TokenName.Types_List => v.IsList(),
             TokenName.Types_None => v.IsNull(),
@@ -30,8 +31,9 @@ public partial class Serializer
             TokenName.Types_Any => "Any",
             TokenName.Types_Boolean => "Boolean",
             TokenName.Types_Float => "Float",
-            TokenName.Types_Hash => "Hashmap",
+            TokenName.Types_Hashmap => "Hashmap",
             TokenName.Types_Integer => "Integer",
+            TokenName.Types_Date => "Date",
             TokenName.Types_Lambda => "Lambda",
             TokenName.Types_List => "List",
             TokenName.Types_None => "None",
@@ -59,6 +61,10 @@ public partial class Serializer
         else if (v.IsString())
         {
             return "String";
+        }
+        else if (v.IsDate())
+        {
+            return "Date";
         }
         else if (v.IsNull())
         {

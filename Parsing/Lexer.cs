@@ -659,6 +659,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                 name = TokenName.Types_Boolean;
                 break;
 
+            case "date":
+            case "Date":
+                name = TokenName.Types_Date;
+                break;
+
             case "any":
             case "Any":
                 name = TokenName.Types_Any;
@@ -666,7 +671,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
             case "hashmap":
             case "Hashmap":
-                name = TokenName.Types_Hash;
+                name = TokenName.Types_Hashmap;
                 break;
 
             case "lambda":
