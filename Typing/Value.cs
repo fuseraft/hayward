@@ -163,6 +163,12 @@ public class Value(object value, ValueType type = ValueType.None)
         Type = type;
     }
 
+    public void Set(Value value, ValueType type)
+    {
+        Value_ = value.Value_;
+        Type = type;
+    }
+
     public void SetValue(Value value)
     {
         Value_ = value.Value_;

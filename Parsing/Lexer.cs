@@ -173,6 +173,9 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             return;
         }
 
+        List<Token> interpTokens = [];
+        var interpolate = false;
+
         for (int i = 0, braces = 0; i < text.Length; ++i)
         {
             var c = text[i];
@@ -189,13 +192,18 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                             sv.Clear();
 
                             var st = CreateStringLiteralToken(span, s, Value.CreateString(s));
-                            tokens.Add(st);
+                            interpTokens.Add(st);
+                            interpolate = true;
                         }
                     }
                     break;
 
                 case '{':
-                    ++braces;
+                    if (braces > 0)
+                    {
+                        ++braces;
+                    }
+
                     sv.Append(c);
                     break;
 
@@ -206,7 +214,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                             --braces;
                         }
 
-                        if (braces > 0)
+                        if (braces > 0 || !interpolate)
                         {
                             sv.Append(c);
                             break;
@@ -227,13 +235,13 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                         // interp: "your name repeated " + (repeater) + " time(s) is " + (name * repeater)
 
                         // if we aren't at the beginning of the string, concatenate.
-                        if (i > 2)
+                        if (interpTokens.Count > 0)
                         {
-                            tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                            interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
                         }
 
                         // wrap inner tokens in parentheses
-                        tokens.Add(CreateToken(TokenType.LParen, span, "("));
+                        interpTokens.Add(CreateToken(TokenType.LParen, span, "("));
                         foreach (var tmpToken in tmpTokens)
                         {
                             if (tmpToken.Type == TokenType.Eof)
@@ -242,15 +250,16 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                             }
 
                             tmpToken.SetSpan(span);
-                            tokens.Add(tmpToken);
+                            interpTokens.Add(tmpToken);
                         }
-                        tokens.Add(CreateToken(TokenType.RParen, span, ")"));
+                        interpTokens.Add(CreateToken(TokenType.RParen, span, ")"));
 
                         // if we aren't at the end of the string, concatenate
-                        if (i + 1 < text.Length)
+                        /*if (i + 1 < text.Length)
                         {
-                            tokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
-                        }
+                            interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+                        }*/
+                        interpolate = false;
                     }
                     break;
 
@@ -260,11 +269,19 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             }
         }
 
-        var lastToken = tokens.LastOrDefault();
-        if (lastToken.Name == TokenName.Ops_Add && sv.Length > 0)
+        if (sv.Length > 0)
         {
+            if (interpTokens.Count > 0)
+            {
+                interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
+            }
             var s = sv.ToString();
-            tokens.Add(CreateStringLiteralToken(span, s, Value.CreateString(s)));
+            interpTokens.Add(CreateStringLiteralToken(span, s, Value.CreateString(s)));
+        }
+
+        foreach (var t in interpTokens)
+        {
+            tokens.Add(t);
         }
     }
 

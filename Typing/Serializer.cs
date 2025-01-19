@@ -121,7 +121,7 @@ public partial class Serializer
             TokenName.Ops_GreaterThan => ">",
             TokenName.Ops_GreaterThanOrEqual => ">=",
             TokenName.Ops_LessThan => "<",
-            TokenName.Ops_LessThanOrEqual => "<",
+            TokenName.Ops_LessThanOrEqual => "<=",
             TokenName.Ops_ModuloAssign => "%=",
             TokenName.Ops_Modulus => "%",
             TokenName.Ops_Multiply => "*",

@@ -1,5 +1,6 @@
 ﻿namespace citrus;
 using citrus.Runner;
+using citrus.Tracing;
 
 public class Program
 {
@@ -36,10 +37,9 @@ class CLIHost(IEnumerable<string> cliArgs)
 
             return 0;
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.Error.WriteLine(ex.Message);
-            Console.Error.WriteLine(ex.StackTrace);
+            ErrorHandler.DumpCrashLog(e);
             return 1;
         }
     }

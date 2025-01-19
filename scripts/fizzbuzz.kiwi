@@ -1,7 +1,6 @@
 fn fizzbuzz(n)
   i = 1
-  println "n.type = ${n.type()}, n = {n}"
-  println "i.type = ${i.type()}, i = {i}"
+  
   while i <= n do
     if i % 15 == 0
       println("FizzBuzz")
