@@ -5,7 +5,7 @@ namespace citrus.Tracing;
 
 public static class ErrorHandler
 {
-    public static void PrintError(KiwiError e)
+    public static void PrintError(CitrusError e)
     {
         PrintError(e.Type, e.Message, e.Token);
     }
@@ -36,6 +36,8 @@ public static class ErrorHandler
             lines.Add($"Stack: {e.StackTrace}");
             e = e.InnerException;
         }
+
+        lines.Add(string.Empty);
 
         File.AppendAllLines(CrashLog, lines);
 

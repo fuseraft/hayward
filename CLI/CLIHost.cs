@@ -5,6 +5,9 @@ namespace citrus.CLI;
 
 public class CLIHost(IEnumerable<string> cliArgs)
 {
+    const string Name = "citrus";
+    const string Version = "1.0.0";
+
     private readonly IEnumerable<string> cliArgs = cliArgs;
     private readonly List<string> citrusArgs = [];
     private readonly List<string> citrusScripts = [];
@@ -49,21 +52,54 @@ public class CLIHost(IEnumerable<string> cliArgs)
             {
                 case "-n":
                 case "--new":
-                    CreateNewFile(ref iter);
+                    if (citrusScripts.Count == 0)
+                    {
+                        CreateNewFile(ref iter);
+                    }
+                    else
+                    {
+                        citrusArgs.Add(current);
+                    }
                     break;
 
                 case "-t":
                 case "--tokens":
-                    PrintTokens(ref iter, config);
+                    if (citrusScripts.Count == 0)
+                    {
+                        PrintTokens(ref iter, config);
+                    }
+                    else
+                    {
+                        citrusArgs.Add(current);
+                    }
                     break;
 
                 case "-a":
                 case "--ast":
-                    PrintAST(ref iter, config);
+                    if (citrusScripts.Count == 0)
+                    {
+                        PrintAST(ref iter, config);
+                    }
+                    else
+                    {
+                        citrusArgs.Add(current);
+                    }
+                    break;
+
+                case "-v":
+                case "--version":
+                    if (citrusScripts.Count == 0)
+                    {
+                        PrintVersion();
+                    }
+                    else
+                    {
+                        citrusArgs.Add(current);
+                    }
                     break;
 
                 default:
-                    if (IsScript(ref current))
+                    if (citrusScripts.Count == 0 && IsScript(ref current))
                     {
                         citrusScripts.Add(current);
                     }
@@ -76,6 +112,14 @@ public class CLIHost(IEnumerable<string> cliArgs)
         }
 
         return config;
+    }
+
+    private static void PrintVersion()
+    {
+        Console.WriteLine($"{Name} {Version}");
+        Console.WriteLine();
+        
+        Environment.Exit(0);
     }
 
     private void PrintTokens(ref IEnumerator<string> iter, CLIConfig config)
@@ -142,11 +186,22 @@ public class CLIHost(IEnumerable<string> cliArgs)
 
     private static bool IsScript(ref string filename)
     {
+        var original = filename;
+        
         if (!Path.HasExtension(filename))
         {
             filename += ".kiwi";
         }
 
-        return File.Exists(filename);
+        if (File.Exists(filename))
+        {
+            return true;
+        }
+        else
+        {
+            filename = original;
+        }
+
+        return false;
     }
 }

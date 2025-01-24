@@ -10,7 +10,7 @@ public struct BuiltinDispatch
 {
     public static Value Execute(Token token, TokenName builtin, Value v, List<Value> args)
     {
-        if (KiwiBuiltin.IsBuiltin(builtin))
+        if (CitrusBuiltin.IsBuiltin(builtin))
         {
             return CoreBuiltinHandler.Execute(token, builtin, v, args);
         }
@@ -30,27 +30,23 @@ public struct BuiltinDispatch
         }
         else if (MathBuiltin.IsBuiltin(builtin))
         {
-            // return MathBuiltinHandler::execute(token, builtin, args);
+            return MathBuiltinHandler.Execute(token, builtin, args);
         }
         else if (EnvBuiltin.IsBuiltin(builtin))
         {
-            // return EnvBuiltinHandler::execute(token, builtin, args);
+            return EnvBuiltinHandler.Execute(token, builtin, args, cliArgs);
         }
         else if (EncoderBuiltin.IsBuiltin(builtin))
         {
-            // return EncoderBuiltinHandler::execute(token, builtin, args);
-        }
-        else if (ArgvBuiltin.IsBuiltin(builtin))
-        {
-            // return ArgvBuiltinHandler::execute(token, builtin, args, cliArgs);
+            return EncoderBuiltinHandler.Execute(token, builtin, args);
         }
         else if (ConsoleBuiltin.IsBuiltin(builtin))
         {
-            // return ConsoleBuiltinHandler::execute(token, builtin, args);
+            return ConsoleBuiltinHandler.Execute(token, builtin, args);
         }
         else if (SysBuiltin.IsBuiltin(builtin))
         {
-            // return SysBuiltinHandler::execute(token, builtin, args);
+            return SysBuiltinHandler.Execute(token, builtin, args);
         }
         else if (HttpBuiltin.IsBuiltin(builtin))
         {
@@ -60,7 +56,6 @@ public struct BuiltinDispatch
         {
             // return LoggingBuiltinHandler::execute(token, builtin, args);
         }
-
 
         throw new FunctionUndefinedError(token, token.Text);
     }

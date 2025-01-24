@@ -42,7 +42,7 @@ public partial class Parser(bool rethrowErrors = false)
                     }
                 }
             }
-            catch (KiwiError)
+            catch (CitrusError)
             {
                 if (rethrow)
                 {
@@ -84,7 +84,7 @@ public partial class Parser(bool rethrowErrors = false)
                 }
             }
         }
-        catch (KiwiError e)
+        catch (CitrusError e)
         {
             if (rethrow)
             {

@@ -253,7 +253,7 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
-        string DefaultErrorType = "KiwiError";
+        string DefaultErrorType = "CitrusError";
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
@@ -285,7 +285,7 @@ public class Interpreter
                 }
             }
 
-            throw new KiwiError(node.Token, errorType, errorMessage);
+            throw new CitrusError(node.Token, errorType, errorMessage);
         }
 
         return Value.Default();
@@ -1171,7 +1171,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError e)
+        catch (CitrusError e)
         {
             if (requireDrop)
             {
@@ -1225,7 +1225,7 @@ public class Interpreter
 
                     DropFrame();
                 }
-                catch (KiwiError)
+                catch (CitrusError)
                 {
                     if (requireDrop && InTry())
                     {
@@ -1421,7 +1421,7 @@ public class Interpreter
             result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
             DropFrame();
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop && InTry())
             {
@@ -1465,7 +1465,7 @@ public class Interpreter
                 DropFrame();
             }
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop)
             {
@@ -1490,13 +1490,13 @@ public class Interpreter
         {
             return CallStructMethod(node, obj.GetStruct());
         }
-        else if (KiwiBuiltin.IsBuiltin(node.Op))
-        {
-            return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
-        }
         else if (ListBuiltin.IsBuiltin(node.Op))
         {
             return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
+        }
+        else if (CitrusBuiltin.IsBuiltin(node.Op))
+        {
+            return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
         }
 
         throw new FunctionUndefinedError(node.Token, node.MethodName);
@@ -1522,7 +1522,60 @@ public class Interpreter
         return returnValue;
     }
 
-    private Value Visit(IndexingNode node) => throw new NotImplementedException();
+    private Value Visit(IndexingNode node)
+    {
+        if (node.IndexedObject == null)
+        {
+            throw new InvalidOperationError(node.Token, "Nothing to index.");
+        }
+
+        var obj = Interpret(node.IndexedObject);
+        var indexValue = Interpret(node.IndexExpression);
+
+        if (node.IndexExpression.Type == ASTNodeType.Index)
+        {
+            var indexExpr = (IndexingNode)node.IndexExpression;
+            return HandleNestedIndexing(indexExpr, obj, TokenName.Ops_Assign, Value.Default());
+        }
+        else
+        {
+            if (obj.IsList())
+            {
+                var index = ConversionOp.GetInteger(node.Token, indexValue);
+                var list = obj.GetList();
+
+                if (index < 0 || index >= list.Count) {
+                    throw new IndexError(node.Token, "The index was outside the bounds of the list.");
+                }
+
+                return list[(int)index];
+            }
+            else if (obj.IsHashmap())
+            {
+                var hash = obj.GetHashmap();
+
+                if (!hash.ContainsKey(indexValue))
+                {
+                    throw new HashKeyError(node.Token, Serializer.Serialize(indexValue));
+                }
+
+                return hash[indexValue];
+            }
+            else if (obj.IsString())
+            {
+                var str = obj.GetString();
+                var index = ConversionOp.GetInteger(node.Token, indexValue);
+
+                if (index < 0 || index >= str.Length) {
+                    throw new IndexError(node.Token, "The index was outside the bounds of the string.");
+                }
+
+                return Value.CreateString(str[(int)index].ToString());
+            }
+
+            throw new IndexError(node.Token, "Invalid indexing operation.");
+        }
+    }
 
     private Value Visit(SliceNode node)
     {
@@ -1547,7 +1600,7 @@ public class Interpreter
 
         if (!content.IsString())
         {
-            throw new KiwiError(node.Token, "Invalid parse expression.");
+            throw new CitrusError(node.Token, "Invalid parse expression.");
         }
 
         Lexer lexer = new(content.GetString(), false);
@@ -1811,7 +1864,7 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        else if (KiwiBuiltin.IsBuiltinMethod(name))
+        else if (CitrusBuiltin.IsBuiltinMethod(name))
         {
             return CallableType.Builtin;
         }
@@ -2067,7 +2120,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop)
             {
@@ -2840,7 +2893,7 @@ public class Interpreter
             return Value.CreateFloat(sum);
         }
 
-        return Value.CreateInteger(sum);
+        return Value.CreateInteger((long)sum);
     }
 
     private static Value ListMin(Token token, List<Value> list)
