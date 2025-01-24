@@ -10,7 +10,7 @@ public struct BuiltinDispatch
 {
     public static Value Execute(Token token, TokenName builtin, Value v, List<Value> args)
     {
-        if (KiwiBuiltin.IsBuiltin(builtin))
+        if (CitrusBuiltin.IsBuiltin(builtin))
         {
             return CoreBuiltinHandler.Execute(token, builtin, v, args);
         }
@@ -50,7 +50,7 @@ public struct BuiltinDispatch
         }
         else if (SysBuiltin.IsBuiltin(builtin))
         {
-            // return SysBuiltinHandler::execute(token, builtin, args);
+            return SysBuiltinHandler.Execute(token, builtin, args);
         }
         else if (HttpBuiltin.IsBuiltin(builtin))
         {
@@ -60,7 +60,6 @@ public struct BuiltinDispatch
         {
             // return LoggingBuiltinHandler::execute(token, builtin, args);
         }
-
 
         throw new FunctionUndefinedError(token, token.Text);
     }

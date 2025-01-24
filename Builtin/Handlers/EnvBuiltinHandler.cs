@@ -14,9 +14,42 @@ public static class EnvBuiltinHandler
             TokenName.Builtin_Env_GetAll => GetAll(token, args),
             TokenName.Builtin_Env_GetEnvironmentVariable => GetEnvironmentVariable(token, args),
             TokenName.Builtin_Env_SetEnvironmentVariable => SetEnvironmentVariable(token, args),
-            TokenName.Builtin_Env_Kiwi => GetBinPath(token, args),
+            TokenName.Builtin_Env_Citrus => GetBinPath(token, args),
+            TokenName.Builtin_Env_OS => OS(token, args),
+            TokenName.Builtin_Env_User => User(token, args),
+            TokenName.Builtin_Env_UserDomain => UserDomain(token, args),
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value OS(Token token, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, EnvBuiltin.OS);
+        }
+
+        return Value.CreateString(System.Runtime.InteropServices.RuntimeInformation.OSDescription);
+    }
+
+    private static Value User(Token token, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, EnvBuiltin.User);
+        }
+
+        return Value.CreateString(Environment.UserName);
+    }
+
+    private static Value UserDomain(Token token, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, EnvBuiltin.UserDomain);
+        }
+
+        return Value.CreateString(Environment.UserDomainName);
     }
 
     private static Value GetAll(Token token, List<Value> args)
@@ -39,7 +72,7 @@ public static class EnvBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.Kiwi);
+            throw new ParameterCountMismatchError(token, EnvBuiltin.Citrus);
         }
 
         var exePath = Environment.ProcessPath ?? throw new FileSystemError(token, "Could not get executable path.");

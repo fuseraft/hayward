@@ -253,7 +253,7 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
-        string DefaultErrorType = "KiwiError";
+        string DefaultErrorType = "CitrusError";
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
@@ -285,7 +285,7 @@ public class Interpreter
                 }
             }
 
-            throw new KiwiError(node.Token, errorType, errorMessage);
+            throw new CitrusError(node.Token, errorType, errorMessage);
         }
 
         return Value.Default();
@@ -1171,7 +1171,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError e)
+        catch (CitrusError e)
         {
             if (requireDrop)
             {
@@ -1225,7 +1225,7 @@ public class Interpreter
 
                     DropFrame();
                 }
-                catch (KiwiError)
+                catch (CitrusError)
                 {
                     if (requireDrop && InTry())
                     {
@@ -1421,7 +1421,7 @@ public class Interpreter
             result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
             DropFrame();
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop && InTry())
             {
@@ -1465,7 +1465,7 @@ public class Interpreter
                 DropFrame();
             }
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop)
             {
@@ -1494,7 +1494,7 @@ public class Interpreter
         {
             return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
         }
-        else if (KiwiBuiltin.IsBuiltin(node.Op))
+        else if (CitrusBuiltin.IsBuiltin(node.Op))
         {
             return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
         }
@@ -1600,7 +1600,7 @@ public class Interpreter
 
         if (!content.IsString())
         {
-            throw new KiwiError(node.Token, "Invalid parse expression.");
+            throw new CitrusError(node.Token, "Invalid parse expression.");
         }
 
         Lexer lexer = new(content.GetString(), false);
@@ -1864,7 +1864,7 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        else if (KiwiBuiltin.IsBuiltinMethod(name))
+        else if (CitrusBuiltin.IsBuiltinMethod(name))
         {
             return CallableType.Builtin;
         }
@@ -2120,7 +2120,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError)
+        catch (CitrusError)
         {
             if (requireDrop)
             {

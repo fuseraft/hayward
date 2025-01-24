@@ -5,3 +5,7 @@ println "z = ${z.type()}: `${z}`"       # z = Integer: `6`
 println __getall__()["PATH"]
 
 #/
+
+println __env_os__()
+println __env_user__()
+println __env_userdomain__()

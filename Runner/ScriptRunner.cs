@@ -29,7 +29,7 @@ public class ScriptRunner : IRunner
         {
             interpreter.Interpret(ast);
         }
-        catch (KiwiError e)
+        catch (CitrusError e)
         {
             ErrorHandler.PrintError(e);
         }
