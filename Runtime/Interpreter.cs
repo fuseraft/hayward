@@ -1490,13 +1490,13 @@ public class Interpreter
         {
             return CallStructMethod(node, obj.GetStruct());
         }
-        else if (KiwiBuiltin.IsBuiltin(node.Op))
-        {
-            return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
-        }
         else if (ListBuiltin.IsBuiltin(node.Op))
         {
             return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
+        }
+        else if (KiwiBuiltin.IsBuiltin(node.Op))
+        {
+            return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
         }
 
         throw new FunctionUndefinedError(node.Token, node.MethodName);

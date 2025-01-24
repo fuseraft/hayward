@@ -37,6 +37,8 @@ public static class ErrorHandler
             e = e.InnerException;
         }
 
+        lines.Add(string.Empty);
+
         File.AppendAllLines(CrashLog, lines);
 
         Environment.Exit(1);

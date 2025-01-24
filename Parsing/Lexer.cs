@@ -162,7 +162,6 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
     private static void TokenizeStringInterpolation(ref List<Token> tokens, Token token)
     {
-        var file = token.Span.File;
         var span = token.Span;
         var text = token.Text;
         System.Text.StringBuilder sv = new();
@@ -183,7 +182,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             {
                 case '$':
                     {
-                        if (1 + i < text.Length && text[1 + i] == '{')
+                        if (i + 1 < text.Length && text[i + 1] == '{')
                         {
                             ++i; // skip "${"
                             ++braces;
@@ -255,10 +254,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                         interpTokens.Add(CreateToken(TokenType.RParen, span, ")"));
 
                         // if we aren't at the end of the string, concatenate
-                        /*if (i + 1 < text.Length)
+                        if (i + 1 < text.Length)
                         {
                             interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
-                        }*/
+                        }
+
                         interpolate = false;
                     }
                     break;
@@ -271,7 +271,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
         if (sv.Length > 0)
         {
-            if (interpTokens.Count > 0)
+            if (interpTokens.Count > 0 && interpTokens.Last().Name != TokenName.Ops_Add)
             {
                 interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
             }
@@ -279,10 +279,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             interpTokens.Add(CreateStringLiteralToken(span, s, Value.CreateString(s)));
         }
 
-        foreach (var t in interpTokens)
-        {
-            tokens.Add(t);
-        }
+        tokens.AddRange(interpTokens);
     }
 
     private Token TokenizeSymbol(TokenSpan span, char c)

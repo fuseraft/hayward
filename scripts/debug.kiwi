@@ -1,0 +1,6 @@
+x = [[1] * 3] * 2
+x = x.flatten()
+z = x.sum()
+
+println z
+#println "z = " + (z.type()) + ": `" + (z) + "`"

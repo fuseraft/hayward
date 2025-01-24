@@ -2,3 +2,4 @@ bin/Debug/*
 bin/Release/*
 obj/*
 /.vs/citrus
+citrus_crash.log
