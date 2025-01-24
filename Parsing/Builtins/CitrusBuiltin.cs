@@ -169,7 +169,6 @@ public static class CitrusBuiltin
     {
         if (ConsoleBuiltin.Map.ContainsKey(arg))    return true;
         if (EnvBuiltin.Map.ContainsKey(arg))        return true;
-        if (ArgvBuiltin.Map.ContainsKey(arg))       return true;
         if (TimeBuiltin.Map.ContainsKey(arg))       return true;
         if (FileIOBuiltin.Map.ContainsKey(arg))     return true;
         if (MathBuiltin.Map.ContainsKey(arg))       return true;
@@ -193,7 +192,6 @@ public static class CitrusBuiltin
     {
         if (ConsoleBuiltin.IsBuiltin(arg))    return true;
         if (EnvBuiltin.IsBuiltin(arg))        return true;
-        if (ArgvBuiltin.IsBuiltin(arg))       return true;
         if (TimeBuiltin.IsBuiltin(arg))       return true;
         if (FileIOBuiltin.IsBuiltin(arg))     return true;
         if (MathBuiltin.IsBuiltin(arg))       return true;

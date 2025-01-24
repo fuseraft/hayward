@@ -9,3 +9,4 @@ println __getall__()["PATH"]
 println __env_os__()
 println __env_user__()
 println __env_userdomain__()
+println __env_argv__()

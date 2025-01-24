@@ -1,3 +1,4 @@
+using citrus.Builtin.Operation;
 using citrus.Parsing;
 using citrus.Parsing.Builtins;
 using citrus.Tracing.Error;
@@ -7,10 +8,12 @@ namespace citrus.Builtin.Handlers;
 
 public static class EnvBuiltinHandler
 {
-    public static Value Execute(Token token, TokenName builtin, List<Value> args)
+    public static Value Execute(Token token, TokenName builtin, List<Value> args, Dictionary<string, string> cliArgs)
     {
         return builtin switch
         {
+            TokenName.Builtin_Env_GetArgv => GetArgv(token, args, cliArgs),
+            TokenName.Builtin_Env_GetXarg => GetXarg(token, args, cliArgs),
             TokenName.Builtin_Env_GetAll => GetAll(token, args),
             TokenName.Builtin_Env_GetEnvironmentVariable => GetEnvironmentVariable(token, args),
             TokenName.Builtin_Env_SetEnvironmentVariable => SetEnvironmentVariable(token, args),
@@ -20,6 +23,43 @@ public static class EnvBuiltinHandler
             TokenName.Builtin_Env_UserDomain => UserDomain(token, args),
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value GetArgv(Token token, List<Value> args, Dictionary<string, string> cliArgs)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, EnvBuiltin.GetArgv);
+        }
+
+        Dictionary<Value, Value> argv = [];
+
+        foreach (var pair in cliArgs)
+        {
+            argv[Value.CreateString(pair.Key)] = Value.CreateString(pair.Value);
+        }
+
+        return Value.CreateHashmap(argv);
+    }
+
+    private static Value GetXarg(Token token, List<Value> args, Dictionary<string, string> cliArgs)
+    {
+        if (args.Count != 1)
+        {
+            throw new ParameterCountMismatchError(token, EnvBuiltin.GetXarg);
+        }
+
+        var xargName = ConversionOp.GetString(token, args[0]);
+
+        foreach (var pair in cliArgs)
+        {
+            if (pair.Key.Equals(xargName))
+            {
+                return Value.CreateString(pair.Value);
+            }
+        }
+
+        return Value.EmptyString();
     }
 
     private static Value OS(Token token, List<Value> args)

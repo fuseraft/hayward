@@ -34,15 +34,11 @@ public struct BuiltinDispatch
         }
         else if (EnvBuiltin.IsBuiltin(builtin))
         {
-            return EnvBuiltinHandler.Execute(token, builtin, args);
+            return EnvBuiltinHandler.Execute(token, builtin, args, cliArgs);
         }
         else if (EncoderBuiltin.IsBuiltin(builtin))
         {
             return EncoderBuiltinHandler.Execute(token, builtin, args);
-        }
-        else if (ArgvBuiltin.IsBuiltin(builtin))
-        {
-            return ArgvBuiltinHandler.Execute(token, builtin, args, cliArgs);
         }
         else if (ConsoleBuiltin.IsBuiltin(builtin))
         {
