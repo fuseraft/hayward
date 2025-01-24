@@ -1522,7 +1522,60 @@ public class Interpreter
         return returnValue;
     }
 
-    private Value Visit(IndexingNode node) => throw new NotImplementedException();
+    private Value Visit(IndexingNode node)
+    {
+        if (node.IndexedObject == null)
+        {
+            throw new InvalidOperationError(node.Token, "Nothing to index.");
+        }
+
+        var obj = Interpret(node.IndexedObject);
+        var indexValue = Interpret(node.IndexExpression);
+
+        if (node.IndexExpression.Type == ASTNodeType.Index)
+        {
+            var indexExpr = (IndexingNode)node.IndexExpression;
+            return HandleNestedIndexing(indexExpr, obj, TokenName.Ops_Assign, Value.Default());
+        }
+        else
+        {
+            if (obj.IsList())
+            {
+                var index = ConversionOp.GetInteger(node.Token, indexValue);
+                var list = obj.GetList();
+
+                if (index < 0 || index >= list.Count) {
+                    throw new IndexError(node.Token, "The index was outside the bounds of the list.");
+                }
+
+                return list[(int)index];
+            }
+            else if (obj.IsHashmap())
+            {
+                var hash = obj.GetHashmap();
+
+                if (!hash.ContainsKey(indexValue))
+                {
+                    throw new HashKeyError(node.Token, Serializer.Serialize(indexValue));
+                }
+
+                return hash[indexValue];
+            }
+            else if (obj.IsString())
+            {
+                var str = obj.GetString();
+                var index = ConversionOp.GetInteger(node.Token, indexValue);
+
+                if (index < 0 || index >= str.Length) {
+                    throw new IndexError(node.Token, "The index was outside the bounds of the string.");
+                }
+
+                return Value.CreateString(str[(int)index].ToString());
+            }
+
+            throw new IndexError(node.Token, "Invalid indexing operation.");
+        }
+    }
 
     private Value Visit(SliceNode node)
     {

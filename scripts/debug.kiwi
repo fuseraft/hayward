@@ -1,6 +1,7 @@
-x = [[1] * 3] * 2
-x = x.flatten()
-z = x.sum()
+/#
 
-println z
-#println "z = " + (z.type()) + ": `" + (z) + "`"
+z = ([[1] * 3] * 2).flatten().sum()     # [[1, 1, 1], [1, 1, 1]] => [1, 1, 1, 1, 1, 1] => 6
+println "z = ${z.type()}: `${z}`"       # z = Integer: `6`
+println __getall__()["PATH"]
+
+#/

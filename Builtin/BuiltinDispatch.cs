@@ -34,7 +34,7 @@ public struct BuiltinDispatch
         }
         else if (EnvBuiltin.IsBuiltin(builtin))
         {
-            // return EnvBuiltinHandler::execute(token, builtin, args);
+            return EnvBuiltinHandler.Execute(token, builtin, args);
         }
         else if (EncoderBuiltin.IsBuiltin(builtin))
         {
