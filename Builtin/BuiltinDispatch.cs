@@ -30,7 +30,7 @@ public struct BuiltinDispatch
         }
         else if (MathBuiltin.IsBuiltin(builtin))
         {
-            // return MathBuiltinHandler::execute(token, builtin, args);
+            return MathBuiltinHandler.Execute(token, builtin, args);
         }
         else if (EnvBuiltin.IsBuiltin(builtin))
         {
@@ -38,15 +38,15 @@ public struct BuiltinDispatch
         }
         else if (EncoderBuiltin.IsBuiltin(builtin))
         {
-            // return EncoderBuiltinHandler::execute(token, builtin, args);
+            return EncoderBuiltinHandler.Execute(token, builtin, args);
         }
         else if (ArgvBuiltin.IsBuiltin(builtin))
         {
-            // return ArgvBuiltinHandler::execute(token, builtin, args, cliArgs);
+            return ArgvBuiltinHandler.Execute(token, builtin, args, cliArgs);
         }
         else if (ConsoleBuiltin.IsBuiltin(builtin))
         {
-            // return ConsoleBuiltinHandler::execute(token, builtin, args);
+            return ConsoleBuiltinHandler.Execute(token, builtin, args);
         }
         else if (SysBuiltin.IsBuiltin(builtin))
         {

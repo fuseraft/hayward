@@ -12,40 +12,40 @@ public static class FileIOBuiltinHandler
     {
         return builtin switch
         {
-            TokenName.Builtin_FileIO_CreateFile => ExecuteCreateFile(token, args),
-            TokenName.Builtin_FileIO_MakeDirectory => ExecuteMakeDirectory(token, args),
-            TokenName.Builtin_FileIO_MakeDirectoryP => ExecuteMakeDirectoryP(token, args),
-            TokenName.Builtin_FileIO_DeleteFile => ExecuteRemovePath(token, args),
-            TokenName.Builtin_FileIO_RemoveDirectory => ExecuteRemovePath(token, args),
-            TokenName.Builtin_FileIO_RemoveDirectoryF => ExecuteRemovePathF(token, args),
-            TokenName.Builtin_FileIO_FileExists => ExecuteFileExists(token, args),
-            TokenName.Builtin_FileIO_IsDirectory => ExecuteIsDirectory(token, args),
-            TokenName.Builtin_FileIO_GetFileExtension => ExecuteGetFileExtension(token, args),
-            TokenName.Builtin_FileIO_GetCurrentDirectory => ExecuteGetCurrentDirectory(token, args),
-            TokenName.Builtin_FileIO_FileName => ExecuteGetFileName(token, args),
-            TokenName.Builtin_FileIO_GetFilePath => ExecuteGetFilePath(token, args),
-            TokenName.Builtin_FileIO_GetFileAbsolutePath => ExecuteGetFileAbsolutePath(token, args),
-            TokenName.Builtin_FileIO_TempDir => ExecuteGetTempDirectory(token, args),
-            TokenName.Builtin_FileIO_ChangeDirectory => ExecuteChangeDirectory(token, args),
-            TokenName.Builtin_FileIO_CopyFile => ExecuteCopyFile(token, args),
-            TokenName.Builtin_FileIO_CopyR => ExecuteCopyR(token, args),
-            TokenName.Builtin_FileIO_MoveFile => ExecuteMoveFile(token, args),
-            TokenName.Builtin_FileIO_ReadBytes => ExecuteReadBytes(token, args),
-            TokenName.Builtin_FileIO_ReadFile => ExecuteReadFile(token, args),
-            TokenName.Builtin_FileIO_ReadLines => ExecuteReadLines(token, args),
-            TokenName.Builtin_FileIO_AppendText => ExecuteAppendText(token, args),
-            TokenName.Builtin_FileIO_WriteBytes => ExecuteWriteBytes(token, args),
-            TokenName.Builtin_FileIO_WriteText => ExecuteWriteText(token, args),
-            TokenName.Builtin_FileIO_WriteLine => ExecuteWriteLine(token, args),
-            TokenName.Builtin_FileIO_Glob => ExecuteGlob(token, args),
-            TokenName.Builtin_FileIO_ListDirectory => ExecuteListDirectory(token, args),
-            TokenName.Builtin_FileIO_FileSize => ExecuteGetFileSize(token, args),
-            TokenName.Builtin_FileIO_Combine => ExecuteCombine(token, args),
+            TokenName.Builtin_FileIO_CreateFile => CreateFile(token, args),
+            TokenName.Builtin_FileIO_MakeDirectory => MakeDirectory(token, args),
+            TokenName.Builtin_FileIO_MakeDirectoryP => MakeDirectoryP(token, args),
+            TokenName.Builtin_FileIO_DeleteFile => RemovePath(token, args),
+            TokenName.Builtin_FileIO_RemoveDirectory => RemovePath(token, args),
+            TokenName.Builtin_FileIO_RemoveDirectoryF => RemovePathF(token, args),
+            TokenName.Builtin_FileIO_FileExists => FileExists(token, args),
+            TokenName.Builtin_FileIO_IsDirectory => IsDirectory(token, args),
+            TokenName.Builtin_FileIO_GetFileExtension => GetFileExtension(token, args),
+            TokenName.Builtin_FileIO_GetCurrentDirectory => GetCurrentDirectory(token, args),
+            TokenName.Builtin_FileIO_FileName => GetFileName(token, args),
+            TokenName.Builtin_FileIO_GetFilePath => GetFilePath(token, args),
+            TokenName.Builtin_FileIO_GetFileAbsolutePath => GetFileAbsolutePath(token, args),
+            TokenName.Builtin_FileIO_TempDir => GetTempDirectory(token, args),
+            TokenName.Builtin_FileIO_ChangeDirectory => ChangeDirectory(token, args),
+            TokenName.Builtin_FileIO_CopyFile => CopyFile(token, args),
+            TokenName.Builtin_FileIO_CopyR => CopyR(token, args),
+            TokenName.Builtin_FileIO_MoveFile => MoveFile(token, args),
+            TokenName.Builtin_FileIO_ReadBytes => ReadBytes(token, args),
+            TokenName.Builtin_FileIO_ReadFile => ReadFile(token, args),
+            TokenName.Builtin_FileIO_ReadLines => ReadLines(token, args),
+            TokenName.Builtin_FileIO_AppendText => AppendText(token, args),
+            TokenName.Builtin_FileIO_WriteBytes => WriteBytes(token, args),
+            TokenName.Builtin_FileIO_WriteText => WriteText(token, args),
+            TokenName.Builtin_FileIO_WriteLine => WriteLine(token, args),
+            TokenName.Builtin_FileIO_Glob => Glob(token, args),
+            TokenName.Builtin_FileIO_ListDirectory => ListDirectory(token, args),
+            TokenName.Builtin_FileIO_FileSize => GetFileSize(token, args),
+            TokenName.Builtin_FileIO_Combine => Combine(token, args),
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
     }
 
-    private static Value ExecuteCombine(Token token, List<Value> args)
+    private static Value Combine(Token token, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -73,7 +73,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(path);
     }
 
-    private static Value ExecuteGetFileSize(Token token, List<Value> args)
+    private static Value GetFileSize(Token token, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -90,7 +90,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateInteger(FileUtil.GetFileSize(token, path));
     }
 
-    private static Value ExecuteListDirectory(Token token, List<Value> args)
+    private static Value ListDirectory(Token token, List<Value> args)
     {
         if (args.Count != 1 && args.Count != 2)
         {
@@ -109,7 +109,7 @@ public static class FileIOBuiltinHandler
         {
             if (!args[1].IsBoolean())
             {
-                throw new InvalidOperationError(token, "Expected a boolean.");            
+                throw new InvalidOperationError(token, "Expected a boolean.");
             }
 
             recursive = args[1].GetBoolean();
@@ -119,7 +119,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(contents);
     }
 
-    private static Value ExecuteGlob(Token token, List<Value> args)
+    private static Value Glob(Token token, List<Value> args)
     {
         if (args.Count != 2 && args.Count != 3)
         {
@@ -172,7 +172,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(files);
     }
 
-    private static Value ExecuteAppendText(Token token, List<Value> args)
+    private static Value AppendText(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -185,7 +185,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.AppendText(token, path, text));
     }
 
-    private static Value ExecuteWriteBytes(Token token, List<Value> args)
+    private static Value WriteBytes(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsList())
         {
@@ -198,7 +198,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.WriteBytes(token, path, bytes));
     }
 
-    private static Value ExecuteWriteText(Token token, List<Value> args)
+    private static Value WriteText(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -211,7 +211,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.WriteText(token, path, text));
     }
 
-    private static Value ExecuteWriteLine(Token token, List<Value> args)
+    private static Value WriteLine(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -224,7 +224,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.WriteLine(token, path, text));
     }
 
-    private static Value ExecuteReadBytes(Token token, List<Value> args)
+    private static Value ReadBytes(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -235,7 +235,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(FileUtil.ReadBytes(token, path));
     }
 
-    private static Value ExecuteReadFile(Token token, List<Value> args)
+    private static Value ReadFile(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -246,7 +246,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(FileUtil.ReadFile(token, path));
     }
 
-    private static Value ExecuteReadLines(Token token, List<Value> args)
+    private static Value ReadLines(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -257,7 +257,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateList(FileUtil.ReadLines(token, path));
     }
 
-    private static Value ExecuteMoveFile(Token token, List<Value> args)
+    private static Value MoveFile(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -270,7 +270,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.MoveFile(token, src, dst));
     }
 
-    private static Value ExecuteCopyFile(Token token, List<Value> args)
+    private static Value CopyFile(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -283,7 +283,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.CopyFile(token, src, dst));
     }
 
-    private static Value ExecuteCopyR(Token token, List<Value> args)
+    private static Value CopyR(Token token, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
         {
@@ -296,7 +296,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.CopyDirectoryRecursive(token, src, dst));
     }
 
-    private static Value ExecuteChangeDirectory(Token token, List<Value> args)
+    private static Value ChangeDirectory(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -307,7 +307,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.ChangeDirectory(token, path));
     }
 
-    private static Value ExecuteGetTempDirectory(Token token, List<Value> args)
+    private static Value GetTempDirectory(Token token, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -317,7 +317,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateString(FileUtil.GetTempDirectory());
     }
 
-    private static Value ExecuteMakeDirectory(Token token, List<Value> args)
+    private static Value MakeDirectory(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -328,7 +328,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.MakeDirectory(token, fileName));
     }
 
-    private static Value ExecuteMakeDirectoryP(Token token, List<Value> args)
+    private static Value MakeDirectoryP(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -338,8 +338,8 @@ public static class FileIOBuiltinHandler
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.MakeDirectory(token, fileName));
     }
-    
-    private static Value ExecuteRemovePath(Token token, List<Value> args)
+
+    private static Value RemovePath(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -349,8 +349,8 @@ public static class FileIOBuiltinHandler
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.RemovePath(token, fileName));
     }
-    
-    private static Value ExecuteRemovePathF(Token token, List<Value> args)
+
+    private static Value RemovePathF(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -361,7 +361,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateInteger(FileUtil.RemovePathRecursive(token, fileName));
     }
 
-    private static Value ExecuteGetFileExtension(Token token, List<Value> args)
+    private static Value GetFileExtension(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -372,7 +372,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateString(FileUtil.GetFileExtension(token, fileName));
     }
 
-    private static Value ExecuteGetCurrentDirectory(Token token, List<Value> args)
+    private static Value GetCurrentDirectory(Token token, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -382,7 +382,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateString(FileUtil.GetCurrentDirectory());
     }
 
-    private static Value ExecuteGetFileName(Token token, List<Value> args)
+    private static Value GetFileName(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -393,7 +393,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateString(FileUtil.GetFileName(token, fileName));
     }
 
-    private static Value ExecuteGetFilePath(Token token, List<Value> args)
+    private static Value GetFilePath(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -404,7 +404,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateString(FileUtil.GetParentPath(token, fileName));
     }
 
-    private static Value ExecuteGetFileAbsolutePath(Token token, List<Value> args)
+    private static Value GetFileAbsolutePath(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -414,8 +414,8 @@ public static class FileIOBuiltinHandler
         var fileName = args[0].GetString();
         return Value.CreateString(FileUtil.GetAbsolutePath(token, fileName));
     }
-            
-    private static Value ExecuteCreateFile(Token token, List<Value> args)
+
+    private static Value CreateFile(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -426,7 +426,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.CreateFile(token, fileName));
     }
 
-    private static Value ExecuteFileExists(Token token, List<Value> args)
+    private static Value FileExists(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -437,7 +437,7 @@ public static class FileIOBuiltinHandler
         return Value.CreateBoolean(FileUtil.FileExists(token, fileName));
     }
 
-    private static Value ExecuteIsDirectory(Token token, List<Value> args)
+    private static Value IsDirectory(Token token, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {

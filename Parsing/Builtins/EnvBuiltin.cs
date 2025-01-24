@@ -2,12 +2,12 @@ namespace citrus.Parsing.Builtins;
 
 public static class EnvBuiltin
 {
-    public const string GetAll                    = "__getall__";
-    public const string GetEnvironmentVariable    = "__getenv__";
-    public const string SetEnvironmentVariable    = "__setenv__";
-    public const string UnsetEnvironmentVariable  = "__unsetenv__";
-    public const string Kiwi                      = "__kiwi__";
-    public const string KiwiLib                   = "__kiwilib__";
+    public const string GetAll                    = "__env_getall__";
+    public const string GetEnvironmentVariable    = "__env_getenv__";
+    public const string SetEnvironmentVariable    = "__env_setenv__";
+    public const string UnsetEnvironmentVariable  = "__env_unsetenv__";
+    public const string Kiwi                      = "__env_kiwi__";
+    public const string KiwiLib                   = "__env_kiwilib__";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>

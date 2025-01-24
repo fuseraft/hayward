@@ -13,77 +13,77 @@ public static class CoreBuiltinHandler
     {
         return builtin switch
         {
-            TokenName.Builtin_Kiwi_Chars => ExecuteChars(token, value, args),
-            TokenName.Builtin_Kiwi_Join => ExecuteJoin(token, value, args),
-            TokenName.Builtin_Kiwi_HasKey => ExecuteHasKey(token, value, args),
-            TokenName.Builtin_Kiwi_Size => ExecuteSize(token, value, args),
-            TokenName.Builtin_Kiwi_Uppercase => ExecuteUppercase(token, value, args),
-            TokenName.Builtin_Kiwi_Lowercase => ExecuteLowercase(token, value, args),
-            TokenName.Builtin_Kiwi_BeginsWith => ExecuteBeginsWith(token, value, args),
-            TokenName.Builtin_Kiwi_Contains => ExecuteContains(token, value, args),
-            TokenName.Builtin_Kiwi_EndsWith => ExecuteEndsWith(token, value, args),
-            TokenName.Builtin_Kiwi_LeftTrim => ExecuteLeftTrim(token, value, args),
-            TokenName.Builtin_Kiwi_RightTrim => ExecuteRightTrim(token, value, args),
-            TokenName.Builtin_Kiwi_Trim => ExecuteTrim(token, value, args),
-            TokenName.Builtin_Kiwi_Empty => ExecuteEmpty(token, value, args),
-            TokenName.Builtin_Kiwi_Type => ExecuteType(token, value, args),
-            TokenName.Builtin_Kiwi_First => ExecuteFirst(token, value, args),
-            TokenName.Builtin_Kiwi_Last => ExecuteLast(token, value, args),
-            TokenName.Builtin_Kiwi_Push => ExecutePush(token, value, args),
-            TokenName.Builtin_Kiwi_Pop => ExecutePop(token, value, args),
-            TokenName.Builtin_Kiwi_Clear => ExecuteClear(token, value, args),
-            TokenName.Builtin_Kiwi_Replace => ExecuteReplace(token, value, args),
-            TokenName.Builtin_Kiwi_Remove => ExecuteRemove(token, value, args),
-            TokenName.Builtin_Kiwi_RemoveAt => ExecuteRemoveAt(token, value, args),
-            TokenName.Builtin_Kiwi_Get => ExecuteGet(token, value, args),
-            TokenName.Builtin_Kiwi_Set => ExecuteSet(token, value, args),
-            TokenName.Builtin_Kiwi_Truthy => ExecuteTruthy(token, value, args),
-            TokenName.Builtin_Kiwi_Split => ExecuteSplit(token, value, args),
-            TokenName.Builtin_Kiwi_Lines => ExecuteLines(token, value, args),
-            TokenName.Builtin_Kiwi_Clone => ExecuteClone(token, value, args),
-            TokenName.Builtin_Kiwi_Reverse => ExecuteReverse(token, value, args),
-            TokenName.Builtin_Kiwi_IndexOf => ExecuteIndexOf(token, value, args),
-            TokenName.Builtin_Kiwi_LastIndexOf => ExecuteLastIndexOf(token, value, args),
-            TokenName.Builtin_Kiwi_Substring => ExecuteSubstring(token, value, args),
-            TokenName.Builtin_Kiwi_Concat => ExecuteConcat(token, value, args),
-            TokenName.Builtin_Kiwi_Unique => ExecuteUnique(token, value, args),
-            TokenName.Builtin_Kiwi_Count => ExecuteCount(token, value, args),
-            TokenName.Builtin_Kiwi_Enqueue => ExecuteEnqueue(token, value, args),
-            TokenName.Builtin_Kiwi_Dequeue => ExecuteDequeue(token, value, args),
-            TokenName.Builtin_Kiwi_Shift => ExecuteShift(token, value, args),
-            TokenName.Builtin_Kiwi_Unshift => ExecuteUnshift(token, value, args),
-            TokenName.Builtin_Kiwi_Insert => ExecuteInsert(token, value, args),
-            TokenName.Builtin_Kiwi_Keys => ExecuteKeys(token, value, args),
-            TokenName.Builtin_Kiwi_Values => ExecuteValues(token, value, args),
-            TokenName.Builtin_Kiwi_Zip => ExecuteZip(token, value, args),
-            TokenName.Builtin_Kiwi_Flatten => ExecuteFlatten(token, value, args),
-            TokenName.Builtin_Kiwi_Merge => ExecuteMerge(token, value, args),
-            TokenName.Builtin_Kiwi_Rotate => ExecuteRotate(token, value, args),
-            TokenName.Builtin_Kiwi_Slice => ExecuteSlice(token, value, args),
-            TokenName.Builtin_Kiwi_IsA => ExecuteIsA(token, value, args),
-            TokenName.Builtin_Kiwi_ToBytes => ExecuteToBytes(token, value, args),
-            TokenName.Builtin_Kiwi_ToHex => ExecuteToHex(token, value, args),
-            TokenName.Builtin_Kiwi_ToFloat => ExecuteToFloat(token, value, args),
-            TokenName.Builtin_Kiwi_ToInteger => ExecuteToInteger(token, value, args),
-            TokenName.Builtin_Kiwi_ToString => ExecuteToString(token, value, args),
-            TokenName.Builtin_Kiwi_ToDate => ExecuteToDate(token, value, args),
-            TokenName.Builtin_Kiwi_Swap => ExecuteSwap(token, value, args),
-            TokenName.Builtin_Kiwi_Pretty => ExecutePretty(token, value, args),
+            TokenName.Builtin_Kiwi_Chars => Chars(token, value, args),
+            TokenName.Builtin_Kiwi_Join => Join(token, value, args),
+            TokenName.Builtin_Kiwi_HasKey => HasKey(token, value, args),
+            TokenName.Builtin_Kiwi_Size => Size(token, value, args),
+            TokenName.Builtin_Kiwi_Uppercase => Uppercase(token, value, args),
+            TokenName.Builtin_Kiwi_Lowercase => Lowercase(token, value, args),
+            TokenName.Builtin_Kiwi_BeginsWith => BeginsWith(token, value, args),
+            TokenName.Builtin_Kiwi_Contains => Contains(token, value, args),
+            TokenName.Builtin_Kiwi_EndsWith => EndsWith(token, value, args),
+            TokenName.Builtin_Kiwi_LeftTrim => LeftTrim(token, value, args),
+            TokenName.Builtin_Kiwi_RightTrim => RightTrim(token, value, args),
+            TokenName.Builtin_Kiwi_Trim => Trim(token, value, args),
+            TokenName.Builtin_Kiwi_Empty => Empty(token, value, args),
+            TokenName.Builtin_Kiwi_Type => Type(token, value, args),
+            TokenName.Builtin_Kiwi_First => First(token, value, args),
+            TokenName.Builtin_Kiwi_Last => Last(token, value, args),
+            TokenName.Builtin_Kiwi_Push => Push(token, value, args),
+            TokenName.Builtin_Kiwi_Pop => Pop(token, value, args),
+            TokenName.Builtin_Kiwi_Clear => Clear(token, value, args),
+            TokenName.Builtin_Kiwi_Replace => Replace(token, value, args),
+            TokenName.Builtin_Kiwi_Remove => Remove(token, value, args),
+            TokenName.Builtin_Kiwi_RemoveAt => RemoveAt(token, value, args),
+            TokenName.Builtin_Kiwi_Get => Get(token, value, args),
+            TokenName.Builtin_Kiwi_Set => Set(token, value, args),
+            TokenName.Builtin_Kiwi_Truthy => Truthy(token, value, args),
+            TokenName.Builtin_Kiwi_Split => Split(token, value, args),
+            TokenName.Builtin_Kiwi_Lines => Lines(token, value, args),
+            TokenName.Builtin_Kiwi_Clone => Clone(token, value, args),
+            TokenName.Builtin_Kiwi_Reverse => Reverse(token, value, args),
+            TokenName.Builtin_Kiwi_IndexOf => IndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_LastIndexOf => LastIndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_Substring => Substring(token, value, args),
+            TokenName.Builtin_Kiwi_Concat => Concat(token, value, args),
+            TokenName.Builtin_Kiwi_Unique => Unique(token, value, args),
+            TokenName.Builtin_Kiwi_Count => Count(token, value, args),
+            TokenName.Builtin_Kiwi_Enqueue => Enqueue(token, value, args),
+            TokenName.Builtin_Kiwi_Dequeue => Dequeue(token, value, args),
+            TokenName.Builtin_Kiwi_Shift => Shift(token, value, args),
+            TokenName.Builtin_Kiwi_Unshift => Unshift(token, value, args),
+            TokenName.Builtin_Kiwi_Insert => Insert(token, value, args),
+            TokenName.Builtin_Kiwi_Keys => Keys(token, value, args),
+            TokenName.Builtin_Kiwi_Values => Values(token, value, args),
+            TokenName.Builtin_Kiwi_Zip => Zip(token, value, args),
+            TokenName.Builtin_Kiwi_Flatten => Flatten(token, value, args),
+            TokenName.Builtin_Kiwi_Merge => Merge(token, value, args),
+            TokenName.Builtin_Kiwi_Rotate => Rotate(token, value, args),
+            TokenName.Builtin_Kiwi_Slice => Slice(token, value, args),
+            TokenName.Builtin_Kiwi_IsA => IsA(token, value, args),
+            TokenName.Builtin_Kiwi_ToBytes => ToBytes(token, value, args),
+            TokenName.Builtin_Kiwi_ToHex => ToHex(token, value, args),
+            TokenName.Builtin_Kiwi_ToFloat => ToFloat(token, value, args),
+            TokenName.Builtin_Kiwi_ToInteger => ToInteger(token, value, args),
+            TokenName.Builtin_Kiwi_ToString => ToString(token, value, args),
+            TokenName.Builtin_Kiwi_ToDate => ToDate(token, value, args),
+            TokenName.Builtin_Kiwi_Swap => Swap(token, value, args),
+            TokenName.Builtin_Kiwi_Pretty => Pretty(token, value, args),
             /*
-            TokenName.Builtin_Kiwi_RReplace => ExecuteRReplace(token, value, args),
-            TokenName.Builtin_Kiwi_RSplit => ExecuteRSplit(token, value, args),
-            TokenName.Builtin_Kiwi_Find => ExecuteFind(token, value, args),
-            TokenName.Builtin_Kiwi_Match => ExecuteMatch(token, value, args),
-            TokenName.Builtin_Kiwi_Matches => ExecuteMatches(token, value, args),
-            TokenName.Builtin_Kiwi_MatchesAll => ExecuteMatchesAll(token, value, args),
-            TokenName.Builtin_Kiwi_Scan => ExecuteScan(token, value, args),
-            TokenName.Builtin_Kiwi_Tokens => ExecuteTokens(token, value, args),
+            TokenName.Builtin_Kiwi_RReplace => RReplace(token, value, args),
+            TokenName.Builtin_Kiwi_RSplit => RSplit(token, value, args),
+            TokenName.Builtin_Kiwi_Find => Find(token, value, args),
+            TokenName.Builtin_Kiwi_Match => Match(token, value, args),
+            TokenName.Builtin_Kiwi_Matches => Matches(token, value, args),
+            TokenName.Builtin_Kiwi_MatchesAll => MatchesAll(token, value, args),
+            TokenName.Builtin_Kiwi_Scan => Scan(token, value, args),
+            TokenName.Builtin_Kiwi_Tokens => Tokens(token, value, args),
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
     }
 
-    private static Value ExecutePretty(Token token, Value value, List<Value> args)
+    private static Value Pretty(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -94,7 +94,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(pretty);
     }
 
-    private static Value ExecuteIsA(Token token, Value value, List<Value> args)
+    private static Value IsA(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1 && !args[0].IsString())
         {
@@ -118,7 +118,7 @@ public static class CoreBuiltinHandler
         };
     }
 
-    private static Value ExecuteToBytes(Token token, Value value, List<Value> args)
+    private static Value ToBytes(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -165,7 +165,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list of strings to convert to bytes.");
     }
 
-    private static Value ExecuteToHex(Token token, Value value, List<Value> args)
+    private static Value ToHex(Token token, Value value, List<Value> args)
     {
         if (args.Count > 1)
         {
@@ -225,7 +225,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(sb.ToString());
     }
 
-    private static Value ExecuteToFloat(Token token, Value value, List<Value> args)
+    private static Value ToFloat(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -257,7 +257,7 @@ public static class CoreBuiltinHandler
         throw new ConversionError(token, "Cannot convert non-numeric value to a float.");
     }
 
-    private static Value ExecuteToInteger(Token token, Value value, List<Value> args)
+    private static Value ToInteger(Token token, Value value, List<Value> args)
     {
         if (args.Count > 1)
         {
@@ -390,7 +390,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, $"Invalid character '{c}' in numeric string.");
     }
 
-    private static Value ExecuteToDate(Token token, Value value, List<Value> args)
+    private static Value ToDate(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0 && args.Count != 1)
         {
@@ -430,11 +430,11 @@ public static class CoreBuiltinHandler
         {
             throw new InvalidOperationError(token, "Invalid date expression.");
         }
-        
+
         throw new InvalidOperationError(token, "Invalid date expression.");
     }
 
-    private static Value ExecuteToString(Token token, Value value, List<Value> args)
+    private static Value ToString(Token token, Value value, List<Value> args)
     {
         // 0 or 1 argument is allowed
         if (args.Count != 0 && args.Count != 1)
@@ -567,7 +567,7 @@ public static class CoreBuiltinHandler
     }
 
 
-    private static Value ExecuteSwap(Token token, Value value, List<Value> args)
+    private static Value Swap(Token token, Value value, List<Value> args)
     {
         if (args.Count != 2 && !args[0].IsInteger() && !args[1].IsInteger())
         {
@@ -600,7 +600,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteRotate(Token token, Value value, List<Value> args)
+    private static Value Rotate(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1 || !args[0].IsInteger())
         {
@@ -643,7 +643,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteSlice(Token token, Value value, List<Value> args)
+    private static Value Slice(Token token, Value value, List<Value> args)
     {
         if (args.Count != 2)
         {
@@ -670,7 +670,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(slice);
     }
 
-    private static Value ExecuteMerge(Token token, Value value, List<Value> args)
+    private static Value Merge(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -698,7 +698,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteZip(Token token, Value value, List<Value> args)
+    private static Value Zip(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1 || !args[0].IsList())
         {
@@ -725,7 +725,7 @@ public static class CoreBuiltinHandler
     }
 
 
-    private static Value ExecuteFlatten(Token token, Value value, List<Value> args)
+    private static Value Flatten(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -764,7 +764,7 @@ public static class CoreBuiltinHandler
         return result;
     }
 
-    private static Value ExecuteInsert(Token token, Value value, List<Value> args)
+    private static Value Insert(Token token, Value value, List<Value> args)
     {
         if (args.Count != 2)
         {
@@ -796,7 +796,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteKeys(Token token, Value value, List<Value> args)
+    private static Value Keys(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -812,7 +812,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(keys);
     }
 
-    private static Value ExecuteValues(Token token, Value value, List<Value> args)
+    private static Value Values(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -828,7 +828,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(values);
     }
 
-    private static Value ExecuteEnqueue(Token token, Value value, List<Value> args)
+    private static Value Enqueue(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -844,7 +844,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteDequeue(Token token, Value value, List<Value> args)
+    private static Value Dequeue(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -868,7 +868,7 @@ public static class CoreBuiltinHandler
         return front;
     }
 
-    private static Value ExecuteShift(Token token, Value value, List<Value> args)
+    private static Value Shift(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -892,7 +892,7 @@ public static class CoreBuiltinHandler
         return front;
     }
 
-    private static Value ExecuteUnshift(Token token, Value value, List<Value> args)
+    private static Value Unshift(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -908,7 +908,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteConcat(Token token, Value value, List<Value> args)
+    private static Value Concat(Token token, Value value, List<Value> args)
     {
         if (args.Count == 0)
         {
@@ -949,7 +949,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
 
-    private static Value ExecuteUnique(Token token, Value value, List<Value> args)
+    private static Value Unique(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -975,7 +975,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(uniqueList);
     }
 
-    private static Value ExecuteCount(Token token, Value value, List<Value> args)
+    private static Value Count(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1028,7 +1028,7 @@ public static class CoreBuiltinHandler
     }
 
 
-    private static Value ExecuteSubstring(Token token, Value value, List<Value> args)
+    private static Value Substring(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1 && args.Count != 2)
         {
@@ -1057,7 +1057,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(s.Substring(index, Math.Min(size, s.Length - index)));
     }
 
-    private static Value ExecuteReverse(Token token, Value value, List<Value> args)
+    private static Value Reverse(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1077,7 +1077,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
 
-    private static Value ExecuteIndexOf(Token token, Value value, List<Value> args)
+    private static Value IndexOf(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1101,7 +1101,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
 
-    private static Value ExecuteLastIndexOf(Token token, Value value, List<Value> args)
+    private static Value LastIndexOf(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1125,7 +1125,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
 
-    private static Value ExecuteClone(Token token, Value value, List<Value> args)
+    private static Value Clone(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1135,7 +1135,7 @@ public static class CoreBuiltinHandler
         return value.Clone();
     }
 
-    private static Value ExecuteLines(Token token, Value value, List<Value> args)
+    private static Value Lines(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1150,7 +1150,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(value.GetString().Split(Environment.NewLine, StringSplitOptions.None).Select(x => Value.CreateString(x)).ToList());
     }
 
-    private static Value ExecuteSplit(Token token, Value value, List<Value> args)
+    private static Value Split(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1188,7 +1188,7 @@ public static class CoreBuiltinHandler
         }
     }
 
-    private static Value ExecuteTruthy(Token token, Value value, List<Value> args)
+    private static Value Truthy(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1198,7 +1198,7 @@ public static class CoreBuiltinHandler
         return Value.CreateBoolean(BooleanOp.IsTruthy(value));
     }
 
-    private static Value ExecuteGet(Token token, Value value, List<Value> args)
+    private static Value Get(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1236,7 +1236,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a list or hashmap.");
     }
 
-    private static Value ExecuteSet(Token token, Value value, List<Value> args)
+    private static Value Set(Token token, Value value, List<Value> args)
     {
         if (args.Count != 2)
         {
@@ -1269,7 +1269,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a list or hashmap.");
     }
 
-    private static Value ExecuteRemove(Token token, Value value, List<Value> args)
+    private static Value Remove(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1290,7 +1290,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a list or hashmap.");
     }
 
-    private static Value ExecuteRemoveAt(Token token, Value value, List<Value> args)
+    private static Value RemoveAt(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1311,7 +1311,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteReplace(Token token, Value value, List<Value> args)
+    private static Value Replace(Token token, Value value, List<Value> args)
     {
         if (args.Count != 2)
         {
@@ -1352,7 +1352,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or a list.");
     }
 
-    private static Value ExecuteClear(Token token, Value value, List<Value> args)
+    private static Value Clear(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1378,7 +1378,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string, list, or hashmap.");
     }
 
-    private static Value ExecuteFirst(Token token, Value value, List<Value> args)
+    private static Value First(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1400,7 +1400,7 @@ public static class CoreBuiltinHandler
         return Value.CreateNull();
     }
 
-    private static Value ExecuteLast(Token token, Value value, List<Value> args)
+    private static Value Last(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1422,7 +1422,7 @@ public static class CoreBuiltinHandler
         return Value.CreateNull();
     }
 
-    private static Value ExecutePush(Token token, Value value, List<Value> args)
+    private static Value Push(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1438,7 +1438,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecutePop(Token token, Value value, List<Value> args)
+    private static Value Pop(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1461,7 +1461,7 @@ public static class CoreBuiltinHandler
         return back;
     }
 
-    private static Value ExecuteChars(Token token, Value value, List<Value> args)
+    private static Value Chars(Token token, Value value, List<Value> args)
     {
         if (args.Count > 0)
         {
@@ -1484,7 +1484,7 @@ public static class CoreBuiltinHandler
         return Value.CreateList(chars);
     }
 
-    private static Value ExecuteHasKey(Token token, Value value, List<Value> args)
+    private static Value HasKey(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1499,7 +1499,7 @@ public static class CoreBuiltinHandler
         return Value.CreateBoolean(value.GetHashmap().ContainsKey(args[0]));
     }
 
-    private static Value ExecuteJoin(Token token, Value value, List<Value> args)
+    private static Value Join(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0 && args.Count != 1)
         {
@@ -1542,7 +1542,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(sv.ToString());
     }
 
-    private static Value ExecuteSize(Token token, Value value, List<Value> args)
+    private static Value Size(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1565,7 +1565,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string, list, or hashmap.");
     }
 
-    private static Value ExecuteEmpty(Token token, Value value, List<Value> args)
+    private static Value Empty(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0 && args.Count != 1)
         {
@@ -1619,7 +1619,7 @@ public static class CoreBuiltinHandler
         return value;
     }
 
-    private static Value ExecuteLowercase(Token token, Value value, List<Value> args)
+    private static Value Lowercase(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1634,7 +1634,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(value.GetString().ToLower());
     }
 
-    private static Value ExecuteUppercase(Token token, Value value, List<Value> args)
+    private static Value Uppercase(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1649,7 +1649,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(value.GetString().ToUpper());
     }
 
-    private static Value ExecuteLeftTrim(Token token, Value value, List<Value> args)
+    private static Value LeftTrim(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1664,7 +1664,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(value.GetString().TrimStart());
     }
 
-    private static Value ExecuteRightTrim(Token token, Value value, List<Value> args)
+    private static Value RightTrim(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1679,7 +1679,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(value.GetString().TrimEnd());
     }
 
-    private static Value ExecuteTrim(Token token, Value value, List<Value> args)
+    private static Value Trim(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1694,7 +1694,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(value.GetString().Trim());
     }
 
-    private static Value ExecuteType(Token token, Value value, List<Value> args)
+    private static Value Type(Token token, Value value, List<Value> args)
     {
         if (args.Count != 0)
         {
@@ -1704,7 +1704,7 @@ public static class CoreBuiltinHandler
         return Value.CreateString(Serializer.GetTypenameString(value));
     }
 
-    private static Value ExecuteBeginsWith(Token token, Value value, List<Value> args)
+    private static Value BeginsWith(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1724,7 +1724,7 @@ public static class CoreBuiltinHandler
         return Value.CreateBoolean(value.GetString().StartsWith(args[0].GetString()));
     }
 
-    private static Value ExecuteContains(Token token, Value value, List<Value> args)
+    private static Value Contains(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
@@ -1748,7 +1748,7 @@ public static class CoreBuiltinHandler
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
 
-    private static Value ExecuteEndsWith(Token token, Value value, List<Value> args)
+    private static Value EndsWith(Token token, Value value, List<Value> args)
     {
         if (args.Count != 1)
         {
