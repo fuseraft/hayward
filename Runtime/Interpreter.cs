@@ -2840,7 +2840,7 @@ public class Interpreter
             return Value.CreateFloat(sum);
         }
 
-        return Value.CreateInteger(sum);
+        return Value.CreateInteger((long)sum);
     }
 
     private static Value ListMin(Token token, List<Value> list)
