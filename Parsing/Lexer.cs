@@ -162,7 +162,6 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
     private static void TokenizeStringInterpolation(ref List<Token> tokens, Token token)
     {
-        var file = token.Span.File;
         var span = token.Span;
         var text = token.Text;
         System.Text.StringBuilder sv = new();
@@ -183,7 +182,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             {
                 case '$':
                     {
-                        if (1 + i < text.Length && text[1 + i] == '{')
+                        if (i + 1 < text.Length && text[i + 1] == '{')
                         {
                             ++i; // skip "${"
                             ++braces;
@@ -255,10 +254,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                         interpTokens.Add(CreateToken(TokenType.RParen, span, ")"));
 
                         // if we aren't at the end of the string, concatenate
-                        /*if (i + 1 < text.Length)
+                        if (i + 1 < text.Length)
                         {
                             interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
-                        }*/
+                        }
+
                         interpolate = false;
                     }
                     break;
@@ -271,7 +271,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
         if (sv.Length > 0)
         {
-            if (interpTokens.Count > 0)
+            if (interpTokens.Count > 0 && interpTokens.Last().Name != TokenName.Ops_Add)
             {
                 interpTokens.Add(CreateToken(TokenType.Operator, span, "+", TokenName.Ops_Add));
             }
@@ -279,10 +279,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
             interpTokens.Add(CreateStringLiteralToken(span, s, Value.CreateString(s)));
         }
 
-        foreach (var t in interpTokens)
-        {
-            tokens.Add(t);
-        }
+        tokens.AddRange(interpTokens);
     }
 
     private Token TokenizeSymbol(TokenSpan span, char c)
@@ -547,11 +544,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         {
             return CreateToken(TokenType.Typename, span, text, kwTypename);
         }
-        else if (KiwiBuiltin.IsBuiltin(text))
+        else if (CitrusBuiltin.IsBuiltin(text))
         {
-            return TokenizeKiwiBuiltin(span, text);
+            return TokenizeCitrusBuiltin(span, text);
         }
-        else if (KiwiBuiltin.IsBuiltinMethod(text))
+        else if (CitrusBuiltin.IsBuiltinMethod(text))
         {
             return TokenizeBuiltinMethod(span, text);
         }
@@ -561,8 +558,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
 
     private static Token TokenizeBuiltinMethod(TokenSpan span, string builtin)
     {
-        if (ArgvBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
-        else if (ConsoleBuiltin.Map.TryGetValue(builtin, out name)) { }
+        if (ConsoleBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
         else if (EnvBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (FileIOBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (LoggingBuiltin.Map.TryGetValue(builtin, out name)) { }
@@ -583,9 +579,9 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         return CreateToken(TokenType.Identifier, span, builtin, name);
     }
 
-    private static Token TokenizeKiwiBuiltin(TokenSpan span, string builtin)
+    private static Token TokenizeCitrusBuiltin(TokenSpan span, string builtin)
     {
-        if (KiwiBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
+        if (CitrusBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
         else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
 
         return CreateToken(TokenType.Identifier, span, builtin, name);

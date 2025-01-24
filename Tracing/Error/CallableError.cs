@@ -3,6 +3,6 @@
 namespace citrus.Tracing.Error;
 
 public class CallableError(Token t, string message = "Invalid callable.")
-    : KiwiError(t, "CallableError", message)
+    : CitrusError(t, "CallableError", message)
 {
 }
