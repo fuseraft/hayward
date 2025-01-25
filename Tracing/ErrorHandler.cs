@@ -28,7 +28,7 @@ public static class ErrorHandler
 
     public static void DumpCrashLog(Exception? e)
     {
-        List<string> lines = [$"Timestamp: {DateTime.Now.ToLongTimeString()}"];
+        List<string> lines = [$"Timestamp: {DateTime.Now:yyyy-MM-dd hh:mm:ss tt}"];
 
         while (e != null)
         {
