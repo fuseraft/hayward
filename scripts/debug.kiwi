@@ -1,12 +1,28 @@
 /#
+package console_color
+  const BLACK = 0
+  const BLUE = 9
+  const GREEN = 10
+  const CYAN = 11
+end
 
-z = ([[1] * 3] * 2).flatten().sum()     # [[1, 1, 1], [1, 1, 1]] => [1, 1, 1, 1, 1, 1] => 6
-println "z = ${z.type()}: `${z}`"       # z = Integer: `6`
-println __getall__()["PATH"]
+export "console_color"
 
+package console
+  fn bg(color)
+    __console_background__(color)
+  end
+
+  fn fg(color)
+    __console_foreground__(color)
+  end
+
+  fn reset()
+    __console_reset__()
+  end
+end
+
+export "console"
 #/
 
-println __env_os__()
-println __env_user__()
-println __env_userdomain__()
-println __env_argv__()
+println string::shuffle("hello")
