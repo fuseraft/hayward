@@ -25,4 +25,10 @@ end
 export "console"
 #/
 
-println string::shuffle("hello")
+/#
+guava::register_test("hello", with () do
+  println "Hello"
+end)
+
+guava::run_tests()
+#/

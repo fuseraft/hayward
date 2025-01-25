@@ -5,6 +5,7 @@ using citrus.Parsing.AST;
 using citrus.Typing;
 using citrus.Tracing.Error;
 using citrus.Parsing.Builtins;
+using citrus.Builtin.Handlers;
 namespace citrus.Runtime;
 
 public class Interpreter
@@ -30,7 +31,7 @@ public class Interpreter
 
         bool sigCheck = RequiresSigCheck(node.Type);
 
-        Value result = node.Type switch
+        var result = node.Type switch
         {
             ASTNodeType.Program => Visit((ProgramNode)node),
             ASTNodeType.Self => Visit((SelfNode)node),
@@ -554,7 +555,6 @@ public class Interpreter
 
     private Value Visit(MemberAssignmentNode node)
     {
-
         var obj = Interpret(node.Object);
         var memberName = node.MemberName;
         var initializer = Interpret(node.Initializer);
@@ -1303,7 +1303,7 @@ public class Interpreter
 
         if (PackageStack.Count > 0)
         {
-            Stack<string> tmpStack = new(PackageStack);
+            Stack<string> tmpStack = new([.. PackageStack]);
             var prefix = string.Empty;
             while (tmpStack.Count > 0)
             {
@@ -2016,13 +2016,9 @@ public class Interpreter
         var args = GetMethodCallArguments(node.Arguments);
         var op = node.Op;
 
-        if (SerializerBuiltin.IsBuiltin(op))
+        if (ReflectorBuiltin.IsBuiltin(op))
         {
-            // return InterpretSerializerBuiltin(node.Token, op, args);
-        }
-        else if (ReflectorBuiltin.IsBuiltin(op))
-        {
-            // return InterpretReflectorBuiltin(node.Token, op, args);
+            return ReflectorBuiltinHandler.Execute(node.Token, op, args, Context, CallStack, FuncStack);
         }
         else if (WebServerBuiltin.IsBuiltin(op))
         {
@@ -2046,7 +2042,6 @@ public class Interpreter
         }
 
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
-        // return Value.Default();
     }
 
     private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
@@ -2177,8 +2172,7 @@ public class Interpreter
 
         if (!Serializer.AssertTypematch(result, returnTypeHint))
         {
-            throw new TypeError(
-                token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
         }
 
         return result;
@@ -2350,16 +2344,11 @@ public class Interpreter
         }
     }
 
-    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue,
-        Token token, int i, string lambdaName, StackFrame lambdaFrame)
+    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string lambdaName, StackFrame lambdaFrame)
     {
-        if (typeHints.TryGetValue(param.Key, out TokenName expectedType))
+        if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
         {
-
-            if (!Serializer.AssertTypematch(argValue, expectedType))
-            {
-                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
-            }
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
         }
 
         if (argValue.IsLambda())
@@ -3009,8 +2998,7 @@ public class Interpreter
         return result;
     }
 
-    private Value LambdaNone(KLambda lambda,
-                                    List<Value> list)
+    private Value LambdaNone(KLambda lambda, List<Value> list)
     {
         var selected = LambdaSelect(lambda, list);
         var noneFound = Value.CreateBoolean(false);
