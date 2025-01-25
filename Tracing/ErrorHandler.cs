@@ -1,4 +1,5 @@
 using citrus.Parsing;
+using citrus.Settings;
 using citrus.Tracing.Error;
 
 namespace citrus.Tracing;
@@ -27,7 +28,6 @@ public static class ErrorHandler
 
     public static void DumpCrashLog(Exception? e)
     {
-        const string CrashLog = "citrus_crash.log";
         List<string> lines = [$"Timestamp: {DateTime.Now.ToLongTimeString()}"];
 
         while (e != null)
@@ -39,7 +39,7 @@ public static class ErrorHandler
 
         lines.Add(string.Empty);
 
-        File.AppendAllLines(CrashLog, lines);
+        File.AppendAllLines(Citrus.Settings.CrashDumpPath, lines);
 
         Environment.Exit(1);
     }

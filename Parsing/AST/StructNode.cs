@@ -2,19 +2,17 @@ namespace citrus.Parsing.AST;
 
 public class StructNode : ASTNode
 {
-    private readonly string baseStruct = string.Empty;
-
     public StructNode() : base(ASTNodeType.Struct) { }
     public StructNode(string name, string baseStruct, List<string> interfaces, List<ASTNode?> methods)
         : base(ASTNodeType.Struct)
     {
-        this.BaseStruct = name;
-        this.baseStruct = baseStruct;
+        this.Name = name;
+        this.BaseStruct = baseStruct;
         this.Interfaces.AddRange(interfaces);
         this.Methods.AddRange(methods);
     }
 
-    public string Name => BaseStruct;
+    public string Name { get; } = string.Empty;
     public string BaseStruct { get; } = string.Empty;
     public List<string> Interfaces { get; } = [];
     public List<ASTNode?> Methods { get; } = [];
@@ -25,12 +23,12 @@ public class StructNode : ASTNode
         PrintASTNodeType();
 
         ASTTracer.PrintDepth(1 + depth);
-        Console.WriteLine($"Name: {BaseStruct}");
+        Console.WriteLine($"Name: {Name}");
 
-        if (!string.IsNullOrEmpty(baseStruct))
+        if (!string.IsNullOrEmpty(BaseStruct))
         {
             ASTTracer.PrintDepth(1 + depth);
-            Console.WriteLine($"Base: {baseStruct}");
+            Console.WriteLine($"Base: {BaseStruct}");
         }
 
         if (Interfaces.Count > 0)
@@ -63,6 +61,6 @@ public class StructNode : ASTNode
             clonedMethods.Add(method?.Clone());
         }
 
-        return new StructNode(BaseStruct, baseStruct, Interfaces, clonedMethods);
+        return new StructNode(Name, BaseStruct, Interfaces, clonedMethods);
     }
 }

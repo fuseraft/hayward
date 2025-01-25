@@ -1,15 +1,27 @@
 namespace citrus.Runner;
+
 using citrus.Parsing;
 using citrus.Runtime;
+using citrus.Settings;
 using citrus.Tracing;
 using citrus.Tracing.Error;
 
-public class ScriptRunner : IRunner
+public class ScriptRunner(Interpreter interpreter) : IRunner
 {
     /// <summary>
     /// A success return code. A placeholder until a smarter mechanism is implemented.
     /// </summary>
     private const int SuccessReturnCode = 0;
+
+    /// <summary>
+    /// Gets the local interpreter.
+    /// </summary>
+    private Interpreter Interpreter { get; } = interpreter;
+
+    /// <summary>
+    /// Gets or sets a flag indicating whether the standard library has been loaded.
+    /// </summary>
+    private bool StandardLibraryLoaded { get; set; } = false;
 
     /// <summary>
     /// Runs a given script as the entrypoint to the program.
@@ -19,16 +31,16 @@ public class ScriptRunner : IRunner
     /// <returns>Returns <c>0</c> for now.</returns>
     public int Run(string script, List<string> args)
     {
-        using Lexer lexer = new(script);
-        var stream = lexer.GetTokenStream();
-        var ast = new Parser().ParseTokenStream(stream, isEntryPoint: true);
-        
-        Interpreter interpreter = new ();
-
         try
         {
-            interpreter.CliArgs = ParseKeyValueArgs(args);
-            interpreter.Interpret(ast);
+            Parser parser = new();
+
+            LoadStandardLibrary(parser);
+
+            using Lexer lexer = new(script);
+            var stream = lexer.GetTokenStream();
+            var ast = parser.ParseTokenStream(stream, isEntryPoint: true);
+            Interpreter.Interpret(ast);
         }
         catch (CitrusError e)
         {
@@ -42,52 +54,62 @@ public class ScriptRunner : IRunner
         return SuccessReturnCode;
     }
 
-    private static Dictionary<string, string> ParseKeyValueArgs(List<string> args)
+    private void LoadStandardLibrary(Parser parser)
     {
-        Dictionary<string, string> result = [];
-
-        foreach (var arg in args)
+        if (StandardLibraryLoaded)
         {
-            string argWithoutPrefix;
+            return;
+        }
 
-            if (arg.StartsWith("--")) 
+        List<TokenStream> streams = [];
+        List<string> paths = [];
+
+        foreach (var library in Citrus.Settings.StandardLibrary)
+        {
+            if (!library.AutoLoad)
             {
-                // e.g. "--key=value"
-                argWithoutPrefix = arg[2..];
-            }
-            else if (arg.StartsWith('-') || arg.StartsWith('/'))
-            {
-                // e.g. "-key=value" or "/key=value"
-                argWithoutPrefix = arg[1..];
-            }
-            else
-            {
-                // Doesn't match any known prefix, skip it
-                result[arg] = arg;
                 continue;
             }
 
-            // Split on the first '='
-            var parts = argWithoutPrefix.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length == 2)
+            if (Directory.Exists(library.Path) && library.IncludeSubdirectories)
             {
-                // e.g. "key=value"
-                string key = parts[0];
-                string value = parts[1];
-                result[key] = value;
-            }
-            else
-            {
-                // No '=' => treat as a boolean or a key-only argument
-                // e.g. "/verbose" => (Key = "verbose", Value = "true")
-                if (!string.IsNullOrWhiteSpace(argWithoutPrefix))
+                foreach (var path in Directory.EnumerateFiles(library.Path, "*.*"))
                 {
-                    result[argWithoutPrefix] = "true";
+                    if (IsRecognizedScript(path))
+                    {
+                        paths.Add(path);
+                    }
                 }
+            }
+            else if (IsRecognizedScript(library.Path))
+            {
+                paths.Add(library.Path);
             }
         }
 
-        return result;
+        foreach (var path in paths)
+        {
+            using Lexer lexer = new(path);
+            streams.Add(lexer.GetTokenStream());
+        }
+
+        if (streams.Count > 0)
+        {
+            var ast = parser.ParseTokenStreamCollection(streams);
+            Interpreter.Interpret(ast);
+        }
+
+        StandardLibraryLoaded = true;
+    }
+
+    private static bool IsRecognizedScript(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return false;
+        }
+
+        var ext = Path.GetExtension(path);
+        return Citrus.Settings.Extensions.Recognized.Contains(ext);
     }
 }

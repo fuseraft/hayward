@@ -176,6 +176,7 @@ public class Interpreter
 
             if (!Context.HasStruct(struc.BaseStruct))
             {
+                Console.WriteLine($"Basestruct is: `{struc.BaseStruct}`");
                 throw new StructUndefinedError(node.Token, struc.BaseStruct);
             }
         }
@@ -393,18 +394,16 @@ public class Interpreter
 
     private Value Visit(ConstAssignmentNode node)
     {
-
-        var frame = CallStack.Peek();
         var name = node.Name;
         var value = Interpret(node.Initializer);
 
         if (PackageStack.Count > 0)
         {
-            Stack<string> tmpStack = PackageStack;
+            Stack<string> tmpStack = new([.. PackageStack]);
             var prefix = string.Empty;
             while (tmpStack.Count > 0)
             {
-                prefix += tmpStack.Peek() + ".";
+                prefix += tmpStack.Peek() + "::";
                 tmpStack.Pop();
             }
             name = prefix + name;
@@ -1544,7 +1543,8 @@ public class Interpreter
                 var index = ConversionOp.GetInteger(node.Token, indexValue);
                 var list = obj.GetList();
 
-                if (index < 0 || index >= list.Count) {
+                if (index < 0 || index >= list.Count)
+                {
                     throw new IndexError(node.Token, "The index was outside the bounds of the list.");
                 }
 
@@ -1566,7 +1566,8 @@ public class Interpreter
                 var str = obj.GetString();
                 var index = ConversionOp.GetInteger(node.Token, indexValue);
 
-                if (index < 0 || index >= str.Length) {
+                if (index < 0 || index >= str.Length)
+                {
                     throw new IndexError(node.Token, "The index was outside the bounds of the string.");
                 }
 
@@ -2545,7 +2546,10 @@ public class Interpreter
             Interpret(stmt);
         }
 
-        PackageStack.Pop();
+        if (PackageStack.Count > 0)
+        {
+            PackageStack.Pop();
+        }
     }
 
     private void ImportExternal(Token token, string packageName)

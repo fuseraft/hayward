@@ -28,6 +28,7 @@ public partial class Parser(bool rethrowErrors = false)
             if (!isRootTokenSet)
             {
                 root.Token = token;
+                root.IsEntryPoint = true;
                 isRootTokenSet = true;
             }
 
