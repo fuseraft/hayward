@@ -1,0 +1,20 @@
+{
+    "name": "citrus",
+    "version": "1.0.0",
+    "standard_library": [
+        { 
+            "path": "/home/scs/GitHub/kiwi/lib/kiwi", 
+            "autoload": true,
+            "include_subdirectories": true 
+        }
+    ],
+    "file_extensions": {
+        "primary": ".kiwi",
+        "minified": ".min.kiwi",
+        "recognized": [".min.kiwi", ".kiwi", ".min.🥝", ".🥝", ".min.k", ".k"]
+    },
+    "environment_variables": {
+        "_CITRUS": ""
+    },
+    "crashdump_path": "/home/scs/citrus_crash.log"
+}

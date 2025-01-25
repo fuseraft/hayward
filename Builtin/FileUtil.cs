@@ -1,4 +1,5 @@
 using citrus.Parsing;
+using citrus.Settings;
 using citrus.Tracing.Error;
 using citrus.Typing;
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -326,10 +327,8 @@ public struct FileUtil
 
     public static bool IsScript(Token token, string path)
     {
-        List<string> validExtensions = [".min.kiwi", ".kiwi", ".min.🥝", ".🥝", ".min.k", ".k"];
-
         var extension = GetFileExtension(token, path);
-        return validExtensions.Contains(extension);
+        return Citrus.Settings.Extensions.Recognized.Contains(extension);
     }
 
     public static string ReadFile(Token token, string filePath)
@@ -427,9 +426,7 @@ public struct FileUtil
             return path;
         }
 
-        List<string> validExtensions = [".min.kiwi", ".kiwi", ".min.🥝", ".🥝", ".min.k", ".k"];
-
-        foreach (var ext in validExtensions)
+        foreach (var ext in Citrus.Settings.Extensions.Recognized)
         {
             var scriptPath = TryGetExtensionlessSpecific(token, path, ext);
             if (!string.IsNullOrEmpty(scriptPath))
