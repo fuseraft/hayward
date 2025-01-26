@@ -1,0 +1,17 @@
+# nested while loops
+var (test_sum: integer = 0)
+i = 0
+j = 0
+while i < 10 do
+    i += 1
+    j = 0
+
+    while j < 10 do
+        j += 1
+        test_sum += 1
+    end
+end
+
+println "test_sum: ${test_sum}"
+println test_sum == 100
+#println "i: ${i}, j: ${j}"

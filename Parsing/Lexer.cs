@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using citrus.Parsing.Builtins;
 using citrus.Tracing;
 using citrus.Typing;
@@ -68,7 +69,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         }
         else if (char.IsDigit(c))
         {
-            return TokenizeLiteral(span, c);
+            return TokenizeNumericLiteral(span, c);
         }
         else if (c == '"')
         {
@@ -460,6 +461,94 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         }
 
         return CreateToken(TokenType.Comment, span, text);
+    }
+
+    private static bool MatchChar(char? c, string within)
+    {
+        if (c == null)
+        {
+            return false;
+        }
+
+        return within.Contains((char)c);
+    }
+
+    private Token TokenizeNumericLiteral(TokenSpan span, char c)
+    {
+        var peek = PeekChar();
+        
+        if (c == '0' && MatchChar(peek, "xX"))
+        {
+            return TokenizeHexLiteral(span);
+        }
+        else if (c == '0' && MatchChar(peek, "bB"))
+        {
+            return TokenizeBinaryLiteral(span);
+        }
+        else if (c == '0' && MatchChar(peek, "oO"))
+        {
+            return TokenizeOctalLiteral(span);
+        }
+        
+        return TokenizeLiteral(span, c);
+    }
+
+    private Token TokenizeHexLiteral(TokenSpan span)
+    {
+        var hexLiteral = string.Empty;
+        GetChar();  // Move past 'x'
+
+        char? ch;
+        while ((ch = PeekChar()) != null && char.IsAsciiHexDigit((char)ch))
+        {
+            hexLiteral += GetChar();
+        }
+
+        var result = int.Parse(hexLiteral, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture);
+
+        return CreateLiteralToken(span, hexLiteral, Value.CreateInteger(result));
+    }
+
+    private Token TokenizeBinaryLiteral(TokenSpan span)
+    {
+        var binaryLiteral = string.Empty;
+        GetChar();  // Move past 'b'
+
+        char? ch;
+        while ((ch = PeekChar()) != null && (ch == '0' || ch == '1'))
+        {
+            binaryLiteral += GetChar();
+        }
+
+        if (string.IsNullOrEmpty(binaryLiteral))
+        {
+            return CreateLiteralToken(span, binaryLiteral, Value.Default());
+        }
+
+        var result = int.Parse(binaryLiteral, System.Globalization.NumberStyles.BinaryNumber, System.Globalization.CultureInfo.InvariantCulture);
+
+        return CreateLiteralToken(span, binaryLiteral, Value.CreateInteger(result));
+    }
+
+    private Token TokenizeOctalLiteral(TokenSpan span) 
+    {
+        var octalLiteral = string.Empty;
+        GetChar();  // Move past 'o'
+
+        char? ch;
+        while ((ch = PeekChar()) != null && ch >= '0' && ch <= '7')
+        {
+            octalLiteral += GetChar();
+        }
+
+        if (string.IsNullOrEmpty(octalLiteral))
+        {
+            return CreateLiteralToken(span, octalLiteral, Value.Default());
+        }
+
+        var result = Convert.ToInt32(octalLiteral, 8);
+
+        return CreateLiteralToken(span, octalLiteral, Value.CreateInteger(result));
     }
 
     private Token TokenizeLiteral(TokenSpan span, char c)

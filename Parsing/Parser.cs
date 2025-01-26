@@ -1396,7 +1396,7 @@ public partial class Parser
         }
 
         var isSlice = false;
-        Token indexValueToken = GetErrorToken();
+        Token indexValueToken = GetErrorToken(false);
 
         ASTNode? start = null;
         ASTNode? stop = null;
@@ -1787,21 +1787,24 @@ public partial class Parser
     private ASTNode? ParseExpression()
     {
         var node = ParseLogicalOr();
+
         if (GetTokenType() == TokenType.Question)
         {
             Next();  // Consume '?'
+        
             var trueBranch = ParseExpression();
+        
             if (!MatchType(TokenType.Colon))
             {
                 throw new SyntaxError(GetErrorToken(), "Expected ':' in ternary operation.");
             }
+        
             var falseBranch = ParseExpression();  // Parse the false branch
 
             return new TernaryOperationNode(node, trueBranch, falseBranch);
         }
 
-        if (node?.Type == ASTNodeType.Lambda &&
-            GetTokenType() == TokenType.LParen)
+        if (node?.Type == ASTNodeType.Lambda && GetTokenType() == TokenType.LParen)
         {
             node = ParseLambdaCall(node);
         }
@@ -1812,99 +1815,126 @@ public partial class Parser
     private ASTNode? ParseLogicalOr()
     {
         var left = ParseLogicalAnd();
+
         while (stream.CanRead && GetTokenName() == TokenName.Ops_Or)
         {
             Next();  // Consume '||'
+            
             var right = ParseLogicalAnd();
             left = new BinaryOperationNode(left, TokenName.Ops_Or, right);
         }
+
         return left;
     }
 
     private ASTNode? ParseLogicalAnd()
     {
         var left = ParseBitwiseOr();
+
         while (stream.CanRead && GetTokenName() == TokenName.Ops_And)
         {
             Next();  // Consume '&&'
+        
             var right = ParseBitwiseOr();
             left = new BinaryOperationNode(left, TokenName.Ops_And, right);
         }
+        
         return left;
     }
 
     private ASTNode? ParseBitwiseOr()
     {
         var left = ParseBitwiseXor();
+
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseOr)
         {
             Next();  // Consume '|'
+        
             var right = ParseBitwiseXor();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseOr, right);
         }
+        
         return left;
     }
 
     private ASTNode? ParseBitwiseXor()
     {
         var left = ParseBitwiseAnd();
+
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseXor)
         {
             Next();  // Consume '^'
+        
             var right = ParseBitwiseAnd();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseXor, right);
         }
+        
         return left;
     }
 
     private ASTNode? ParseBitwiseAnd()
     {
         var left = ParseEquality();
+
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseAnd)
         {
             Next();  // Consume '&'
+        
             var right = ParseEquality();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseAnd, right);
         }
+        
         return left;
     }
 
     private ASTNode? ParseEquality()
     {
         var left = ParseComparison();
+        
         while (stream.CanRead && IsEqualityOperator())
         {
             var op = GetTokenName();
+        
             Next();  // Skip operator
+        
             var right = ParseComparison();
             left = new BinaryOperationNode(left, op, right);
         }
+        
         return left;
     }
 
     private ASTNode? ParseComparison()
     {
         var left = ParseBitshift();
+
         while (stream.CanRead && IsComparisonOperator())
         {
             var op = GetTokenName();
+        
             Next();  // Skip operator
+        
             var right = ParseBitshift();
             left = new BinaryOperationNode(left, op, right);
         }
+
         return left;
     }
 
     private ASTNode? ParseBitshift()
     {
         var left = ParseAdditive();
+
         while (stream.CanRead && IsBitwiseOperator())
         {
             var op = GetTokenName();
+        
             Next();  // Skip operator
+        
             var right = ParseAdditive();
             left = new BinaryOperationNode(left, op, right);
         }
+        
         return left;
     }
 
@@ -1924,13 +1954,17 @@ public partial class Parser
     private ASTNode? ParseMultiplicative()
     {
         var left = ParseUnary();
+
         while (stream.CanRead && IsMultiplicativeOperator())
         {
             var op = GetTokenName();
+        
             Next();  // Skip operator
+        
             var right = ParseUnary();
             left = new BinaryOperationNode(left, op, right);
         }
+        
         return left;
     }
 
@@ -1939,7 +1973,9 @@ public partial class Parser
         while (stream.CanRead && IsUnaryOperator())
         {
             var op = GetTokenName();
+        
             Next();  // Skip operator
+        
             var right = ParseUnary();
             return new UnaryOperationNode(op, right);
         }

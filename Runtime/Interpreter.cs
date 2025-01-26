@@ -298,9 +298,19 @@ public class Interpreter
         string Global = "global";
 
         var frame = CallStack.Peek();
-        var value = Interpret(node.Initializer);
+        var value = Interpret(node.Initializer).Clone();
         var type = node.Op;
         var name = node.Name;
+
+        if (name.EndsWith('i'))
+        {
+            Console.Write("");
+        }
+
+        if (name.EndsWith('j'))
+        {
+            Console.Write("");
+        }
 
         if (type == TokenName.Ops_Assign)
         {
@@ -961,12 +971,7 @@ public class Interpreter
 
             foreach (var stmt in node.Body)
             {
-                if (stmt == null)
-                {
-                    continue;
-                }
-
-                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                if (stmt != null && stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
                 {
                     result = Interpret(stmt);
 
@@ -990,7 +995,7 @@ public class Interpreter
                     break;
                 }
 
-                if (stmt.Type == ASTNodeType.Next)
+                if (stmt != null && stmt.Type == ASTNodeType.Next)
                 {
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
@@ -998,7 +1003,7 @@ public class Interpreter
                         break;
                     }
                 }
-                else if (stmt.Type == ASTNodeType.Break)
+                else if (stmt != null && stmt.Type == ASTNodeType.Break)
                 {
                     var condition = ((BreakNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))

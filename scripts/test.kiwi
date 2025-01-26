@@ -1,58 +1,36 @@
-package guava
-  fn initialize()
-    if !global.has_key("guava_tests")
-      global.guava_tests = {}
-      global.guava_test_results = []
+/#
+ The Citrus Project 1.0.0
+ #/
+
+println "foobar"
+
+fn testsuite()
+  println "Running Kiwi Test Suite ...\n"
+
+  results = guava::run_tests()
+
+  succeeded = 0
+  failed = 0
+  duration = 0
+
+  for r in results do
+    duration += r.duration
+
+    if r.result
+      succeeded += 1
+    else
+      failed += 1
     end
   end
 
-  fn assert(condition, msg = "Assertion failed.")
-    throw msg when condition == false
-  end
-  
-  fn register_test(name, t)
-    guava::initialize()
-    global.guava_tests.set(name, t)
-  end
-  
-  fn run_test(name, test, results = [])
-    print ("Running test: ${name} " + (" " * 45))
-    guava::initialize()
-  
-    test_start = __time_ticks__()
-    passed = false
-    error_message = ""
-  
-    try
-      test()
-      passed = true
-    catch (err)
-      error_message = err
-    end
-    
-    test_stop = __time_ticks__()
-    duration = __time_ticksms__(test_stop - test_start)
-    results.push({ "name": t, "result": passed, "duration": duration })
-  
-    println (passed ? "passed" : "failed").uppercase() + " in ${duration}ms"
-    if !error_message.empty()
-      println "  " + error_message
-    end
-  end
-  
-  fn run_tests()
-    guava::initialize()
-    results = []
+  println "\nRan ${results.size()} test(s) in ${duration}ms\n"
 
-    for name, t in global.guava_tests do
-      guava::run_test(name, t, results)
-    end
-  
-    return results
+  if failed == 0
+    println "All tests passed!"
+  else
+    println "${succeeded} tests passed, ${failed} tests failed."
   end
 end
-
-export "guava"
 
 /#
 guava::register_test("packages", with do
@@ -496,6 +474,7 @@ guava::register_test("nulls", with do
 end)
 #/
 
+/#
 guava::register_test("type checks", with do
   s = "kiwi"
   i = 100
@@ -503,15 +482,17 @@ guava::register_test("type checks", with do
   b = true
   h = {"a": [123, 456, "789"]}
 
-  guava::assert(s.is_a(String), "A1")
-  guava::assert(i.is_a(Integer), "A2")
-  guava::assert(d.is_a(Float), "A3")
-  guava::assert(b.is_a(Boolean), "A4")
-  guava::assert(null.is_a(None), "A5")
-  guava::assert(h.is_a(Hashmap), "A6")
-  guava::assert(h.a.is_a(List), "A7")
+  guava::assert(s.is_a(String))
+  guava::assert(i.is_a(Integer))
+  guava::assert(d.is_a(Float))
+  guava::assert(b.is_a(Boolean))
+  guava::assert(null.is_a(None))
+  guava::assert(h.is_a(Hashmap))
+  guava::assert(h.a.is_a(List))
 end)
+#/
 
+/#
 guava::register_test("loops", with do
   fruits = ["kiwi", "strawberry", "pineapple", "lime", "mango", "guava"]
   new_list = []
@@ -521,7 +502,7 @@ guava::register_test("loops", with do
     new_list.push(fruit)
   end
 
-  guava::assert(new_list.join() == "kiwistrawberrypineapplelimemangoguava", "A1")
+  guava::assert(new_list == ["kiwi", "strawberry", "pineapple", "lime", "mango", "guava"])
   new_list.clear()
 
   # iterate index
@@ -529,7 +510,7 @@ guava::register_test("loops", with do
     new_list.push(index)
   end
 
-  guava::assert(new_list.sum() == 15, "A2")
+  guava::assert(new_list == [0, 1, 2, 3, 4, 5])
   new_list.clear()
 
   # iterate inline list
@@ -537,7 +518,7 @@ guava::register_test("loops", with do
     new_list.push(item)
   end
 
-  guava::assert(new_list.join() == "kiwiisfun", "A3")
+  guava::assert(new_list == ["kiwi", "is", "fun"])
   new_list.clear()
 
   # iterate an inline list with an index
@@ -545,7 +526,7 @@ guava::register_test("loops", with do
     new_list.push(index)
   end
 
-  guava::assert(new_list.sum() == 3 && new_list.size() == 3, "A4")
+  guava::assert(new_list == [0, 1, 2])
   new_list.clear()
 
   # iterate a range
@@ -553,24 +534,23 @@ guava::register_test("loops", with do
     new_list.push(i)
   end
 
-  guava::assert(new_list.size() == 6 && new_list.sum() == 15, "A5")
+  guava::assert(new_list == [0, 1, 2, 3, 4, 5])
   new_list.clear()
 
   # nested while loops
-  var (test_sum: integer = 0)
   i = 0
-  j = 0
+  test_sum = 0
   while i < 10 do
-      i += 1
-      j = 0
-
-      while j < 10 do
-          j += 1
-          test_sum += 1
-      end
+    i += 1
+    j = 0
+    
+    while j < 10 do
+      j += 1
+      test_sum += 1
+    end
   end
 
-  guava::assert(test_sum == 100, "A7")
+  guava::assert(test_sum == 100)
 
   new_list = []
   i = 1
@@ -585,7 +565,7 @@ guava::register_test("loops", with do
     break when index == 4
   end
 
-  guava::assert(counter == 5, "A8")
+  guava::assert(counter == 5)
 
   counter = 0
   for item, index in new_list do
@@ -593,7 +573,7 @@ guava::register_test("loops", with do
     break when index == 5
   end
 
-  guava::assert(counter == 6, "A9")
+  guava::assert(counter == 6)
 
   # repeat-loop
   sum = 0
@@ -601,16 +581,18 @@ guava::register_test("loops", with do
     sum += i
   end
 
-  guava::assert(sum == 55, "A10")
+  guava::assert(sum == 55)
 
   x = 2
   repeat 4 do
     x *= x
   end
 
-  guava::assert(x == 65536, "A11")
+  guava::assert(x == 65536)
 end)
+#/
 
+/#
 guava::register_test("try-finally", with do
   a = 0, b = 0
 
@@ -625,7 +607,9 @@ guava::register_test("try-finally", with do
   guava::assert(a == 1)
   guava::assert(b == 1)
 end)
+#/
 
+/#
 guava::register_test("try-catch-finally", with do
   a = 0, b = 0, c = 0
 
@@ -645,7 +629,9 @@ guava::register_test("try-catch-finally", with do
   guava::assert(b == 1)
   guava::assert(c == 1)
 end)
+#/
 
+/#
 guava::register_test("nested try-catch", with do
   a = 0, b = 0, c = 0
 
@@ -664,7 +650,9 @@ guava::register_test("nested try-catch", with do
   guava::assert(b == 2)
   guava::assert(c == 2)
 end)
+#/
 
+/#
 guava::register_test("lambdas", with do
   # setup
   new_list = [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}, {"id": 4},
@@ -673,31 +661,67 @@ guava::register_test("lambdas", with do
   # Assigned and inline lambdas
   odd_item_id = with (item) do return item.id % 2 != 0 end # Define an assigned lambda.
   puts = with (s) do return s end # Defining a lambda and using it to wrap functionality.
-  guava::assert(puts("Hello, World!") == "Hello, World!", "A1")
+  guava::assert(puts("Hello, World!") == "Hello, World!")
 
   # Lambdas as first-class citizens
   fn use_lambda(print_func, message) return print_func(message) end
-  guava::assert(use_lambda(puts, "Hello, Kiwi!") == "Hello, Kiwi!", "A2")
+  guava::assert(use_lambda(puts, "Hello, Kiwi!") == "Hello, Kiwi!")
 
-  guava::assert(new_list.select(with (item) do return item["id"] % 2 == 0 end).map(with (item) do item["id"] end).sum() == 20, "A3")
-  guava::assert(new_list.select(odd_item_id).map(with (item) do item["id"] end).sum() == 25, "A4")
+  guava::assert(new_list.select(with (item) do return item["id"] % 2 == 0 end) == [{"id": 0}, {"id": 2}, {"id": 4}, {"id": 6}, {"id": 8}])
+  guava::assert(new_list.select(odd_item_id) == [{"id": 1}, {"id": 3}, {"id": 5}, {"id": 7}, {"id": 9}])
+
+  # List.map
+  guava::assert
+  (
+    ["kiwi", "mango", "banana"].map(with (item) do return { "fruit": item, "is_a_kiwi": item.lowercase() == "kiwi" } end)
+      == [{"fruit": "kiwi", "is_a_kiwi": true}, {"fruit": "mango", "is_a_kiwi": false}, {"fruit": "banana", "is_a_kiwi": false}]
+  )
 
   # List.reduce
   numbers = [1, 2, 3, 4, 5]
 
   guava::assert((numbers.reduce(0, with (accumulator, number) do
     accumulator += number
-  end)) == 15, "A6")
+  end)) == 15, "five")
 
   guava::assert((numbers.reduce({}, with (accumulator, number) do
     accumulator["key${number}"] = number
-  end)).keys().reduce("", with (accumulator, key) do 
-    accumulator += key end
-  ) == "key1key2key3key4key5", "A7")
+  end)) == {"key1": 1, "key2": 2, "key3": 3, "key4": 4, "key5": 5})
 
   # Inline lambda assignment
   x = (with (n) do n ** 2 end)(5)
-  guava::assert(x == 25, "A8")
+  guava::assert(x == 25)
+end)
+#/
+
+/#
+guava::register_test("md5", with do
+  a_str = "just a test string"
+  
+  guava::assert("d41d8cd98f00b204e9800998ecf8427e" == crypto::md5_hash(""))
+  guava::assert("c105456108ab41026a95d4f0cc66fe78" == crypto::md5_hash(a_str))
+  guava::assert("e8754b080e52f959766d9d40f5e406ee" == crypto::md5_hash(a_str * 7))
 end)
 
-guava::run_tests()
+guava::register_test("sha224", with do
+  a_str = "just a test string"
+
+  guava::assert("d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f" == crypto::sha224_hash())
+  guava::assert("bba476fc42a4327019c6239a15d662f327c646ad3d8b4c0ca32e33e5" == crypto::sha224_hash(a_str))
+  guava::assert("7d70521535e7b865c1572daff05a3fd022df567f4b6d74d556477f0a" == crypto::sha224_hash(a_str*7))
+end)
+
+guava::register_test("sha256", with do
+  a_str = "just a test string"
+
+  guava::assert("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" == crypto::sha256_hash())
+  guava::assert("d7b553c6f09ac85d142415f857c5310f3bbbe7cdd787cce4b985acedd585266f" == crypto::sha256_hash(a_str))
+  guava::assert("8113ebf33c97daa9998762aacafe750c7cefc2b2f173c90c59663a57fe626f21" == crypto::sha256_hash(a_str*7))
+  
+  s = SHA256.new(a_str)
+  s.update(a_str)
+  guava::assert("03d9963e05a094593190b6fc794cb1a3e1ac7d7883f0b5855268afeccc70d461" == s.hexdigest())
+end)
+#/
+
+testsuite()

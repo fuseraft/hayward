@@ -35,11 +35,21 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         {
             Parser parser = new();
 
-            LoadStandardLibrary(parser);
+            LoadStandardLibrary(ref parser);
+            if (parser.HasError)
+            {
+                return 1;
+            }
 
             using Lexer lexer = new(script);
             var stream = lexer.GetTokenStream();
             var ast = parser.ParseTokenStream(stream, isEntryPoint: true);
+
+            if (parser.HasError)
+            {
+                return 1;
+            }
+
             Interpreter.Interpret(ast);
         }
         catch (CitrusError e)
@@ -54,7 +64,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         return SuccessReturnCode;
     }
 
-    private void LoadStandardLibrary(Parser parser)
+    private void LoadStandardLibrary(ref Parser parser)
     {
         if (StandardLibraryLoaded)
         {
@@ -96,6 +106,12 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         if (streams.Count > 0)
         {
             var ast = parser.ParseTokenStreamCollection(streams);
+
+            if (parser.HasError)
+            {
+                return;
+            }
+
             Interpreter.Interpret(ast);
         }
 
