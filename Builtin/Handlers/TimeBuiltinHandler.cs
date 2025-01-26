@@ -334,7 +334,7 @@ public static class TimeBuiltinHandler
 
         if (args.Count == 0)
         {
-            return Value.CreateInteger(DateTime.Now.Ticks);
+            return Value.CreateFloat(GetTicks());
         }
         else if (args.Count == 1 && args[0].IsDate())
         {
@@ -344,6 +344,12 @@ public static class TimeBuiltinHandler
         throw new InvalidOperationError(token);
     }
 
+    private static double GetTicks()
+    {
+        var rawTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();        
+        return (double)rawTimestamp * (1e9 / System.Diagnostics.Stopwatch.Frequency);
+    }
+
     private static Value TicksToMilliseconds(Token token, List<Value> args)
     {
         if (args.Count != 1)
@@ -351,13 +357,20 @@ public static class TimeBuiltinHandler
             throw new ParameterCountMismatchError(token, TimeBuiltin.TicksToMilliseconds);
         }
 
-        if (!args[0].IsInteger())
+        if (!args[0].IsNumber())
         {
-            throw new InvalidOperationError(token, "Expected an integer.");
+            throw new InvalidOperationError(token, "Expected a number.");
         }
 
-        var ticks = args[0].GetInteger();
+        if (args[0].IsInteger())
+        {
+            return Value.CreateInteger(TimeSpan.FromTicks(args[0].GetInteger()).Milliseconds);
+        }
+        else if (args[0].IsFloat())
+        {
+            return Value.CreateFloat(args[0].GetFloat() / 1000000.0);
+        }
 
-        return Value.CreateInteger(TimeSpan.FromTicks(ticks).Milliseconds);
+        throw new InvalidOperationError(token, "Expected a number.");
     }
 }

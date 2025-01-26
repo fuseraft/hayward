@@ -4,7 +4,6 @@ public class CitrusConfig
 {
     public bool PrintTokens { get; set; } = false;
     public bool PrintAST { get; set; } = false;
-    public bool PrintVersion { get; set; } = false;
     public bool CreateNewFile { get; set; } = false;
     public List<string> Args { get; set; } = [];
     public List<string> Scripts { get; set; } = [];
@@ -74,12 +73,48 @@ public class CitrusConfig
                     }
                     break;
 
+                case "-s":
+                case "--safemode":
+                    if (config.Scripts.Count == 0)
+                    {
+                        Citrus.Settings.SafeMode = true;
+                    }
+                    else
+                    {
+                        config.Args.Add(current);
+                    }
+                    break;
+
+                case "-ns":
+                case "--no-stdlib":
+                    if (config.Scripts.Count == 0)
+                    {
+                        Citrus.Settings.StandardLibrary.Clear();
+                    }
+                    else
+                    {
+                        config.Args.Add(current);
+                    }
+                    break;
+
                 case "-v":
                 case "--version":
                     if (config.Scripts.Count == 0)
                     {
-                        Console.WriteLine($"{Citrus.Settings.Name} {Citrus.Settings.Version}");
-                        Console.WriteLine();
+                        PrintVersion();
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        config.Args.Add(current);
+                    }
+                    break;
+
+                case "-h":
+                case "--help":
+                    if (config.Scripts.Count == 0)
+                    {
+                        PrintHelp();
                         Environment.Exit(0);
                     }
                     else
@@ -128,6 +163,40 @@ public class CitrusConfig
         }
 
         return filename;
+    }
+
+    private static void PrintVersion()
+    {
+        Console.WriteLine($"{Citrus.Settings.Name} {Citrus.Settings.Version}");
+        Console.WriteLine();
+    }
+
+    private static void PrintHelp()
+    {
+        List<(string, string)> commands =
+        [
+            ("-h, --help", "print this message"),
+            ("-v, --version", "print the current version"),
+            ("-n, --new <file_path>", $"create a `{Citrus.Settings.Extensions.Primary}` file"),
+            ("-p, --parse <code>", "parse code as an argument"),
+            ("-s, --safemode", "run in safemode"),
+            ("-ns, --no-stdlib", "run without standard library"),
+            ("-a, --ast <input_file_path>", $"print syntax tree of `{Citrus.Settings.Extensions.Primary}` file"),
+            ("-t, --tokenize <input_file_path>", "tokenize a file with the lexer"),
+            ("-<key>=<value>", "specify an argument as a key-value pair")
+        ];
+
+        PrintVersion();
+
+        Console.WriteLine($"Usage: {Citrus.Settings.Name} [--flags] <script|args>");
+        Console.WriteLine("Options:");
+
+        foreach (var (flag, description) in commands)
+        {
+            Console.WriteLine($"  {flag,-40}{description}");
+        }
+        
+        Console.WriteLine();
     }
 
     private static bool IsScript(ref string filename)

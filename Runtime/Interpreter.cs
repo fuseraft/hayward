@@ -6,13 +6,13 @@ using citrus.Typing;
 using citrus.Tracing.Error;
 using citrus.Parsing.Builtins;
 using citrus.Builtin.Handlers;
+using citrus.Settings;
 namespace citrus.Runtime;
 
 public class Interpreter
 {
     int SafemodeMaxIterations = 1000000;
 
-    public bool Safemode { get; set; } = false;
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
@@ -177,7 +177,6 @@ public class Interpreter
 
             if (!Context.HasStruct(struc.BaseStruct))
             {
-                Console.WriteLine($"Basestruct is: `{struc.BaseStruct}`");
                 throw new StructUndefinedError(node.Token, struc.BaseStruct);
             }
         }
@@ -949,7 +948,7 @@ public class Interpreter
 
         while (BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
-            if (Safemode)
+            if (Citrus.Settings.SafeMode)
             {
                 ++iterations;
 

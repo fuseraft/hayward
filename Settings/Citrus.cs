@@ -22,6 +22,9 @@ public class CitrusSettings
     [JsonPropertyName("standard_library")]
     public List<StandardLibraryPath> StandardLibrary { get; set; } = [];
 
+    [JsonPropertyName("safemode")]
+    public bool SafeMode { get; set; } = false;
+
     [JsonPropertyName("debug")]
     public required DebugSettings Debug { get; set; }
 

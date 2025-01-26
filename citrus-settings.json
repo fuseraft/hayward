@@ -1,6 +1,7 @@
 {
     "name": "citrus",
     "version": "1.0.0",
+    "safemode": true,
     "standard_library": [
         { 
             "path": "/home/scs/GitHub/citrus/lib", 
