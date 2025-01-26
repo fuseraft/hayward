@@ -40,6 +40,7 @@ public struct BooleanOp
             Typing.ValueType.Date => v2.IsDate() && v1.GetDate() == v2.GetDate(),
             Typing.ValueType.Hashmap => v2.IsHashmap() && v1.GetHashmap() == v2.GetHashmap(),
             Typing.ValueType.List => v2.IsList() && v1.GetList() == v2.GetList(),
+            Typing.ValueType.None => v2.IsNull(),
             _ => false,
         };
     }

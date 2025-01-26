@@ -22,6 +22,12 @@ public class CitrusSettings
     [JsonPropertyName("standard_library")]
     public List<StandardLibraryPath> StandardLibrary { get; set; } = [];
 
+    [JsonPropertyName("safemode")]
+    public bool SafeMode { get; set; } = false;
+
+    [JsonPropertyName("debug")]
+    public required DebugSettings Debug { get; set; }
+
     [JsonPropertyName("environment_variables")]
     public Dictionary<string, string> EnvironmentVariables { get; set; } = [];
 
@@ -35,6 +41,12 @@ public class CitrusSettings
             PropertyNameCaseInsensitive = true
         })!;
     }
+}
+
+public class DebugSettings
+{
+    [JsonPropertyName("cli_args")]
+    public List<string> CommandLineArguments { get; set; } = [];
 }
 
 public class StandardLibraryPath

@@ -5,13 +5,14 @@ using citrus.Parsing.AST;
 using citrus.Typing;
 using citrus.Tracing.Error;
 using citrus.Parsing.Builtins;
+using citrus.Builtin.Handlers;
+using citrus.Settings;
 namespace citrus.Runtime;
 
 public class Interpreter
 {
     int SafemodeMaxIterations = 1000000;
 
-    public bool Safemode { get; set; } = false;
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
@@ -30,7 +31,7 @@ public class Interpreter
 
         bool sigCheck = RequiresSigCheck(node.Type);
 
-        Value result = node.Type switch
+        var result = node.Type switch
         {
             ASTNodeType.Program => Visit((ProgramNode)node),
             ASTNodeType.Self => Visit((SelfNode)node),
@@ -176,7 +177,6 @@ public class Interpreter
 
             if (!Context.HasStruct(struc.BaseStruct))
             {
-                Console.WriteLine($"Basestruct is: `{struc.BaseStruct}`");
                 throw new StructUndefinedError(node.Token, struc.BaseStruct);
             }
         }
@@ -297,7 +297,7 @@ public class Interpreter
         string Global = "global";
 
         var frame = CallStack.Peek();
-        var value = Interpret(node.Initializer);
+        var value = Interpret(node.Initializer).Clone();
         var type = node.Op;
         var name = node.Name;
 
@@ -554,7 +554,6 @@ public class Interpreter
 
     private Value Visit(MemberAssignmentNode node)
     {
-
         var obj = Interpret(node.Object);
         var memberName = node.MemberName;
         var initializer = Interpret(node.Initializer);
@@ -566,12 +565,12 @@ public class Interpreter
 
             if (node.Op == TokenName.Ops_Assign)
             {
-                hash.Add(memberKey, initializer);
+                hash[memberKey] = initializer;
             }
             else if (hash.TryGetValue(memberKey, out Value? value))
             {
                 var newValue = OpDispatch.DoBinary(node.Token, node.Op, ref value, ref initializer);
-                hash.Add(memberKey, newValue);
+                hash[memberKey] = newValue;
             }
             else
             {
@@ -949,7 +948,7 @@ public class Interpreter
 
         while (BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
-            if (Safemode)
+            if (Citrus.Settings.SafeMode)
             {
                 ++iterations;
 
@@ -961,12 +960,7 @@ public class Interpreter
 
             foreach (var stmt in node.Body)
             {
-                if (stmt == null)
-                {
-                    continue;
-                }
-
-                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                if (stmt != null && stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
                 {
                     result = Interpret(stmt);
 
@@ -990,7 +984,7 @@ public class Interpreter
                     break;
                 }
 
-                if (stmt.Type == ASTNodeType.Next)
+                if (stmt != null && stmt.Type == ASTNodeType.Next)
                 {
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
@@ -998,7 +992,7 @@ public class Interpreter
                         break;
                     }
                 }
-                else if (stmt.Type == ASTNodeType.Break)
+                else if (stmt != null && stmt.Type == ASTNodeType.Break)
                 {
                     var condition = ((BreakNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
@@ -1303,7 +1297,7 @@ public class Interpreter
 
         if (PackageStack.Count > 0)
         {
-            Stack<string> tmpStack = new(PackageStack);
+            Stack<string> tmpStack = new([.. PackageStack]);
             var prefix = string.Empty;
             while (tmpStack.Count > 0)
             {
@@ -2016,13 +2010,9 @@ public class Interpreter
         var args = GetMethodCallArguments(node.Arguments);
         var op = node.Op;
 
-        if (SerializerBuiltin.IsBuiltin(op))
+        if (ReflectorBuiltin.IsBuiltin(op))
         {
-            // return InterpretSerializerBuiltin(node.Token, op, args);
-        }
-        else if (ReflectorBuiltin.IsBuiltin(op))
-        {
-            // return InterpretReflectorBuiltin(node.Token, op, args);
+            return ReflectorBuiltinHandler.Execute(node.Token, op, args, Context, CallStack, FuncStack);
         }
         else if (WebServerBuiltin.IsBuiltin(op))
         {
@@ -2046,7 +2036,6 @@ public class Interpreter
         }
 
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
-        // return Value.Default();
     }
 
     private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
@@ -2177,8 +2166,7 @@ public class Interpreter
 
         if (!Serializer.AssertTypematch(result, returnTypeHint))
         {
-            throw new TypeError(
-                token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
         }
 
         return result;
@@ -2350,16 +2338,11 @@ public class Interpreter
         }
     }
 
-    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue,
-        Token token, int i, string lambdaName, StackFrame lambdaFrame)
+    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string lambdaName, StackFrame lambdaFrame)
     {
-        if (typeHints.TryGetValue(param.Key, out TokenName expectedType))
+        if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
         {
-
-            if (!Serializer.AssertTypematch(argValue, expectedType))
-            {
-                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
-            }
+            throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
         }
 
         if (argValue.IsLambda())
@@ -3009,8 +2992,7 @@ public class Interpreter
         return result;
     }
 
-    private Value LambdaNone(KLambda lambda,
-                                    List<Value> list)
+    private Value LambdaNone(KLambda lambda, List<Value> list)
     {
         var selected = LambdaSelect(lambda, list);
         var noneFound = Value.CreateBoolean(false);

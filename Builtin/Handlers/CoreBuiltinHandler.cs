@@ -101,6 +101,11 @@ public static class CoreBuiltinHandler
             throw new ParameterCountMismatchError(token, CitrusBuiltin.IsA);
         }
 
+        if (!args[0].IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+        
         var typeName = args[0].GetString();
 
         return value.Type switch
@@ -277,9 +282,7 @@ public static class CoreBuiltinHandler
             numberBase = (int)args[0].GetInteger();
             if (numberBase < 2 || numberBase > 36)
             {
-                throw new InvalidOperationError(
-                    token, "Base must be between 2 and 36, inclusive."
-                );
+                throw new InvalidOperationError(token, "Base must be between 2 and 36, inclusive.");
             }
         }
 
