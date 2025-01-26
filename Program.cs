@@ -8,6 +8,11 @@ public class Program
 {
     public static int Main(string[] args)
     {
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+            args = [.. Citrus.Settings.Debug.CommandLineArguments];
+        }
+        
         try
         {
             var config = CitrusConfig.Configure(args);

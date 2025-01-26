@@ -3,38 +3,38 @@ namespace citrus.Parsing.Builtins;
 public static class FileIOBuiltin
 {
     // File operations
-    public const string AppendText = "__appendtext__";
-    public const string CopyFile = "__copyfile__";
-    public const string CopyR = "__copyr__";
-    public const string Combine = "__combine__";
-    public const string CreateFile = "__createfile__";
-    public const string DeleteFile = "__deletefile__";
-    public const string MoveFile = "__movefile__";
-    public const string ReadFile = "__readfile__";
-    public const string ReadLines = "__readlines__";
-    public const string ReadBytes = "__readbytes__";
-    public const string WriteLine = "__writeline__";
-    public const string WriteText = "__writetext__";
-    public const string WriteBytes = "__writebytes__";
-    public const string FileExists = "__isfile__";
-    public const string GetFileExtension = "__fileext__";
-    public const string FileName = "__filename__";
-    public const string FileSize = "__filesize__";
-    public const string GetFilePath = "__filepath__";
-    public const string GetFileAbsolutePath = "__fileabspath__";
-    public const string GetFileAttributes = "__fileattrs__";
-    public const string Glob = "__glob__";
+    public const string AppendText = "__fileio_appendtext__";
+    public const string CopyFile = "__fileio_copyfile__";
+    public const string CopyR = "__fileio_copyr__";
+    public const string Combine = "__fileio_combine__";
+    public const string CreateFile = "__fileio_createfile__";
+    public const string DeleteFile = "__fileio_deletefile__";
+    public const string MoveFile = "__fileio_movefile__";
+    public const string ReadFile = "__fileio_readfile__";
+    public const string ReadLines = "__fileio_readlines__";
+    public const string ReadBytes = "__fileio_readbytes__";
+    public const string WriteLine = "__fileio_writeline__";
+    public const string WriteText = "__fileio_writetext__";
+    public const string WriteBytes = "__fileio_writebytes__";
+    public const string FileExists = "__fileio_isfile__";
+    public const string GetFileExtension = "__fileio_fileext__";
+    public const string FileName = "__fileio_filename__";
+    public const string FileSize = "__fileio_filesize__";
+    public const string GetFilePath = "__fileio_filepath__";
+    public const string GetFileAbsolutePath = "__fileio_fileabspath__";
+    public const string GetFileAttributes = "__fileio_fileattrs__";
+    public const string Glob = "__fileio_glob__";
 
     // Directory operations
-    public const string ListDirectory = "__listdir__";
-    public const string MakeDirectory = "__mkdir__";
-    public const string MakeDirectoryP = "__mkdirp__";
-    public const string RemoveDirectory = "__rmdir__";
-    public const string RemoveDirectoryF = "__rmdirf__";
-    public const string IsDirectory = "__isdir__";
-    public const string ChangeDirectory = "__chdir__";
-    public const string GetCurrentDirectory = "__cwd__";
-    public const string TempDir = "__tmpdir__";
+    public const string ListDirectory = "__fileio_listdir__";
+    public const string MakeDirectory = "__fileio_mkdir__";
+    public const string MakeDirectoryP = "__fileio_mkdirp__";
+    public const string RemoveDirectory = "__fileio_rmdir__";
+    public const string RemoveDirectoryF = "__fileio_rmdirf__";
+    public const string IsDirectory = "__fileio_isdir__";
+    public const string ChangeDirectory = "__fileio_chdir__";
+    public const string GetCurrentDirectory = "__fileio_cwd__";
+    public const string TempDir = "__fileio_tmpdir__";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>

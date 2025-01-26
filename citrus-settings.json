@@ -1,9 +1,10 @@
 {
     "name": "citrus",
     "version": "1.0.0",
+    "safemode": true,
     "standard_library": [
         { 
-            "path": "/home/scs/GitHub/kiwi/lib/kiwi", 
+            "path": "/home/scs/GitHub/citrus/lib", 
             "autoload": true,
             "include_subdirectories": true 
         }
@@ -12,6 +13,11 @@
         "primary": ".kiwi",
         "minified": ".min.kiwi",
         "recognized": [".min.kiwi", ".kiwi", ".min.🥝", ".🥝", ".min.k", ".k"]
+    },
+    "debug": {
+        "cli_args": [
+            "/home/scs/GitHub/citrus/scripts/debug"
+        ]
     },
     "environment_variables": {
         "_CITRUS": ""

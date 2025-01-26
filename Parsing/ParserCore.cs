@@ -14,6 +14,8 @@ public partial class Parser(bool rethrowErrors = false)
     private Token token = Token.CreateEof();
     private TokenStream stream = new([]);
     private Stack<Dictionary<string, string>> mangledNameStack = new();
+    
+    public bool HasError { get; set; } = false;
 
     public ASTNode ParseTokenStreamCollection(List<TokenStream> streams)
     {
@@ -43,21 +45,23 @@ public partial class Parser(bool rethrowErrors = false)
                     }
                 }
             }
-            catch (CitrusError)
+            catch (CitrusError e)
             {
                 if (rethrow)
                 {
                     throw;
                 }
 
-                // ErrorHandler.HandleError(e);
+                ErrorHandler.PrintError(e);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (rethrow)
                 {
                     throw;
                 }
+
+                ErrorHandler.PrintError(e, GetErrorToken());
             }
         }
 
@@ -101,7 +105,7 @@ public partial class Parser(bool rethrowErrors = false)
                 throw;
             }
 
-            ErrorHandler.PrintError(e, stream.Current());
+            ErrorHandler.PrintError(e, GetErrorToken());
         }
 
         return root;
@@ -261,8 +265,13 @@ public partial class Parser(bool rethrowErrors = false)
         _ => false,
     };
 
-    private Token GetErrorToken()
+    private Token GetErrorToken(bool setHasError = true)
     {
+        if (setHasError)
+        {
+            HasError = true;
+        }
+
         if (GetTokenType() != TokenType.Eof)
         {
             return token;
@@ -270,7 +279,7 @@ public partial class Parser(bool rethrowErrors = false)
 
         Rewind();
 
-        return GetErrorToken();
+        return GetErrorToken(setHasError);
     }
 
     private Dictionary<string, string> GetNameMap()

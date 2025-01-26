@@ -32,6 +32,7 @@ public struct ComparisonOp
             Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) < 0,
             Typing.ValueType.List => lhs.GetList().Count < rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count < rhs.GetHashmap().Count,
+            Typing.ValueType.None => !rhs.IsNull(),
             _ => false,
         };
     }
@@ -40,7 +41,7 @@ public struct ComparisonOp
     {
         if (lhs.Type != rhs.Type)
         {
-            return lhs.Type < rhs.Type;
+            return lhs.Type <= rhs.Type;
         }
 
         return lhs.Type switch
@@ -52,6 +53,7 @@ public struct ComparisonOp
             Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) <= 0,
             Typing.ValueType.List => lhs.GetList().Count <= rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count <= rhs.GetHashmap().Count,
+            Typing.ValueType.None => rhs.IsNull(),
             _ => false,
         };
     }
@@ -60,7 +62,7 @@ public struct ComparisonOp
     {
         if (lhs.Type != rhs.Type)
         {
-            return lhs.Type < rhs.Type;
+            return lhs.Type > rhs.Type;
         }
 
         return lhs.Type switch
@@ -72,6 +74,7 @@ public struct ComparisonOp
             Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) > 0,
             Typing.ValueType.List => lhs.GetList().Count > rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count > rhs.GetHashmap().Count,
+            Typing.ValueType.None => !rhs.IsNull(),
             _ => false,
         };
     }
@@ -80,7 +83,7 @@ public struct ComparisonOp
     {
         if (lhs.Type != rhs.Type)
         {
-            return lhs.Type < rhs.Type;
+            return lhs.Type >= rhs.Type;
         }
 
         return lhs.Type switch
@@ -92,6 +95,7 @@ public struct ComparisonOp
             Typing.ValueType.Date => lhs.GetDate().CompareTo(rhs.GetDate()) >= 0,
             Typing.ValueType.List => lhs.GetList().Count >= rhs.GetList().Count,
             Typing.ValueType.Hashmap => lhs.GetHashmap().Count >= rhs.GetHashmap().Count,
+            Typing.ValueType.None => rhs.IsNull(),
             _ => false,
         };
     }

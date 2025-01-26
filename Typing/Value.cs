@@ -32,7 +32,7 @@ public class SliceIndex(Value indexOrStart, Value stopIndex, Value stepValue)
     public bool IsSlice { get; set; }
 };
 
-public class Value(object value, ValueType type = ValueType.None)
+public class Value(object value, ValueType type = ValueType.None) : IComparable<Value>, IComparable
 {
     public object Value_ { get; set; } = value;
     public ValueType Type { get; set; } = type;
@@ -621,11 +621,194 @@ public class Value(object value, ValueType type = ValueType.None)
             case ValueType.Struct:
             case ValueType.None:
             default:
-                {
-                    break;
-                }
+                break;
         }
+
         return hash;
+    }
+
+    /// <summary>
+    /// Compare this Value to another object (non-generic IComparable).
+    /// </summary>
+    /// <param name="obj">The object to compare against.</param>
+    /// <returns>
+    /// Negative if this is less than obj;
+    /// Zero if equal;
+    /// Positive if greater.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if obj is not a Value.</exception>
+    public int CompareTo(object? obj)
+    {
+        if (obj == null)
+        {
+            return 1; // By convention, any non-null is "greater" than null
+        }
+
+        if (obj is not Value otherValue)
+        {
+            throw new ArgumentException("Object is not a Value", nameof(obj));
+        }
+
+        return CompareTo(otherValue);
+    }
+
+    /// <summary>
+    /// Compare this Value to another Value (generic IComparable).
+    /// </summary>
+    /// <param name="other">The Value to compare against.</param>
+    /// <returns>
+    /// Negative if this < other;
+    /// Zero if this == other;
+    /// Positive if this > other.
+    /// </returns>
+    public int CompareTo(Value? other)
+    {
+        if (other is null)
+        {
+            return 1; // By convention, any non-null is "greater" than null
+        }
+
+        // 1) Compare ValueType first
+        int typeComparison = Type.CompareTo(other.Type);
+        if (typeComparison != 0)
+        {
+            // If the ValueTypes differ, sort by the numeric ordering of the ValueType enum
+            return typeComparison;
+        }
+
+        // 2) If the same type, compare the underlying data
+        return Type switch
+        {
+            ValueType.Integer => GetInteger().CompareTo(other.GetInteger()),
+            ValueType.Float => GetFloat().CompareTo(other.GetFloat()),// Use GetNumber() or directly compare doubles
+            ValueType.Boolean => GetBoolean().CompareTo(other.GetBoolean()),// False < True
+            ValueType.String => string.Compare(GetString(), other.GetString(), StringComparison.Ordinal),// Lexical (ordinal) comparison for strings
+            ValueType.Date => GetDate().CompareTo(other.GetDate()),// Chronological comparison
+            ValueType.List => CompareLists(GetList(), other.GetList()),// Lexicographical comparison of list items
+            ValueType.Hashmap => CompareHashmaps(GetHashmap(), other.GetHashmap()),// A simple approach: compare number of entries, then do a structural comparison for tie-breakers
+            ValueType.Object => CompareObjects(GetObject(), other.GetObject()),// Compare by StructName, then Identifier, then instance variables for a deeper structural comparison
+            ValueType.Lambda => string.Compare(GetLambda().Identifier, other.GetLambda().Identifier, StringComparison.Ordinal),// Compare by the Identifier of the lambda
+            ValueType.Struct => string.Compare(GetStruct().Identifier, other.GetStruct().Identifier, StringComparison.Ordinal),// Compare by the Identifier of the struct
+            _ => 0,// If both are None, consider them equal
+        };
+    }
+
+    /// <summary>
+    /// Example method for comparing two lists of Value lexicographically.
+    /// </summary>
+    private int CompareLists(List<Value> xlist, List<Value> ylist)
+    {
+        int minCount = Math.Min(xlist.Count, ylist.Count);
+        for (int i = 0; i < minCount; i++)
+        {
+            int result = xlist[i].CompareTo(ylist[i]);
+            if (result != 0)
+            {
+                return result;
+            }
+        }
+
+        // If all elements up to minCount are equal, compare lengths
+        return xlist.Count.CompareTo(ylist.Count);
+    }
+
+    /// <summary>
+    /// Example method for comparing two hashmaps.
+    /// This is a simple approach that compares Count first,
+    /// and then tries a structural approach based on sorted keys.
+    /// You may wish to refine this further depending on your needs.
+    /// </summary>
+    private int CompareHashmaps(Dictionary<Value, Value> xmap, Dictionary<Value, Value> ymap)
+    {
+        // Compare counts first
+        int countCompare = xmap.Count.CompareTo(ymap.Count);
+        if (countCompare != 0)
+        {
+            return countCompare;
+        }
+
+        // Next, do a structural comparison. One approach:
+        // 1) Sort the keys from each dictionary
+        // 2) Compare the keys pairwise
+        // 3) Compare the corresponding values pairwise
+        var xkeys = xmap.Keys.ToList();
+        var ykeys = ymap.Keys.ToList();
+
+        // Sort the keys using Value's CompareTo
+        xkeys.Sort();
+        ykeys.Sort();
+
+        for (int i = 0; i < xkeys.Count; i++)
+        {
+            // Compare keys
+            int keyResult = xkeys[i].CompareTo(ykeys[i]);
+            if (keyResult != 0)
+            {
+                return keyResult;
+            }
+
+            // Compare values
+            int valResult = xmap[xkeys[i]].CompareTo(ymap[ykeys[i]]);
+            if (valResult != 0)
+            {
+                return valResult;
+            }
+        }
+
+        // If we get here, they're effectively equal
+        return 0;
+    }
+
+    /// <summary>
+    /// Example method for comparing two objects by struct name, identifier, and instance variables.
+    /// </summary>
+    private int CompareObjects(InstanceRef xobj, InstanceRef yobj)
+    {
+        // Compare struct names
+        int structNameCompare = string.Compare(xobj.StructName, yobj.StructName, StringComparison.Ordinal);
+        if (structNameCompare != 0)
+        {
+            return structNameCompare;
+        }
+
+        // Compare identifiers
+        int identifierCompare = string.Compare(xobj.Identifier, yobj.Identifier, StringComparison.Ordinal);
+        if (identifierCompare != 0)
+        {
+            return identifierCompare;
+        }
+
+        // Compare number of instance variables
+        int varCountCompare = xobj.InstanceVariables.Count.CompareTo(yobj.InstanceVariables.Count);
+        if (varCountCompare != 0)
+        {
+            return varCountCompare;
+        }
+
+        // If needed, do a deeper structural comparison of instance variables
+        // Sort by key name
+        var xvars = xobj.InstanceVariables.OrderBy(kvp => kvp.Key).ToList();
+        var yvars = yobj.InstanceVariables.OrderBy(kvp => kvp.Key).ToList();
+
+        for (int i = 0; i < xvars.Count; i++)
+        {
+            // Compare variable names (keys)
+            int keyCompare = string.Compare(xvars[i].Key, yvars[i].Key, StringComparison.Ordinal);
+            if (keyCompare != 0)
+            {
+                return keyCompare;
+            }
+
+            // Compare variable Values
+            int valCompare = xvars[i].Value.CompareTo(yvars[i].Value);
+            if (valCompare != 0)
+            {
+                return valCompare;
+            }
+        }
+
+        // If identical structurally
+        return 0;
     }
 }
 

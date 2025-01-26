@@ -1,0 +1,55 @@
+package guava
+  fn initialize()
+    if !global.has_key("guava_tests")
+      global.guava_tests = {}
+      global.guava_test_results = []
+    end
+  end
+
+  fn assert(condition, msg = "Assertion failed.")
+    throw msg when condition == false
+  end
+  
+  fn register_test(name, t)
+    guava::initialize()
+    global.guava_tests.set(name, t)
+  end
+  
+  fn run_test(name, test, results = [])
+    print string::padend("Running test: ${name} ", 45, " ")
+    guava::initialize()
+  
+    test_start = __time_ticks__()
+    passed = false
+    error_message = ""
+  
+    try
+      test()
+      passed = true
+    catch (err)
+      error_message = err
+    end
+    
+    test_stop = __time_ticks__()
+    duration = __time_ticksms__(test_stop - test_start)
+    results.push({ "name": t, "result": passed, "duration": duration })
+  
+    println (passed ? "passed" : "failed").uppercase() + " in ${duration}ms"
+    if !error_message.empty()
+      println "  " + error_message
+    end
+  end
+  
+  fn run_tests()
+    guava::initialize()
+    results = []
+
+    for name, t in global.guava_tests do
+      guava::run_test(name, t, results)
+    end
+  
+    return results
+  end
+end
+
+export "guava"
