@@ -611,6 +611,12 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         {
             return CreateToken(TokenType.Keyword, span, text, kw);
         }
+        else if (IsTypenameKeyword(text, out TokenName kwTypename))
+        {
+            var typeName = CreateToken(TokenType.Typename, span, text, kwTypename);
+            typeName.Value = Value.CreateString(text);
+            return typeName;
+        }
         else if (IsConditionalKeyword(text, out TokenName kwCond))
         {
             return CreateToken(TokenType.Conditional, span, text, kwCond);
@@ -628,10 +634,6 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         else if (IsLambdaKeyword(text, out TokenName kwLambda))
         {
             return CreateToken(TokenType.Lambda, span, text, kwLambda);
-        }
-        else if (IsTypenameKeyword(text, out TokenName kwTypename))
-        {
-            return CreateToken(TokenType.Typename, span, text, kwTypename);
         }
         else if (CitrusBuiltin.IsBuiltin(text))
         {

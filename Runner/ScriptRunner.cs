@@ -35,15 +35,12 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         {
             Parser parser = new();
 
-            LoadStandardLibrary(ref parser);
-            if (parser.HasError)
-            {
-                return 1;
-            }
+            List<TokenStream> streams = [];
+            LoadStandardLibrary(ref streams);
 
             using Lexer lexer = new(script);
-            var stream = lexer.GetTokenStream();
-            var ast = parser.ParseTokenStream(stream, isEntryPoint: true);
+            streams.Add(lexer.GetTokenStream());
+            var ast = parser.ParseTokenStreamCollection(streams);
 
             if (parser.HasError)
             {
@@ -64,14 +61,13 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         return SuccessReturnCode;
     }
 
-    private void LoadStandardLibrary(ref Parser parser)
+    private void LoadStandardLibrary(ref List<TokenStream> streams)
     {
         if (StandardLibraryLoaded)
         {
             return;
         }
 
-        List<TokenStream> streams = [];
         List<string> paths = [];
 
         foreach (var library in Citrus.Settings.StandardLibrary)
@@ -101,18 +97,6 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         {
             using Lexer lexer = new(path);
             streams.Add(lexer.GetTokenStream());
-        }
-
-        if (streams.Count > 0)
-        {
-            var ast = parser.ParseTokenStreamCollection(streams);
-
-            if (parser.HasError)
-            {
-                return;
-            }
-
-            Interpreter.Interpret(ast);
         }
 
         StandardLibraryLoaded = true;

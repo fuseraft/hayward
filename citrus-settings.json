@@ -4,7 +4,7 @@
     "standard_library": [
         { 
             "path": "/home/scs/GitHub/citrus/lib", 
-            "autoload": false,
+            "autoload": true,
             "include_subdirectories": true 
         }
     ],
@@ -15,7 +15,7 @@
     },
     "debug": {
         "cli_args": [
-            "/home/scs/GitHub/citrus/test"
+            "/home/scs/GitHub/citrus/scripts/debug"
         ]
     },
     "environment_variables": {

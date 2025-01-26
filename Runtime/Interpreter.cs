@@ -302,16 +302,6 @@ public class Interpreter
         var type = node.Op;
         var name = node.Name;
 
-        if (name.EndsWith('i'))
-        {
-            Console.Write("");
-        }
-
-        if (name.EndsWith('j'))
-        {
-            Console.Write("");
-        }
-
         if (type == TokenName.Ops_Assign)
         {
             if (Global.Equals(name) || Context.HasConstant(name))
@@ -576,12 +566,12 @@ public class Interpreter
 
             if (node.Op == TokenName.Ops_Assign)
             {
-                hash.Add(memberKey, initializer);
+                hash[memberKey] = initializer;
             }
             else if (hash.TryGetValue(memberKey, out Value? value))
             {
                 var newValue = OpDispatch.DoBinary(node.Token, node.Op, ref value, ref initializer);
-                hash.Add(memberKey, newValue);
+                hash[memberKey] = newValue;
             }
             else
             {

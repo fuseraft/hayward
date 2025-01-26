@@ -19,7 +19,7 @@ package guava
     print string::padend("Running test: ${name} ", 45, " ")
     guava::initialize()
   
-    test_start = time::ticks()
+    test_start = __time_ticks__()
     passed = false
     error_message = ""
   
@@ -30,8 +30,8 @@ package guava
       error_message = err
     end
     
-    test_stop = time::ticks()
-    duration = time::ticksms(test_stop - test_start)
+    test_stop = __time_ticks__()
+    duration = __time_ticksms__(test_stop - test_start)
     results.push({ "name": t, "result": passed, "duration": duration })
   
     println (passed ? "passed" : "failed").uppercase() + " in ${duration}ms"
@@ -51,3 +51,5 @@ package guava
     return results
   end
 end
+
+export "guava"

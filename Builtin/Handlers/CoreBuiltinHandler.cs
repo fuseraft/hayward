@@ -101,8 +101,12 @@ public static class CoreBuiltinHandler
             throw new ParameterCountMismatchError(token, CitrusBuiltin.IsA);
         }
 
-        Console.WriteLine($"args[0] type: {Serializer.GetTypenameString(args[0])}");
-        var typeName = Serializer.GetTypenameString(args[0]);
+        if (!args[0].IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+        
+        var typeName = args[0].GetString();
 
         return value.Type switch
         {
