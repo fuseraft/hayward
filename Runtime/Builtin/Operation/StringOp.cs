@@ -1,6 +1,6 @@
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Runtime.Builtin;
 
 public struct StringOp
 {

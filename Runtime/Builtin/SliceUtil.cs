@@ -2,7 +2,7 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Runtime.Builtin;
 
 public struct SliceUtil
 {

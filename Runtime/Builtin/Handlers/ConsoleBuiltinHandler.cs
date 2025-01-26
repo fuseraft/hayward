@@ -3,8 +3,7 @@ using citrus.Parsing.Keyword;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin.Handlers;
-
+namespace citrus.Runtime.Builtin.Handlers;
 public static class ConsoleBuiltinHandler
 {
     public static Value Execute(Token token, TokenName builtin, List<Value> args)

@@ -1,4 +1,4 @@
-namespace citrus.Builtin;
+namespace citrus.Runtime.Builtin;
 
 public static class RNGUtil
 {

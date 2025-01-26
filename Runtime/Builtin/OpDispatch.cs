@@ -1,9 +1,9 @@
-using citrus.Builtin.Operation;
+using citrus.Runtime.Builtin.Operation;
 using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Runtime.Builtin;
 
 public struct OpDispatch
 {

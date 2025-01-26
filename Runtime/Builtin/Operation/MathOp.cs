@@ -2,7 +2,7 @@ using citrus.Parsing;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin.Operation;
+namespace citrus.Runtime.Builtin.Operation;
 
 public struct MathOp
 {

@@ -1,10 +1,10 @@
-using citrus.Builtin.Handlers;
+using citrus.Runtime.Builtin.Handlers;
 using citrus.Parsing;
 using citrus.Parsing.Keyword;
 using citrus.Tracing.Error;
 using citrus.Typing;
 
-namespace citrus.Builtin;
+namespace citrus.Runtime.Builtin;
 
 public struct BuiltinDispatch
 {

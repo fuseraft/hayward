@@ -1,6 +1,6 @@
-namespace citrus.Runner;
 using citrus.Parsing;
 
+namespace citrus.Runner;
 public class ASTPrinter : IRunner
 {
     /// <summary>

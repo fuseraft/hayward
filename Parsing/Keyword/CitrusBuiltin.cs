@@ -1,7 +1,7 @@
-namespace citrus.Parsing.Keyword;
 
 using System.Collections.Generic;
 
+namespace citrus.Parsing.Keyword;
 public static class CitrusBuiltin
 {
     public const string Append       = "append";

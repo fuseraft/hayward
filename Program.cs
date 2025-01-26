@@ -1,9 +1,9 @@
-﻿namespace citrus;
-
+﻿
 using citrus.Settings;
 using citrus.Tracing;
 using citrus.Runner;
 
+namespace citrus;
 public class Program
 {
     public static int Main(string[] args)
