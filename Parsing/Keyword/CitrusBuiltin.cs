@@ -1,4 +1,4 @@
-namespace citrus.Parsing.Builtins;
+namespace citrus.Parsing.Keyword;
 
 using System.Collections.Generic;
 
