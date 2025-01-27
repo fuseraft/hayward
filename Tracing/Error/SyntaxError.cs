@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class SyntaxError(Token t, string message = "A syntax error occurred.")
-    : CitrusError(t, "SyntaxError", message)
+    : KiwiError(t, "SyntaxError", message)
 {
 }

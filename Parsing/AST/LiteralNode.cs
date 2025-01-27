@@ -1,6 +1,6 @@
-using citrus.Typing;
+using hayward.Typing;
 
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class LiteralNode(Value value) : ASTNode(ASTNodeType.Literal)
 {

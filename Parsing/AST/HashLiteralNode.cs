@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string> keys) : ASTNode(ASTNodeType.HashLiteral)
 {

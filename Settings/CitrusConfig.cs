@@ -1,6 +1,6 @@
-namespace citrus.Settings;
+namespace hayward.Settings;
 
-public class CitrusConfig
+public class KiwiConfig
 {
     public bool PrintTokens { get; set; } = false;
     public bool PrintAST { get; set; } = false;
@@ -8,9 +8,9 @@ public class CitrusConfig
     public List<string> Args { get; set; } = [];
     public List<string> Scripts { get; set; } = [];
 
-    public static CitrusConfig Configure(IEnumerable<string> cliArgs)
+    public static KiwiConfig Configure(IEnumerable<string> cliArgs)
     {
-        CitrusConfig config = new();
+        KiwiConfig config = new();
 
         var iter = cliArgs.GetEnumerator();
         while (iter.MoveNext())
@@ -77,7 +77,7 @@ public class CitrusConfig
                 case "--safemode":
                     if (config.Scripts.Count == 0)
                     {
-                        Citrus.Settings.SafeMode = true;
+                        Kiwi.Settings.SafeMode = true;
                     }
                     else
                     {
@@ -89,7 +89,7 @@ public class CitrusConfig
                 case "--no-stdlib":
                     if (config.Scripts.Count == 0)
                     {
-                        Citrus.Settings.StandardLibrary.Clear();
+                        Kiwi.Settings.StandardLibrary.Clear();
                     }
                     else
                     {
@@ -136,7 +136,7 @@ public class CitrusConfig
             }
         }
 
-        foreach (var env in Citrus.Settings.EnvironmentVariables)
+        foreach (var env in Kiwi.Settings.EnvironmentVariables)
         {
             if (string.IsNullOrEmpty(env.Key))
             {
@@ -167,7 +167,7 @@ public class CitrusConfig
 
     private static void PrintVersion()
     {
-        Console.WriteLine($"{Citrus.Settings.Name} {Citrus.Settings.Version}");
+        Console.WriteLine($"{Kiwi.Settings.Name} {Kiwi.Settings.Version}");
         Console.WriteLine();
     }
 
@@ -177,18 +177,18 @@ public class CitrusConfig
         [
             ("-h, --help", "print this message"),
             ("-v, --version", "print the current version"),
-            ("-n, --new <file_path>", $"create a `{Citrus.Settings.Extensions.Primary}` file"),
+            ("-n, --new <file_path>", $"create a `{Kiwi.Settings.Extensions.Primary}` file"),
             ("-p, --parse <code>", "parse code as an argument"),
             ("-s, --safemode", "run in safemode"),
             ("-ns, --no-stdlib", "run without standard library"),
-            ("-a, --ast <input_file_path>", $"print syntax tree of `{Citrus.Settings.Extensions.Primary}` file"),
+            ("-a, --ast <input_file_path>", $"print syntax tree of `{Kiwi.Settings.Extensions.Primary}` file"),
             ("-t, --tokenize <input_file_path>", "tokenize a file with the lexer"),
             ("-<key>=<value>", "specify an argument as a key-value pair")
         ];
 
         PrintVersion();
 
-        Console.WriteLine($"Usage: {Citrus.Settings.Name} [--flags] <script|args>");
+        Console.WriteLine($"Usage: {Kiwi.Settings.Name} [--flags] <script|args>");
         Console.WriteLine("Options:");
 
         foreach (var (flag, description) in commands)
@@ -205,7 +205,7 @@ public class CitrusConfig
 
         if (!Path.HasExtension(filename))
         {
-            filename += Citrus.Settings.Extensions.Primary;
+            filename += Kiwi.Settings.Extensions.Primary;
         }
 
         if (File.Exists(filename))

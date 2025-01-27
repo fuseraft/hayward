@@ -1,10 +1,10 @@
-using citrus.Parsing;
-using citrus.Parsing.Keyword;
-using citrus.Runtime.Builtin.Operation;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Parsing;
+using hayward.Parsing.Keyword;
+using hayward.Runtime.Builtin.Operation;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Handlers;
+namespace hayward.Runtime.Builtin.Handlers;
 
 public class ReflectorBuiltinHandler
 {

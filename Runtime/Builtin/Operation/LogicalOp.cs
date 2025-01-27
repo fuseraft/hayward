@@ -1,6 +1,6 @@
-using citrus.Typing;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Operation;
+namespace hayward.Runtime.Builtin.Operation;
 
 public struct LogicalOp
 {

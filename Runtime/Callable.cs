@@ -1,8 +1,8 @@
-using citrus.Parsing.AST;
-using citrus.Parsing;
-using citrus.Typing;
+using hayward.Parsing.AST;
+using hayward.Parsing;
+using hayward.Typing;
 
-namespace citrus.Runtime;
+namespace hayward.Runtime;
 
 public enum CallableType
 {

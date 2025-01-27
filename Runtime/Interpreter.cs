@@ -1,14 +1,14 @@
-using citrus.Runtime.Builtin;
-using citrus.Runtime.Builtin.Operation;
-using citrus.Parsing;
-using citrus.Parsing.AST;
-using citrus.Typing;
-using citrus.Tracing.Error;
-using citrus.Parsing.Keyword;
-using citrus.Runtime.Builtin.Handlers;
-using citrus.Settings;
+using hayward.Runtime.Builtin;
+using hayward.Runtime.Builtin.Operation;
+using hayward.Parsing;
+using hayward.Parsing.AST;
+using hayward.Typing;
+using hayward.Tracing.Error;
+using hayward.Parsing.Keyword;
+using hayward.Runtime.Builtin.Handlers;
+using hayward.Settings;
 
-namespace citrus.Runtime;
+namespace hayward.Runtime;
 
 public class Interpreter
 {
@@ -117,7 +117,7 @@ public class Interpreter
         {
             StackFrame programFrame = new()
             {
-                Name = "citrus"
+                Name = "hayward"
             };
             programFrame.Variables["global"] = Value.CreateHashmap();
 
@@ -256,7 +256,7 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
-        string DefaultErrorType = "CitrusError";
+        string DefaultErrorType = "KiwiError";
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
@@ -288,7 +288,7 @@ public class Interpreter
                 }
             }
 
-            throw new CitrusError(node.Token, errorType, errorMessage);
+            throw new KiwiError(node.Token, errorType, errorMessage);
         }
 
         return Value.Default();
@@ -967,7 +967,7 @@ public class Interpreter
 
         while (BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
-            if (Citrus.Settings.SafeMode)
+            if (Kiwi.Settings.SafeMode)
             {
                 ++iterations;
 
@@ -1183,7 +1183,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (CitrusError e)
+        catch (KiwiError e)
         {
             if (requireDrop)
             {
@@ -1237,7 +1237,7 @@ public class Interpreter
 
                     DropFrame();
                 }
-                catch (CitrusError)
+                catch (KiwiError)
                 {
                     if (requireDrop && InTry())
                     {
@@ -1433,7 +1433,7 @@ public class Interpreter
             result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
             DropFrame();
         }
-        catch (CitrusError)
+        catch (KiwiError)
         {
             if (requireDrop && InTry())
             {
@@ -1477,7 +1477,7 @@ public class Interpreter
                 DropFrame();
             }
         }
-        catch (CitrusError)
+        catch (KiwiError)
         {
             if (requireDrop)
             {
@@ -1506,7 +1506,7 @@ public class Interpreter
         {
             return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
         }
-        else if (CitrusBuiltin.IsBuiltin(node.Op))
+        else if (KiwiBuiltin.IsBuiltin(node.Op))
         {
             return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
         }
@@ -1614,7 +1614,7 @@ public class Interpreter
 
         if (!content.IsString())
         {
-            throw new CitrusError(node.Token, "Invalid parse expression.");
+            throw new KiwiError(node.Token, "Invalid parse expression.");
         }
 
         Lexer lexer = new(content.GetString(), false);
@@ -1878,7 +1878,7 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        else if (CitrusBuiltin.IsBuiltinMethod(name))
+        else if (KiwiBuiltin.IsBuiltinMethod(name))
         {
             return CallableType.Builtin;
         }
@@ -2129,7 +2129,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (CitrusError)
+        catch (KiwiError)
         {
             if (requireDrop)
             {

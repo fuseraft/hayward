@@ -1,10 +1,10 @@
 {
-    "name": "citrus",
+    "name": "hayward",
     "version": "1.0.0",
     "safemode": true,
     "standard_library": [
         { 
-            "path": "/home/scs/GitHub/citrus/lib", 
+            "path": "/home/scs/GitHub/hayward/lib", 
             "autoload": true,
             "include_subdirectories": true 
         }
@@ -16,11 +16,11 @@
     },
     "debug": {
         "cli_args": [
-            "/home/scs/GitHub/citrus/scripts/debug"
+            "/home/scs/GitHub/hayward/scripts/debug"
         ]
     },
     "environment_variables": {
-        "_CITRUS": ""
+        "_KIWI": ""
     },
-    "crashdump_path": "/home/scs/citrus_crash.log"
+    "crashdump_path": "/home/scs/hayward_crash.log"
 }

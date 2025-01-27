@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class FileReadError(Token t, string path)
-    : CitrusError(t, "FileReadError", $"Failed to read file: '{path}'")
+    : KiwiError(t, "FileReadError", $"Failed to read file: '{path}'")
 {
 }

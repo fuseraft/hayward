@@ -1,5 +1,5 @@
 bin/Debug/*
 bin/Release/*
 obj/*
-/.vs/citrus
-citrus_crash.log
+/.vs/hayward
+hayward_crash.log

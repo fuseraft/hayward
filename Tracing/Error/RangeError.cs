@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class RangeError(Token t, string message = "Invalid range.")
-    : CitrusError(t, "RangeError", message)
+    : KiwiError(t, "RangeError", message)
 {
 }

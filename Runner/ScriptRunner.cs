@@ -1,11 +1,11 @@
 
-using citrus.Parsing;
-using citrus.Runtime;
-using citrus.Settings;
-using citrus.Tracing;
-using citrus.Tracing.Error;
+using hayward.Parsing;
+using hayward.Runtime;
+using hayward.Settings;
+using hayward.Tracing;
+using hayward.Tracing.Error;
 
-namespace citrus.Runner;
+namespace hayward.Runner;
 public class ScriptRunner(Interpreter interpreter) : IRunner
 {
     /// <summary>
@@ -49,7 +49,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
 
             Interpreter.Interpret(ast);
         }
-        catch (CitrusError e)
+        catch (KiwiError e)
         {
             ErrorHandler.PrintError(e);
         }
@@ -70,7 +70,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
 
         List<string> paths = [];
 
-        foreach (var library in Citrus.Settings.StandardLibrary)
+        foreach (var library in Kiwi.Settings.StandardLibrary)
         {
             if (!library.AutoLoad)
             {
@@ -110,6 +110,6 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         }
 
         var ext = Path.GetExtension(path);
-        return Citrus.Settings.Extensions.Recognized.Contains(ext);
+        return Kiwi.Settings.Extensions.Recognized.Contains(ext);
     }
 }

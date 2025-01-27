@@ -1,9 +1,9 @@
 using System.Security.Cryptography.X509Certificates;
-using citrus.Parsing.AST;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Parsing.AST;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Parsing;
+namespace hayward.Parsing;
 
 public partial class Parser
 {

@@ -1,8 +1,8 @@
-﻿using citrus.Parsing;
+﻿using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class NullObjectError(Token t, string message = "Object context is null.")
-    : CitrusError(t, "NullObjectError", message)
+    : KiwiError(t, "NullObjectError", message)
 {
 }

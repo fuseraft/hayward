@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class IllegalNameError(Token t, string name)
-    : CitrusError(t, "IllegalNameError", $"The following name cannot be declared: '{name}'")
+    : KiwiError(t, "IllegalNameError", $"The following name cannot be declared: '{name}'")
 {
 }

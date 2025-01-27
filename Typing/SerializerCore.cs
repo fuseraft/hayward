@@ -1,4 +1,4 @@
-namespace citrus.Typing;
+namespace hayward.Typing;
 
 public partial class Serializer
 {

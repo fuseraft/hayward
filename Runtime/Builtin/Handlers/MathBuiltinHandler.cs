@@ -1,9 +1,9 @@
-using citrus.Parsing;
-using citrus.Parsing.Keyword;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Parsing;
+using hayward.Parsing.Keyword;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Handlers;
+namespace hayward.Runtime.Builtin.Handlers;
 
 public static class MathBuiltinHandler
 {

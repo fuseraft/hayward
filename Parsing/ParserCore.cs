@@ -1,8 +1,8 @@
-using citrus.Parsing.AST;
-using citrus.Tracing;
-using citrus.Tracing.Error;
+using hayward.Parsing.AST;
+using hayward.Tracing;
+using hayward.Tracing.Error;
 
-namespace citrus.Parsing;
+namespace hayward.Parsing;
 
 /// <summary>
 /// The parser.
@@ -45,7 +45,7 @@ public partial class Parser(bool rethrowErrors = false)
                     }
                 }
             }
-            catch (CitrusError e)
+            catch (KiwiError e)
             {
                 if (rethrow)
                 {
@@ -89,7 +89,7 @@ public partial class Parser(bool rethrowErrors = false)
                 }
             }
         }
-        catch (CitrusError e)
+        catch (KiwiError e)
         {
             if (rethrow)
             {

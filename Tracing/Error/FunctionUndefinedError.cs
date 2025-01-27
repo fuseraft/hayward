@@ -1,8 +1,8 @@
-﻿using citrus.Parsing;
+﻿using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class FunctionUndefinedError(Token t, string name)
-    : CitrusError(t, "FunctionUndefinedError", $"Function `{name}` is undefined.")
+    : KiwiError(t, "FunctionUndefinedError", $"Function `{name}` is undefined.")
 {
 }

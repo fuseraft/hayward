@@ -1,10 +1,10 @@
-using citrus.Runtime.Builtin.Operation;
-using citrus.Parsing;
-using citrus.Parsing.Keyword;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Runtime.Builtin.Operation;
+using hayward.Parsing;
+using hayward.Parsing.Keyword;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Handlers;
+namespace hayward.Runtime.Builtin.Handlers;
 
 public static class CoreBuiltinHandler
 {
@@ -12,78 +12,78 @@ public static class CoreBuiltinHandler
     {
         return builtin switch
         {
-            TokenName.Builtin_Citrus_Chars => Chars(token, value, args),
-            TokenName.Builtin_Citrus_Join => Join(token, value, args),
-            TokenName.Builtin_Citrus_HasKey => HasKey(token, value, args),
-            TokenName.Builtin_Citrus_Size => Size(token, value, args),
-            TokenName.Builtin_Citrus_Uppercase => Uppercase(token, value, args),
-            TokenName.Builtin_Citrus_Lowercase => Lowercase(token, value, args),
-            TokenName.Builtin_Citrus_BeginsWith => BeginsWith(token, value, args),
-            TokenName.Builtin_Citrus_Contains => Contains(token, value, args),
-            TokenName.Builtin_Citrus_EndsWith => EndsWith(token, value, args),
-            TokenName.Builtin_Citrus_LeftTrim => LeftTrim(token, value, args),
-            TokenName.Builtin_Citrus_RightTrim => RightTrim(token, value, args),
-            TokenName.Builtin_Citrus_Trim => Trim(token, value, args),
-            TokenName.Builtin_Citrus_Empty => Empty(token, value, args),
-            TokenName.Builtin_Citrus_Type => Type(token, value, args),
-            TokenName.Builtin_Citrus_First => First(token, value, args),
-            TokenName.Builtin_Citrus_Last => Last(token, value, args),
-            TokenName.Builtin_Citrus_Push => Push(token, value, args),
-            TokenName.Builtin_Citrus_Pop => Pop(token, value, args),
-            TokenName.Builtin_Citrus_Clear => Clear(token, value, args),
-            TokenName.Builtin_Citrus_Replace => Replace(token, value, args),
-            TokenName.Builtin_Citrus_Remove => Remove(token, value, args),
-            TokenName.Builtin_Citrus_RemoveAt => RemoveAt(token, value, args),
-            TokenName.Builtin_Citrus_Get => Get(token, value, args),
-            TokenName.Builtin_Citrus_Set => Set(token, value, args),
-            TokenName.Builtin_Citrus_Truthy => Truthy(token, value, args),
-            TokenName.Builtin_Citrus_Split => Split(token, value, args),
-            TokenName.Builtin_Citrus_Lines => Lines(token, value, args),
-            TokenName.Builtin_Citrus_Clone => Clone(token, value, args),
-            TokenName.Builtin_Citrus_Reverse => Reverse(token, value, args),
-            TokenName.Builtin_Citrus_IndexOf => IndexOf(token, value, args),
-            TokenName.Builtin_Citrus_LastIndexOf => LastIndexOf(token, value, args),
-            TokenName.Builtin_Citrus_Substring => Substring(token, value, args),
-            TokenName.Builtin_Citrus_Concat => Concat(token, value, args),
-            TokenName.Builtin_Citrus_Unique => Unique(token, value, args),
-            TokenName.Builtin_Citrus_Count => Count(token, value, args),
-            TokenName.Builtin_Citrus_Enqueue => Enqueue(token, value, args),
-            TokenName.Builtin_Citrus_Dequeue => Dequeue(token, value, args),
-            TokenName.Builtin_Citrus_Shift => Shift(token, value, args),
-            TokenName.Builtin_Citrus_Unshift => Unshift(token, value, args),
-            TokenName.Builtin_Citrus_Insert => Insert(token, value, args),
-            TokenName.Builtin_Citrus_Keys => Keys(token, value, args),
-            TokenName.Builtin_Citrus_Values => Values(token, value, args),
-            TokenName.Builtin_Citrus_Zip => Zip(token, value, args),
-            TokenName.Builtin_Citrus_Flatten => Flatten(token, value, args),
-            TokenName.Builtin_Citrus_Merge => Merge(token, value, args),
-            TokenName.Builtin_Citrus_Rotate => Rotate(token, value, args),
-            TokenName.Builtin_Citrus_Slice => Slice(token, value, args),
-            TokenName.Builtin_Citrus_IsA => IsA(token, value, args),
-            TokenName.Builtin_Citrus_ToBytes => ToBytes(token, value, args),
-            TokenName.Builtin_Citrus_ToHex => ToHex(token, value, args),
-            TokenName.Builtin_Citrus_ToFloat => ToFloat(token, value, args),
-            TokenName.Builtin_Citrus_ToInteger => ToInteger(token, value, args),
-            TokenName.Builtin_Citrus_ToString => ToString(token, value, args),
-            TokenName.Builtin_Citrus_ToDate => ToDate(token, value, args),
-            TokenName.Builtin_Citrus_Swap => Swap(token, value, args),
-            TokenName.Builtin_Citrus_Pretty => Pretty(token, value, args),
-            TokenName.Builtin_Citrus_Hour => Hour(token, value, args),
-            TokenName.Builtin_Citrus_Minute => Minute(token, value, args),
-            TokenName.Builtin_Citrus_Second => Second(token, value, args),
-            TokenName.Builtin_Citrus_Millisecond => Millisecond(token, value, args),
-            TokenName.Builtin_Citrus_Day => Day(token, value, args),
-            TokenName.Builtin_Citrus_Month => Month(token, value, args),
-            TokenName.Builtin_Citrus_Year => Year(token, value, args),
+            TokenName.Builtin_Kiwi_Chars => Chars(token, value, args),
+            TokenName.Builtin_Kiwi_Join => Join(token, value, args),
+            TokenName.Builtin_Kiwi_HasKey => HasKey(token, value, args),
+            TokenName.Builtin_Kiwi_Size => Size(token, value, args),
+            TokenName.Builtin_Kiwi_Uppercase => Uppercase(token, value, args),
+            TokenName.Builtin_Kiwi_Lowercase => Lowercase(token, value, args),
+            TokenName.Builtin_Kiwi_BeginsWith => BeginsWith(token, value, args),
+            TokenName.Builtin_Kiwi_Contains => Contains(token, value, args),
+            TokenName.Builtin_Kiwi_EndsWith => EndsWith(token, value, args),
+            TokenName.Builtin_Kiwi_LeftTrim => LeftTrim(token, value, args),
+            TokenName.Builtin_Kiwi_RightTrim => RightTrim(token, value, args),
+            TokenName.Builtin_Kiwi_Trim => Trim(token, value, args),
+            TokenName.Builtin_Kiwi_Empty => Empty(token, value, args),
+            TokenName.Builtin_Kiwi_Type => Type(token, value, args),
+            TokenName.Builtin_Kiwi_First => First(token, value, args),
+            TokenName.Builtin_Kiwi_Last => Last(token, value, args),
+            TokenName.Builtin_Kiwi_Push => Push(token, value, args),
+            TokenName.Builtin_Kiwi_Pop => Pop(token, value, args),
+            TokenName.Builtin_Kiwi_Clear => Clear(token, value, args),
+            TokenName.Builtin_Kiwi_Replace => Replace(token, value, args),
+            TokenName.Builtin_Kiwi_Remove => Remove(token, value, args),
+            TokenName.Builtin_Kiwi_RemoveAt => RemoveAt(token, value, args),
+            TokenName.Builtin_Kiwi_Get => Get(token, value, args),
+            TokenName.Builtin_Kiwi_Set => Set(token, value, args),
+            TokenName.Builtin_Kiwi_Truthy => Truthy(token, value, args),
+            TokenName.Builtin_Kiwi_Split => Split(token, value, args),
+            TokenName.Builtin_Kiwi_Lines => Lines(token, value, args),
+            TokenName.Builtin_Kiwi_Clone => Clone(token, value, args),
+            TokenName.Builtin_Kiwi_Reverse => Reverse(token, value, args),
+            TokenName.Builtin_Kiwi_IndexOf => IndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_LastIndexOf => LastIndexOf(token, value, args),
+            TokenName.Builtin_Kiwi_Substring => Substring(token, value, args),
+            TokenName.Builtin_Kiwi_Concat => Concat(token, value, args),
+            TokenName.Builtin_Kiwi_Unique => Unique(token, value, args),
+            TokenName.Builtin_Kiwi_Count => Count(token, value, args),
+            TokenName.Builtin_Kiwi_Enqueue => Enqueue(token, value, args),
+            TokenName.Builtin_Kiwi_Dequeue => Dequeue(token, value, args),
+            TokenName.Builtin_Kiwi_Shift => Shift(token, value, args),
+            TokenName.Builtin_Kiwi_Unshift => Unshift(token, value, args),
+            TokenName.Builtin_Kiwi_Insert => Insert(token, value, args),
+            TokenName.Builtin_Kiwi_Keys => Keys(token, value, args),
+            TokenName.Builtin_Kiwi_Values => Values(token, value, args),
+            TokenName.Builtin_Kiwi_Zip => Zip(token, value, args),
+            TokenName.Builtin_Kiwi_Flatten => Flatten(token, value, args),
+            TokenName.Builtin_Kiwi_Merge => Merge(token, value, args),
+            TokenName.Builtin_Kiwi_Rotate => Rotate(token, value, args),
+            TokenName.Builtin_Kiwi_Slice => Slice(token, value, args),
+            TokenName.Builtin_Kiwi_IsA => IsA(token, value, args),
+            TokenName.Builtin_Kiwi_ToBytes => ToBytes(token, value, args),
+            TokenName.Builtin_Kiwi_ToHex => ToHex(token, value, args),
+            TokenName.Builtin_Kiwi_ToFloat => ToFloat(token, value, args),
+            TokenName.Builtin_Kiwi_ToInteger => ToInteger(token, value, args),
+            TokenName.Builtin_Kiwi_ToString => ToString(token, value, args),
+            TokenName.Builtin_Kiwi_ToDate => ToDate(token, value, args),
+            TokenName.Builtin_Kiwi_Swap => Swap(token, value, args),
+            TokenName.Builtin_Kiwi_Pretty => Pretty(token, value, args),
+            TokenName.Builtin_Kiwi_Hour => Hour(token, value, args),
+            TokenName.Builtin_Kiwi_Minute => Minute(token, value, args),
+            TokenName.Builtin_Kiwi_Second => Second(token, value, args),
+            TokenName.Builtin_Kiwi_Millisecond => Millisecond(token, value, args),
+            TokenName.Builtin_Kiwi_Day => Day(token, value, args),
+            TokenName.Builtin_Kiwi_Month => Month(token, value, args),
+            TokenName.Builtin_Kiwi_Year => Year(token, value, args),
             /*
-            TokenName.Builtin_Citrus_RReplace => RReplace(token, value, args),
-            TokenName.Builtin_Citrus_RSplit => RSplit(token, value, args),
-            TokenName.Builtin_Citrus_Find => Find(token, value, args),
-            TokenName.Builtin_Citrus_Match => Match(token, value, args),
-            TokenName.Builtin_Citrus_Matches => Matches(token, value, args),
-            TokenName.Builtin_Citrus_MatchesAll => MatchesAll(token, value, args),
-            TokenName.Builtin_Citrus_Scan => Scan(token, value, args),
-            TokenName.Builtin_Citrus_Tokens => Tokens(token, value, args),
+            TokenName.Builtin_Kiwi_RReplace => RReplace(token, value, args),
+            TokenName.Builtin_Kiwi_RSplit => RSplit(token, value, args),
+            TokenName.Builtin_Kiwi_Find => Find(token, value, args),
+            TokenName.Builtin_Kiwi_Match => Match(token, value, args),
+            TokenName.Builtin_Kiwi_Matches => Matches(token, value, args),
+            TokenName.Builtin_Kiwi_MatchesAll => MatchesAll(token, value, args),
+            TokenName.Builtin_Kiwi_Scan => Scan(token, value, args),
+            TokenName.Builtin_Kiwi_Tokens => Tokens(token, value, args),
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
@@ -93,7 +93,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Hour);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Hour);
         }
 
         if (!value.IsDate())
@@ -108,7 +108,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Minute);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Minute);
         }
 
         if (!value.IsDate())
@@ -123,7 +123,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Second);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Second);
         }
 
         if (!value.IsDate())
@@ -138,7 +138,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Millisecond);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Millisecond);
         }
 
         if (!value.IsDate())
@@ -153,7 +153,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Day);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Day);
         }
 
         if (!value.IsDate())
@@ -168,7 +168,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Month);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Month);
         }
 
         if (!value.IsDate())
@@ -183,7 +183,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Year);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Year);
         }
 
         if (!value.IsDate())
@@ -198,7 +198,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Pretty);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Pretty);
         }
 
         var pretty = Serializer.PrettySerialize(value);
@@ -209,7 +209,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 && !args[0].IsString())
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.IsA);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.IsA);
         }
 
         if (!args[0].IsString())
@@ -238,7 +238,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToBytes);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToBytes);
         }
 
         if (value.IsString())
@@ -285,7 +285,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToHex);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToHex);
         }
 
         // value is an integer
@@ -345,7 +345,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToF);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToF);
         }
 
         if (value.IsString())
@@ -377,7 +377,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToI);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToI);
         }
 
         var numberBase = 10;
@@ -508,7 +508,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToD);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToD);
         }
 
         try
@@ -553,7 +553,7 @@ public static class CoreBuiltinHandler
         // 0 or 1 argument is allowed
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.ToS);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToS);
         }
 
         // no format argument provided
@@ -685,7 +685,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2 && !args[0].IsInteger() && !args[1].IsInteger())
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Swap);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Swap);
         }
 
         if (!value.IsList())
@@ -718,7 +718,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 || !args[0].IsInteger())
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Rotate);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Rotate);
         }
 
         if (!value.IsList())
@@ -761,7 +761,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Slice);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Slice);
         }
 
         if (!value.IsList())
@@ -788,7 +788,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Merge);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Merge);
         }
 
         if (!value.IsHashmap())
@@ -816,7 +816,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 || !args[0].IsList())
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Zip);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Zip);
         }
 
         if (!value.IsList())
@@ -843,7 +843,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Flatten);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Flatten);
         }
 
         if (!value.IsList())
@@ -882,7 +882,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Insert);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Insert);
         }
 
         if (!value.IsList())
@@ -914,7 +914,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Keys);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Keys);
         }
 
         if (!value.IsHashmap())
@@ -930,7 +930,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Values);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Values);
         }
 
         if (!value.IsHashmap())
@@ -946,7 +946,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Enqueue);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Enqueue);
         }
 
         if (!value.IsList())
@@ -962,7 +962,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Dequeue);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Dequeue);
         }
 
         if (!value.IsList())
@@ -986,7 +986,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Shift);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Shift);
         }
 
         if (!value.IsList())
@@ -1010,7 +1010,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Unshift);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unshift);
         }
 
         if (!value.IsList())
@@ -1026,7 +1026,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count == 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Concat);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Concat);
         }
 
         if (value.IsString())
@@ -1067,7 +1067,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Unique);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unique);
         }
 
         if (!value.IsList())
@@ -1093,7 +1093,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Count);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Count);
         }
 
         if (value.IsString())
@@ -1146,7 +1146,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 && args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Substring);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Substring);
         }
 
         if (!value.IsString())
@@ -1175,7 +1175,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Reverse);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Reverse);
         }
 
         if (value.IsString())
@@ -1195,7 +1195,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.IndexOf);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.IndexOf);
         }
 
         if (value.IsString())
@@ -1219,7 +1219,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.LastIndexOf);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.LastIndexOf);
         }
 
         if (value.IsString())
@@ -1243,7 +1243,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Clone);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Clone);
         }
 
         return value.Clone();
@@ -1253,7 +1253,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Lines);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Lines);
         }
 
         if (!value.IsString())
@@ -1268,7 +1268,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Split);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Split);
         }
 
         if (!value.IsString())
@@ -1306,7 +1306,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Truthy);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Truthy);
         }
 
         return Value.CreateBoolean(BooleanOp.IsTruthy(value));
@@ -1316,7 +1316,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Get);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Get);
         }
 
         if (value.IsList())
@@ -1354,7 +1354,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Set);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Set);
         }
 
         if (value.IsList())
@@ -1387,7 +1387,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Remove);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Remove);
         }
 
         if (value.IsList())
@@ -1408,7 +1408,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.RemoveAt);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.RemoveAt);
         }
 
         if (!value.IsList())
@@ -1429,7 +1429,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Replace);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Replace);
         }
 
         var find = args[0];
@@ -1470,7 +1470,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Clear);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Clear);
         }
 
         if (value.IsString())
@@ -1496,7 +1496,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.First);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.First);
         }
 
         if (!value.IsList())
@@ -1518,7 +1518,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Last);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Last);
         }
 
         if (!value.IsList())
@@ -1540,7 +1540,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Push);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Push);
         }
 
         if (!value.IsList())
@@ -1556,7 +1556,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Pop);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Pop);
         }
 
         if (!value.IsList())
@@ -1579,7 +1579,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Chars);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Chars);
         }
 
         if (!value.IsString())
@@ -1602,7 +1602,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.HasKey);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.HasKey);
         }
 
         if (!value.IsHashmap())
@@ -1617,7 +1617,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Join);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Join);
         }
 
         if (!value.IsList())
@@ -1660,7 +1660,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Size);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Size);
         }
 
         if (value.IsString())
@@ -1683,7 +1683,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Empty);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Empty);
         }
 
         var isEmpty = false;
@@ -1737,7 +1737,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Lowercase);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Lowercase);
         }
 
         if (!value.IsString())
@@ -1752,7 +1752,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Uppercase);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Uppercase);
         }
 
         if (!value.IsString())
@@ -1767,7 +1767,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.LeftTrim);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.LeftTrim);
         }
 
         if (!value.IsString())
@@ -1782,7 +1782,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.RightTrim);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.RightTrim);
         }
 
         if (!value.IsString())
@@ -1797,7 +1797,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Trim);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Trim);
         }
 
         if (!value.IsString())
@@ -1812,7 +1812,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Type);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Type);
         }
 
         return Value.CreateString(Serializer.GetTypenameString(value));
@@ -1822,7 +1822,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.BeginsWith);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.BeginsWith);
         }
 
         if (!value.IsString())
@@ -1842,7 +1842,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.Contains);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.Contains);
         }
 
         if (value.IsString())
@@ -1866,7 +1866,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, CitrusBuiltin.EndsWith);
+            throw new ParameterCountMismatchError(token, KiwiBuiltin.EndsWith);
         }
 
         if (!value.IsString())

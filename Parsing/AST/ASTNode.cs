@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 /// <summary>
 /// An AST node.<br />

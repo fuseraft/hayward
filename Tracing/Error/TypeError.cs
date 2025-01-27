@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class TypeError(Token t, string message = "Unexpected type.")
-    : CitrusError(t, "TypeError", message)
+    : KiwiError(t, "TypeError", message)
 {
 }

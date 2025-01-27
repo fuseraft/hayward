@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class InvalidOperationError(Token t, string message = "An invalid operation occurred.")
-    : CitrusError(t, "InvalidOperationError", message)
+    : KiwiError(t, "InvalidOperationError", message)
 {
 }

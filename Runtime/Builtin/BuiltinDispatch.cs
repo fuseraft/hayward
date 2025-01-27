@@ -1,16 +1,16 @@
-using citrus.Runtime.Builtin.Handlers;
-using citrus.Parsing;
-using citrus.Parsing.Keyword;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Runtime.Builtin.Handlers;
+using hayward.Parsing;
+using hayward.Parsing.Keyword;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin;
+namespace hayward.Runtime.Builtin;
 
 public struct BuiltinDispatch
 {
     public static Value Execute(Token token, TokenName builtin, Value v, List<Value> args)
     {
-        if (CitrusBuiltin.IsBuiltin(builtin))
+        if (KiwiBuiltin.IsBuiltin(builtin))
         {
             return CoreBuiltinHandler.Execute(token, builtin, v, args);
         }

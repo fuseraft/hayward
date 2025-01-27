@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class ListLiteralNode(List<ASTNode> elements) : ASTNode(ASTNodeType.ListLiteral)
 {

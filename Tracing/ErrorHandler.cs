@@ -1,12 +1,12 @@
-using citrus.Parsing;
-using citrus.Settings;
-using citrus.Tracing.Error;
+using hayward.Parsing;
+using hayward.Settings;
+using hayward.Tracing.Error;
 
-namespace citrus.Tracing;
+namespace hayward.Tracing;
 
 public static class ErrorHandler
 {
-    public static void PrintError(CitrusError e)
+    public static void PrintError(KiwiError e)
     {
         PrintError(e.Type, e.Message, e.Token);
     }
@@ -37,7 +37,7 @@ public static class ErrorHandler
 
         lines.Add(string.Empty);
 
-        File.AppendAllLines(Citrus.Settings.CrashDumpPath, lines);
+        File.AppendAllLines(Kiwi.Settings.CrashDumpPath, lines);
     }
 
     public static void DumpCrashLog(Exception? e)
@@ -53,8 +53,8 @@ public static class ErrorHandler
 
         lines.Add(string.Empty);
 
-        File.AppendAllLines(Citrus.Settings.CrashDumpPath, lines);
-        Console.Error.WriteLine($"Please check the log: {Citrus.Settings.CrashDumpPath}");
+        File.AppendAllLines(Kiwi.Settings.CrashDumpPath, lines);
+        Console.Error.WriteLine($"Please check the log: {Kiwi.Settings.CrashDumpPath}");
 
         Environment.Exit(1);
     }

@@ -1,8 +1,8 @@
-﻿using citrus.Parsing;
+﻿using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class InvalidContextError(Token t, string message = "Invalid object context.")
-    : CitrusError(t, "InvalidContextError", message)
+    : KiwiError(t, "InvalidContextError", message)
 {
 }

@@ -1,4 +1,4 @@
-namespace citrus.Tracing;
+namespace hayward.Tracing;
 
 public sealed class FileRegistry
 {

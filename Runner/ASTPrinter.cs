@@ -1,6 +1,6 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Runner;
+namespace hayward.Runner;
 public class ASTPrinter : IRunner
 {
     /// <summary>

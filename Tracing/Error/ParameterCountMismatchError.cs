@@ -1,9 +1,9 @@
-﻿using citrus.Parsing;
+﻿using hayward.Parsing;
 using System.Xml.Linq;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class ParameterCountMismatchError(Token t, string name)
-    : CitrusError(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.")
+    : KiwiError(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.")
 {
 }

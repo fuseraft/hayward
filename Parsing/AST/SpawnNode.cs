@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class SpawnNode : ASTNode
 {

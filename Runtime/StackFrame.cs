@@ -1,6 +1,6 @@
-using citrus.Typing;
+using hayward.Typing;
 
-namespace citrus.Runtime;
+namespace hayward.Runtime;
 
 [Flags]
 public enum FrameFlags : ushort

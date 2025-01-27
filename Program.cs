@@ -1,21 +1,21 @@
 ﻿
-using citrus.Settings;
-using citrus.Tracing;
-using citrus.Runner;
+using hayward.Settings;
+using hayward.Tracing;
+using hayward.Runner;
 
-namespace citrus;
+namespace hayward;
 public class Program
 {
     public static int Main(string[] args)
     {
         if (System.Diagnostics.Debugger.IsAttached)
         {
-            args = [.. Citrus.Settings.Debug.CommandLineArguments];
+            args = [.. Kiwi.Settings.Debug.CommandLineArguments];
         }
         
         try
         {
-            var config = CitrusConfig.Configure(args);
+            var config = KiwiConfig.Configure(args);
             var runner = GetRunner(config, new ScriptRunner(new()
             {
                 CliArgs = ParseKeyValueArgs(config.Args),
@@ -35,7 +35,7 @@ public class Program
         }
     }
 
-    private static IRunner GetRunner(CitrusConfig config, IRunner runner)
+    private static IRunner GetRunner(KiwiConfig config, IRunner runner)
     {
         if (config.PrintAST)
         {

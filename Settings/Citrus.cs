@@ -1,14 +1,14 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace citrus.Settings;
+namespace hayward.Settings;
 
-public class Citrus
+public class Kiwi
 {
-    public static CitrusSettings Settings { get; } = CitrusSettings.LoadCitrusSettings("citrus-settings.json");
+    public static KiwiSettings Settings { get; } = KiwiSettings.LoadKiwiSettings("hayward-settings.json");
 }
 
-public class CitrusSettings
+public class KiwiSettings
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
@@ -34,9 +34,9 @@ public class CitrusSettings
     [JsonPropertyName("crashdump_path")]
     public string CrashDumpPath { get; set; } = string.Empty;
 
-    public static CitrusSettings LoadCitrusSettings(string filePath)
+    public static KiwiSettings LoadKiwiSettings(string filePath)
     {
-        return JsonSerializer.Deserialize<CitrusSettings>(File.ReadAllText(filePath), new JsonSerializerOptions
+        return JsonSerializer.Deserialize<KiwiSettings>(File.ReadAllText(filePath), new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;

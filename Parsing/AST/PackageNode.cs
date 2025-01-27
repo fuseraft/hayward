@@ -1,4 +1,4 @@
-using citrus.Parsing.AST;
+using hayward.Parsing.AST;
 
 public class PackageNode : ASTNode
 {

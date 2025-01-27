@@ -1,10 +1,10 @@
-using citrus.Runtime.Builtin.Operation;
-using citrus.Parsing;
-using citrus.Parsing.Keyword;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Runtime.Builtin.Operation;
+using hayward.Parsing;
+using hayward.Parsing.Keyword;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Handlers;
+namespace hayward.Runtime.Builtin.Handlers;
 
 public static class EnvBuiltinHandler
 {
@@ -17,7 +17,7 @@ public static class EnvBuiltinHandler
             TokenName.Builtin_Env_GetAll => GetAll(token, args),
             TokenName.Builtin_Env_GetEnvironmentVariable => GetEnvironmentVariable(token, args),
             TokenName.Builtin_Env_SetEnvironmentVariable => SetEnvironmentVariable(token, args),
-            TokenName.Builtin_Env_Citrus => GetBinPath(token, args),
+            TokenName.Builtin_Env_Kiwi => GetBinPath(token, args),
             TokenName.Builtin_Env_OS => OS(token, args),
             TokenName.Builtin_Env_User => User(token, args),
             TokenName.Builtin_Env_UserDomain => UserDomain(token, args),
@@ -112,7 +112,7 @@ public static class EnvBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.Citrus);
+            throw new ParameterCountMismatchError(token, EnvBuiltin.Kiwi);
         }
 
         var exePath = Environment.ProcessPath ?? throw new FileSystemError(token, "Could not get executable path.");

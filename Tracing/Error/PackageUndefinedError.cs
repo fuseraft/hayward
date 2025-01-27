@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class PackageUndefinedError(Token t, string name)
-    : CitrusError(t, "PackageUndefinedError", $"The package is undefined: '{name}'")
+    : KiwiError(t, "PackageUndefinedError", $"The package is undefined: '{name}'")
 {
 }

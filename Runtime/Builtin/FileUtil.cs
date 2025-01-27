@@ -1,10 +1,10 @@
-using citrus.Parsing;
-using citrus.Settings;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Parsing;
+using hayward.Settings;
+using hayward.Tracing.Error;
+using hayward.Typing;
 using Microsoft.Extensions.FileSystemGlobbing;
 
-namespace citrus.Runtime.Builtin;
+namespace hayward.Runtime.Builtin;
 
 public struct FileUtil
 {
@@ -329,7 +329,7 @@ public struct FileUtil
     public static bool IsScript(Token token, string path)
     {
         var extension = GetFileExtension(token, path);
-        return Citrus.Settings.Extensions.Recognized.Contains(extension);
+        return Kiwi.Settings.Extensions.Recognized.Contains(extension);
     }
 
     public static string ReadFile(Token token, string filePath)
@@ -427,7 +427,7 @@ public struct FileUtil
             return path;
         }
 
-        foreach (var ext in Citrus.Settings.Extensions.Recognized)
+        foreach (var ext in Kiwi.Settings.Extensions.Recognized)
         {
             var scriptPath = TryGetExtensionlessSpecific(token, path, ext);
             if (!string.IsNullOrEmpty(scriptPath))

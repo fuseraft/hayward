@@ -1,9 +1,9 @@
 using System.Threading.Channels;
-using citrus.Parsing.Keyword;
-using citrus.Tracing;
-using citrus.Typing;
+using hayward.Parsing.Keyword;
+using hayward.Tracing;
+using hayward.Typing;
 
-namespace citrus.Parsing;
+namespace hayward.Parsing;
 
 public class Lexer(string path, bool isFile = true) : IDisposable
 {
@@ -635,11 +635,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         {
             return CreateToken(TokenType.Lambda, span, text, kwLambda);
         }
-        else if (CitrusBuiltin.IsBuiltin(text))
+        else if (KiwiBuiltin.IsBuiltin(text))
         {
-            return TokenizeCitrusBuiltin(span, text);
+            return TokenizeKiwiBuiltin(span, text);
         }
-        else if (CitrusBuiltin.IsBuiltinMethod(text))
+        else if (KiwiBuiltin.IsBuiltinMethod(text))
         {
             return TokenizeBuiltinMethod(span, text);
         }
@@ -670,9 +670,9 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         return CreateToken(TokenType.Identifier, span, builtin, name);
     }
 
-    private static Token TokenizeCitrusBuiltin(TokenSpan span, string builtin)
+    private static Token TokenizeKiwiBuiltin(TokenSpan span, string builtin)
     {
-        if (CitrusBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
+        if (KiwiBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
         else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
 
         return CreateToken(TokenType.Identifier, span, builtin, name);

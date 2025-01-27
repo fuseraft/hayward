@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class RangeLiteralNode(ASTNode? rangeStart, ASTNode? rangeEnd) : ASTNode(ASTNodeType.RangeLiteral)
 {

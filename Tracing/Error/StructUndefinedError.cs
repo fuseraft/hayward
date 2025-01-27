@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class StructUndefinedError(Token t, string name)
-    : CitrusError(t, "StructUndefinedError", $"The struct has not been declared: '{name}'")
+    : KiwiError(t, "StructUndefinedError", $"The struct has not been declared: '{name}'")
 {
 }

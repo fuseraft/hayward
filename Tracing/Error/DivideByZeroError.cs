@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class DivideByZeroError(Token t, string message = "Division by zero.")
-    : CitrusError(t, "DivideByZeroError", message)
+    : KiwiError(t, "DivideByZeroError", message)
 {
 }

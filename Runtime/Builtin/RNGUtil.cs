@@ -1,4 +1,4 @@
-namespace citrus.Runtime.Builtin;
+namespace hayward.Runtime.Builtin;
 
 public static class RNGUtil
 {

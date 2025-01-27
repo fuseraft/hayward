@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class VariableUndefinedError(Token t, string name)
-    : CitrusError(t, "VariableUndefinedError", $"The variable has not been declared: '{name}'")
+    : KiwiError(t, "VariableUndefinedError", $"The variable has not been declared: '{name}'")
 {
 }

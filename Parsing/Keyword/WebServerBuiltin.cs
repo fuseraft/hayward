@@ -1,4 +1,4 @@
-namespace citrus.Parsing.Keyword;
+namespace hayward.Parsing.Keyword;
 
 public static class WebServerBuiltin
 {

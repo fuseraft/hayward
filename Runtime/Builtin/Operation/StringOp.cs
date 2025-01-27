@@ -1,6 +1,6 @@
-using citrus.Typing;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin;
+namespace hayward.Runtime.Builtin;
 
 public struct StringOp
 {

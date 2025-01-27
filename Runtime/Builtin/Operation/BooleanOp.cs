@@ -1,8 +1,8 @@
-using citrus.Parsing;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Parsing;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin.Operation;
+namespace hayward.Runtime.Builtin.Operation;
 
 public struct BooleanOp
 {

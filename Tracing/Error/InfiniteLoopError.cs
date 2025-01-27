@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class InfiniteLoopError(Token t, string message = "An infinite loop occurred.")
-    : CitrusError(t, "InfiniteLoopError", message)
+    : KiwiError(t, "InfiniteLoopError", message)
 {
 }

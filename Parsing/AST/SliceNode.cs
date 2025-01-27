@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class SliceNode(ASTNode? slicedObject = null, ASTNode? startExpression = null, ASTNode? stopExpression = null, ASTNode? stepExpression = null) : ASTNode(ASTNodeType.Slice)
 {

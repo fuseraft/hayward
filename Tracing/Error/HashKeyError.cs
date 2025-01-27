@@ -1,8 +1,8 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class HashKeyError(Token t, string key)
-    : CitrusError(t, "HashKeyError", $"Invalid hashmap key: '{key}'")
+    : KiwiError(t, "HashKeyError", $"Invalid hashmap key: '{key}'")
 {
 }

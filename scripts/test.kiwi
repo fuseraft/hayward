@@ -1,9 +1,9 @@
 /#
- The Citrus Project 1.0.0
+ The Kiwi Project 1.0.0
  #/
 
 fn testsuite()
-  println "Running Citrus Test Suite ...\n"
+  println "Running Kiwi Test Suite ...\n"
 
   results = guava::run_tests()
 

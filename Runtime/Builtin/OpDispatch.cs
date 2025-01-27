@@ -1,9 +1,9 @@
-using citrus.Runtime.Builtin.Operation;
-using citrus.Parsing;
-using citrus.Tracing.Error;
-using citrus.Typing;
+using hayward.Runtime.Builtin.Operation;
+using hayward.Parsing;
+using hayward.Tracing.Error;
+using hayward.Typing;
 
-namespace citrus.Runtime.Builtin;
+namespace hayward.Runtime.Builtin;
 
 public struct OpDispatch
 {

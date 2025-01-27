@@ -1,4 +1,4 @@
-namespace citrus.Runner;
+namespace hayward.Runner;
 
 public interface IRunner
 {

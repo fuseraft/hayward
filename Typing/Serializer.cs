@@ -1,6 +1,6 @@
-using citrus.Parsing;
+using hayward.Parsing;
 
-namespace citrus.Typing;
+namespace hayward.Typing;
 
 public partial class Serializer
 {

@@ -1,7 +1,7 @@
-using citrus.Parsing;
-using citrus.Typing;
+using hayward.Parsing;
+using hayward.Typing;
 
-namespace citrus.Parsing;
+namespace hayward.Parsing;
 
 public class TokenStream(List<Token> tokens)
 {

@@ -1,8 +1,8 @@
-﻿using citrus.Parsing;
+﻿using hayward.Parsing;
 
-namespace citrus.Tracing.Error;
+namespace hayward.Tracing.Error;
 
 public class UnimplementedMethodError(Token t, string structName, string methodName)
-    : CitrusError(t, "UnimplementedMethodError", $"Struct `{structName}` has an unimplemented method `{methodName}`")
+    : KiwiError(t, "UnimplementedMethodError", $"Struct `{structName}` has an unimplemented method `{methodName}`")
 {
 }

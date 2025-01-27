@@ -1,4 +1,4 @@
-namespace citrus.Parsing.AST;
+namespace hayward.Parsing.AST;
 
 public class IndexingNode(ASTNode? indexedObject, ASTNode indexExpression) : ASTNode(ASTNodeType.Index)
 {
