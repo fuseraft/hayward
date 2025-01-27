@@ -1,4 +1,3 @@
-namespace citrus.Runner;
 
 using citrus.Parsing;
 using citrus.Runtime;
@@ -6,6 +5,7 @@ using citrus.Settings;
 using citrus.Tracing;
 using citrus.Tracing.Error;
 
+namespace citrus.Runner;
 public class ScriptRunner(Interpreter interpreter) : IRunner
 {
     /// <summary>

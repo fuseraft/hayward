@@ -1,17 +1,18 @@
-using citrus.Builtin;
-using citrus.Builtin.Operation;
+using citrus.Runtime.Builtin;
+using citrus.Runtime.Builtin.Operation;
 using citrus.Parsing;
 using citrus.Parsing.AST;
 using citrus.Typing;
 using citrus.Tracing.Error;
-using citrus.Parsing.Builtins;
-using citrus.Builtin.Handlers;
+using citrus.Parsing.Keyword;
+using citrus.Runtime.Builtin.Handlers;
 using citrus.Settings;
+
 namespace citrus.Runtime;
 
 public class Interpreter
 {
-    int SafemodeMaxIterations = 1000000;
+    const int SafemodeMaxIterations = 1000000;
 
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
@@ -59,6 +60,7 @@ public class Interpreter
             ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
             ASTNodeType.If => Visit((IfNode)node),
             ASTNodeType.Case => Visit((CaseNode)node),
+            ASTNodeType.CaseWhen => Visit((CaseWhenNode)node),
             ASTNodeType.ForLoop => Visit((ForLoopNode)node),
             ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
             ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
@@ -877,14 +879,31 @@ public class Interpreter
         return result;
     }
 
+    private Value Visit(CaseWhenNode node)
+    {
+        var testValue = Interpret(node.Condition);
+        return Value.CreateBoolean(BooleanOp.IsTruthy(testValue));
+    }
+
     private Value Visit(CaseNode node)
     {
-        var testValue = Interpret(node.TestValue);
+        var testValue = Value.CreateBoolean(true);
         var result = Value.Default();
+
+        if (node.TestValue != null)
+        {
+            testValue = Interpret(node.TestValue);
+
+            if (node.TestValueAlias != null)
+            {
+                var id = Id(node.TestValueAlias);
+                CallStack.Peek().Variables[id] = testValue;
+            }
+        }
 
         foreach (var whenNode in node.WhenNodes)
         {
-            Value whenCondition = Interpret(whenNode);
+            var whenCondition = Interpret(whenNode);
 
             if (ComparisonOp.Equal(ref testValue, ref whenCondition))
             {
@@ -1378,7 +1397,7 @@ public class Interpreter
                             break;
 
                         case TokenName.Types_String:
-                            value.SetValue("");
+                            value.SetValue(string.Empty);
                             break;
 
                         case TokenName.Types_List:

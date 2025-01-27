@@ -4,6 +4,7 @@ public class CaseNode : ASTNode
 {
     public CaseNode() : base(ASTNodeType.Case) { }
     public ASTNode? TestValue { get; set; }
+    public ASTNode? TestValueAlias { get; set; }
     public List<ASTNode?> ElseBody { get; set; } = [];
     public List<CaseWhenNode> WhenNodes { get; set; } = [];
 
@@ -17,6 +18,13 @@ public class CaseNode : ASTNode
             ASTTracer.PrintDepth(1 + depth);
             Console.WriteLine("Test:");
             TestValue.Print(2 + depth);
+
+            if (TestValueAlias != null)
+            {
+                ASTTracer.PrintDepth(1 + depth);
+                Console.WriteLine("Alias:");
+                TestValueAlias.Print(2 + depth);
+            }
         }
 
         if (WhenNodes.Count > 0)
