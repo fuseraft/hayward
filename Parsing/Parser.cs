@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using citrus.Parsing.AST;
 using citrus.Tracing.Error;
 using citrus.Typing;
@@ -276,7 +277,7 @@ public partial class Parser
         Next();  // next token please
 
         // create a mangler (for preventing name collisions)
-        string mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
+        var mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
 
         // get the mangled name map, we need to update this as names are mangled.
         var mangledNames = GetNameMap();
@@ -378,7 +379,7 @@ public partial class Parser
         string functionName = token.Text;
         Next();
 
-        string mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
+        var mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
 
         // Parse parameters
         List<KeyValuePair<string, ASTNode?>> parameters = [];
@@ -494,7 +495,7 @@ public partial class Parser
         MatchName(TokenName.KW_For);  // Consume 'for'
 
         var mangledNames = GetNameMap();
-        string mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
+        var mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
         HashSet<string> subMangled = [];
         var valueIteratorName = string.Empty;
 
@@ -806,10 +807,28 @@ public partial class Parser
         }
 
         var node = new CaseNode();
+        var mangledNames = GetNameMap();
+        HashSet<string> subMangled = [];
 
         if (HasValue())
         {
             node.TestValue = ParseExpression();
+
+            // case {condition} as {identifier}
+            if (MatchName(TokenName.KW_As))
+            {
+                if (GetTokenType() != TokenType.Identifier)
+                {
+                    throw new SyntaxError(GetErrorToken(), "Expected an identifier.");
+                }
+
+                var mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
+                var testAlias = mangler + token.Text;
+                mangledNames[token.Text] = testAlias;
+                subMangled.Add(testAlias);
+
+                node.TestValueAlias = ParseIdentifier(false, false);
+            }
         }
 
         while (GetTokenName() != TokenName.KW_End)
@@ -850,6 +869,11 @@ public partial class Parser
         }
 
         Next();  // Consume 'end'
+
+        foreach (var name in subMangled)
+        {
+            mangledNames.Remove(name);
+        }
 
         return node;
     }
@@ -1084,7 +1108,7 @@ public partial class Parser
     {
         MatchType(TokenType.Lambda);  // Consume 'with'
 
-        string mangler = $"_{Guid.NewGuid().ToString().Substring(0, 8)}_";
+        var mangler = $"_{Guid.NewGuid().ToString()[..8]}_";
         Dictionary<string, string> localNames = [];
         Dictionary<string, TokenName> typeHints = [];
         TokenName returnTypeHint = TokenName.Types_Any;
@@ -1646,6 +1670,11 @@ public partial class Parser
             var node = ParseSpawn();
             return new AssignmentNode(baseNode, identifierName, type, node);
         }
+        else if (type == TokenName.KW_Case)
+        {
+            var node = ParseCase();
+            return new AssignmentNode(baseNode, identifierName, type, node);
+        }
 
         Next();
 
@@ -1723,7 +1752,7 @@ public partial class Parser
         }
 
         var type = GetTokenName();
-        var identifierName = (isInstance ? "@" : "") + token.Text;
+        var identifierName = (isInstance ? "@" : string.Empty) + token.Text;
 
         if (HasName(identifierName))
         {
@@ -2026,6 +2055,10 @@ public partial class Parser
                 if (GetTokenName() == TokenName.KW_Lambda)
                 {
                     node = ParseLambda();
+                }
+                else if (GetTokenName() == TokenName.KW_Case)
+                {
+                    node = ParseCase();
                 }
                 else
                 {
