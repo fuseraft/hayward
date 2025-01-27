@@ -70,6 +70,13 @@ public static class CitrusBuiltin
     public const string Truthy       = "truthy";
     public const string Lines        = "lines";
     public const string Tokens       = "tokens";
+    public const string Hour         = "hour";
+    public const string Minute       = "minute";
+    public const string Second       = "second";
+    public const string Millisecond  = "millisecond";
+    public const string Day          = "day";
+    public const string Month        = "month";
+    public const string Year         = "year";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>
@@ -140,6 +147,13 @@ public static class CitrusBuiltin
             { Truthy,       TokenName.Builtin_Citrus_Truthy      },
             { Lines,        TokenName.Builtin_Citrus_Lines       },
             { Tokens,       TokenName.Builtin_Citrus_Tokens      },
+            { Hour,         TokenName.Builtin_Citrus_Hour        },
+            { Minute,       TokenName.Builtin_Citrus_Minute      },
+            { Second,       TokenName.Builtin_Citrus_Second      },
+            { Millisecond,  TokenName.Builtin_Citrus_Millisecond },
+            { Day,          TokenName.Builtin_Citrus_Day         },
+            { Month,        TokenName.Builtin_Citrus_Month       },
+            { Year,         TokenName.Builtin_Citrus_Year        },
         };
 
     private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();

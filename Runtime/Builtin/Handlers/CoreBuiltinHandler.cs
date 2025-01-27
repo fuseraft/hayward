@@ -68,6 +68,13 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Citrus_ToDate => ToDate(token, value, args),
             TokenName.Builtin_Citrus_Swap => Swap(token, value, args),
             TokenName.Builtin_Citrus_Pretty => Pretty(token, value, args),
+            TokenName.Builtin_Citrus_Hour => Hour(token, value, args),
+            TokenName.Builtin_Citrus_Minute => Minute(token, value, args),
+            TokenName.Builtin_Citrus_Second => Second(token, value, args),
+            TokenName.Builtin_Citrus_Millisecond => Millisecond(token, value, args),
+            TokenName.Builtin_Citrus_Day => Day(token, value, args),
+            TokenName.Builtin_Citrus_Month => Month(token, value, args),
+            TokenName.Builtin_Citrus_Year => Year(token, value, args),
             /*
             TokenName.Builtin_Citrus_RReplace => RReplace(token, value, args),
             TokenName.Builtin_Citrus_RSplit => RSplit(token, value, args),
@@ -80,6 +87,111 @@ public static class CoreBuiltinHandler
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value Hour(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Hour);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Hour);
+    }
+
+    private static Value Minute(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Minute);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Minute);
+    }
+
+    private static Value Second(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Second);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Second);
+    }
+
+    private static Value Millisecond(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Millisecond);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Millisecond);
+    }
+
+    private static Value Day(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Day);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Day);
+    }
+
+    private static Value Month(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Month);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Month);
+    }
+
+    private static Value Year(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CitrusBuiltin.Year);
+        }
+
+        if (!value.IsDate())
+        {
+            throw new InvalidOperationError(token, "Expected a date.");
+        }
+
+        return Value.CreateInteger(value.GetDate().Year);
     }
 
     private static Value Pretty(Token token, Value value, List<Value> args)
