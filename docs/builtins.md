@@ -51,7 +51,7 @@ In Hayward, builtins are accessed using dot-notation and can be used to query or
   - [`first(default_value)`](#firstdefault_value)
   - [`flatten()`](#flatten)
   - [`index(value)`](#indexvalue)
-  - [`insert(value, index)`](#insertvalue-index)
+  - [`insert(index, value)`](#insertindex-value)
   - [`join(str)`](#joinstr)
   - [`last(default_value)`](#lastdefault_value)
   - [`lastindex(value)`](#lastindexvalue)
@@ -519,12 +519,12 @@ println([1, 2, 3, 4, 5].index(1))  # prints: 0
 println([1, 2, 3, 4, 5].index(6))  # prints: -1
 ```
 
-### `insert(value, index)`
+### `insert(index, value)`
 
 Insert a value at a specified index.
 
 ```hayward
-println([1, 2, 3].insert("a", 2)) # prints: [1, 2, "a", 3]
+println([1, 2, 3].insert(2, "a")) # prints: [1, 2, "a", 3]
 ```
 
 ### `join(str)`
