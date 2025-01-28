@@ -8,7 +8,7 @@ The `fio` package contains functionality for working with files and directories.
   - [`abspath(_path)`](#abspath_path)
   - [`append(_path, _text)`](#append_path-_text)
   - [`chdir(_path)`](#chdir_path)
-  - [`combine(_first, _second)`](#combine_first-_second)
+  - [`combine(_parts)`](#combine_first-_second)
   - [`copy(_source, _dest)`](#copy_source-_dest)
   - [`copyr(_source, _dest)`](#copyr_source-_dest)
   - [`cwd()`](#cwd)
@@ -16,7 +16,7 @@ The `fio` package contains functionality for working with files and directories.
   - [`ext(_path)`](#ext_path)
   - [`filename(_path)`](#filename_path)
   - [`filesize(_path)`](#filesize_path)
-  - [`glob(_path)`](#glob_path)
+  - [`glob(_path, _include, _exclude)`](#glob_path-_include-_exclude)
   - [`isdir(_path)`](#isdir_path)
   - [`listdir(_path)`](#listdir_path)
   - [`mkdir(_path)`](#mkdir_path)
@@ -80,15 +80,14 @@ Changes the current directory.
 | :--- | :---|
 | `Boolean` | Indicates success or failure. |
 
-### `combine(_first, _second)`
+### `combine(_parts)`
 
-Combine two path strings.
+Combine a list of path parts into a full path.
 
 **Parameters**
 | Type | Name | Description |
 | :--- | :--- | :--- |
-| `String` | `_source` | The source path. |
-| `String` | `_dest` | The destination path. |
+| `List` | `_parts` | The list of path parts. |
 
 **Returns**
 | Type | Description |
@@ -190,14 +189,16 @@ Get size of a file in bytes.
 | :--- | :---|
 | `Float` | The file size in number of bytes. |
 
-### `glob(_path)`
+### `glob(_path, _include, _exclude)`
 
 Get a list of files from a glob pattern.
 
 **Parameters**
 | Type | Name | Description |
 | :--- | :--- | :--- |
-| `String` | `_glob` | The glob pattern. |
+| `String` | `_path` | The path to search. |
+| `List` | `_include` | A list of glob patterns to match against paths. |
+| `List` | `_exclude` | A list of glob patterns to filter out matches. |
 
 **Returns**
 | Type | Description |
