@@ -154,9 +154,14 @@ public class Config
         return config;
     }
 
+    private static readonly JsonSerializerOptions s_writeOptions = new()
+    {
+        WriteIndented = true
+    };
+
     private static void PrintSettings()
     {
-        Console.WriteLine(JsonSerializer.Serialize(Hayward.Settings));
+        Console.WriteLine(JsonSerializer.Serialize(Hayward.Settings, s_writeOptions));
         Environment.Exit(0);
     }
 
