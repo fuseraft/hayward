@@ -21,6 +21,7 @@ public class Config
 
             switch (current.ToLower())
             {
+                case "-s":
                 case "--settings":
                     if (config.Scripts.Count == 0)
                     {
@@ -77,7 +78,7 @@ public class Config
                     }
                     break;
 
-                case "-s":
+                case "-sm":
                 case "--safemode":
                     if (config.Scripts.Count == 0)
                     {
@@ -191,7 +192,6 @@ public class Config
     private static void PrintVersion()
     {
         Console.WriteLine($"{Hayward.Settings.Name} {Hayward.Settings.Version}");
-        Console.WriteLine();
     }
 
     private static void PrintHelp()
@@ -199,15 +199,14 @@ public class Config
         List<(string, string)> commands =
         [
             ("-h, --help", "print this message"),
-            ("-v, --version", "print the current version"),
-            ("-n, --new <file_path>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
-            ("-p, --parse <code>", "parse code as an argument"),
-            ("-s, --safemode", "run in safemode"),
+            ("-v, --version", "print current version"),
+            ("-s, --settings", $"print {Hayward.Settings.Name} settings"),
+            ("-a, --ast <input_path>", $"print syntax tree of `{Hayward.Settings.Extensions.Primary}` file (for debugging)"),
+            ("-t, --tokenize <input_path>", $"print token stream of `{Hayward.Settings.Extensions.Primary}` file (for debugging)"),
+            ("-n, --new <filename>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
             ("-ns, --no-stdlib", "run without standard library"),
-            ("-a, --ast <input_file_path>", $"print syntax tree of `{Hayward.Settings.Extensions.Primary}` file"),
-            ("-t, --tokenize <input_file_path>", "tokenize a file with the lexer"),
-            ("-<key>=<value>", "specify an argument as a key-value pair"),
-            ("--settings", "print the settings (for debugging)")
+            ("-sm, --safemode", "run in safemode"),
+            ("-<key>=<value>", "pass an argument to a program as a key-value pair")
         ];
 
         PrintVersion();
@@ -219,8 +218,6 @@ public class Config
         {
             Console.WriteLine($"  {flag,-40}{description}");
         }
-        
-        Console.WriteLine();
     }
 
     private static bool IsScript(ref string filename)
