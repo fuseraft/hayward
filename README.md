@@ -2,7 +2,7 @@
 
 A dynamically-typed object-oriented scripting language that runs on .NET.
 
-### Getting Started
+## Getting Started
 
 Read the [documentation](docs/README.md). 
 
