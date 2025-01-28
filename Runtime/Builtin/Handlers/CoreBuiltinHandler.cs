@@ -526,7 +526,7 @@ public static class CoreBuiltinHandler
                 }
                 else if (value.IsInteger())
                 {
-                    var dateTimeOffioet = DateTimeOffioet.FromUnixTimeMilliseconds(value.GetInteger());
+                    var dateTimeOffioet = DateTimeOffset.FromUnixTimeMilliseconds(value.GetInteger());
                     return Value.CreateDate(dateTimeOffioet.UtcDateTime);
                 }
             }

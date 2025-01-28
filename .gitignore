@@ -1,5 +1,3 @@
-bin/Debug/*
-bin/Release/*
+bin/*
 obj/*
 /.vs/hayward
-hayward_crash.log

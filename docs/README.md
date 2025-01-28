@@ -1,4 +1,4 @@
-# Hayward Index
+# About Hayward
 
 1. **Getting Started**
    - [Using the Hayward CLI](cli.md)
