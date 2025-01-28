@@ -1,9 +1,9 @@
 package ffi
   /#
-  @summary: Attaches an external function from a loaded library to the Kiwi runtime. This allows the function to be called by an alias in Kiwi.
+  @summary: Attaches an external function from a loaded library to the Hayward runtime. This allows the function to be called by an alias in Hayward.
   @params:
     - `lib_alias`: The alias of the library (set during library loading) containing the function.
-    - `func_alias`: The alias to use when calling the function in Kiwi.
+    - `func_alias`: The alias to use when calling the function in Hayward.
     - `ffi_name`: The actual name of the function in the shared library.
     - `ffi_parameter_types`: A list specifying the function's parameter types.
     - `ffi_return_type`: A string specifying the function's return type.
@@ -24,7 +24,7 @@ package ffi
   end
 
   /#
-  @summary: Loads a shared library (.so) into the Kiwi runtime and assigns it an alias for future references.
+  @summary: Loads a shared library (.so) into the Hayward runtime and assigns it an alias for future references.
   @params:
     - `lib_alias`: The alias to assign to the loaded library.
     - `lib_path`: The path to the shared library file.
@@ -34,7 +34,7 @@ package ffi
   end
 
   /#
-  @summary: Unloads a previously loaded shared library from the Kiwi runtime
+  @summary: Unloads a previously loaded shared library from the Hayward runtime
   @params:
     - `lib_alias`: The alias of the library to unload.
   #/

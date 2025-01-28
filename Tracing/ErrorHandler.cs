@@ -6,7 +6,7 @@ namespace hayward.Tracing;
 
 public static class ErrorHandler
 {
-    public static void PrintError(KiwiError e)
+    public static void PrintError(HaywardError e)
     {
         PrintError(e.Type, e.Message, e.Token);
     }
@@ -37,7 +37,7 @@ public static class ErrorHandler
 
         lines.Add(string.Empty);
 
-        File.AppendAllLines(Kiwi.Settings.CrashDumpPath, lines);
+        File.AppendAllLines(Hayward.Settings.CrashDumpPath, lines);
     }
 
     public static void DumpCrashLog(Exception? e)
@@ -53,8 +53,8 @@ public static class ErrorHandler
 
         lines.Add(string.Empty);
 
-        File.AppendAllLines(Kiwi.Settings.CrashDumpPath, lines);
-        Console.Error.WriteLine($"Please check the log: {Kiwi.Settings.CrashDumpPath}");
+        File.AppendAllLines(Hayward.Settings.CrashDumpPath, lines);
+        Console.Error.WriteLine($"Please check the log: {Hayward.Settings.CrashDumpPath}");
 
         Environment.Exit(1);
     }

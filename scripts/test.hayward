@@ -1,9 +1,9 @@
 /#
- The Kiwi Project 1.0.0
+ The Hayward Project 1.0.0
  #/
 
 fn testsuite()
-  println "Running Kiwi Test Suite ...\n"
+  println "Running Hayward Test Suite ...\n"
 
   results = guava::run_tests()
 
@@ -242,11 +242,11 @@ guava::register_test("lists", with do
   guava::assert(combined_list.size() == 7 && combined_list.sum() == 28, "A6")
 
   # List Joining
-  words = ["The", "Kiwi", "Programming", "Language"]
-  guava::assert(words.join(" ") == "The Kiwi Programming Language", "A7")
-  guava::assert(words.join("-") == "The-Kiwi-Programming-Language", "A8")
-  guava::assert(words.join("") == "TheKiwiProgrammingLanguage", "A9")
-  guava::assert(words.join() == "TheKiwiProgrammingLanguage", "A10")
+  words = ["The", "Hayward", "Programming", "Language"]
+  guava::assert(words.join(" ") == "The Hayward Programming Language", "A7")
+  guava::assert(words.join("-") == "The-Hayward-Programming-Language", "A8")
+  guava::assert(words.join("") == "TheHaywardProgrammingLanguage", "A9")
+  guava::assert(words.join() == "TheHaywardProgrammingLanguage", "A10")
 
   # List Slicing
   sliced_list = combined_list[2:5]
@@ -621,7 +621,7 @@ guava::register_test("lambdas", with do
 
   # Lambdas as first-class citizens
   fn use_lambda(print_func, message) return print_func(message) end
-  guava::assert(use_lambda(puts, "Hello, Kiwi!") == "Hello, Kiwi!", "A2")
+  guava::assert(use_lambda(puts, "Hello, Hayward!") == "Hello, Hayward!", "A2")
 
   guava::assert(new_list.select(with (item) do return item["id"] % 2 == 0 end).map(with (item) do item["id"] end).sum() == 20, "A3")
   guava::assert(new_list.select(odd_item_id).map(with (item) do item["id"] end).sum() == 25, "A4")

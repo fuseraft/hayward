@@ -10,11 +10,11 @@
         }
     ],
     "file_extensions": {
-        "primary": ".hay",
-        "minified": ".min.hay",
+        "primary": ".hayward",
+        "minified": ".min.hayward",
         "recognized": [
-            ".min.hay", ".hay", ".kiwi",
             ".min.hayward", ".hayward", 
+            ".min.hay", ".hay", ".kiwi",
             ".min.🥝", ".🥝"
         ]
     },

@@ -329,7 +329,7 @@ public struct FileUtil
     public static bool IsScript(Token token, string path)
     {
         var extension = GetFileExtension(token, path);
-        return Kiwi.Settings.Extensions.Recognized.Contains(extension);
+        return Hayward.Settings.Extensions.Recognized.Contains(extension);
     }
 
     public static string ReadFile(Token token, string filePath)
@@ -427,7 +427,7 @@ public struct FileUtil
             return path;
         }
 
-        foreach (var ext in Kiwi.Settings.Extensions.Recognized)
+        foreach (var ext in Hayward.Settings.Extensions.Recognized)
         {
             var scriptPath = TryGetExtensionlessSpecific(token, path, ext);
             if (!string.IsNullOrEmpty(scriptPath))

@@ -10,12 +10,12 @@ public class Program
     {
         if (System.Diagnostics.Debugger.IsAttached)
         {
-            args = [.. Kiwi.Settings.Debug.CommandLineArguments];
+            args = [.. Hayward.Settings.Debug.CommandLineArguments];
         }
         
         try
         {
-            var config = KiwiConfig.Configure(args);
+            var config = Config.Configure(args);
             var runner = GetRunner(config, new ScriptRunner(new()
             {
                 CliArgs = ParseKeyValueArgs(config.Args),
@@ -35,7 +35,7 @@ public class Program
         }
     }
 
-    private static IRunner GetRunner(KiwiConfig config, IRunner runner)
+    private static IRunner GetRunner(Config config, IRunner runner)
     {
         if (config.PrintAST)
         {

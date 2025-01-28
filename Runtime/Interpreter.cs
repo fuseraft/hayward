@@ -256,7 +256,7 @@ public class Interpreter
 
     private Value Visit(ThrowNode node)
     {
-        string DefaultErrorType = "KiwiError";
+        string DefaultErrorType = "HaywardError";
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
@@ -288,7 +288,7 @@ public class Interpreter
                 }
             }
 
-            throw new KiwiError(node.Token, errorType, errorMessage);
+            throw new HaywardError(node.Token, errorType, errorMessage);
         }
 
         return Value.Default();
@@ -967,7 +967,7 @@ public class Interpreter
 
         while (BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
-            if (Kiwi.Settings.SafeMode)
+            if (Hayward.Settings.SafeMode)
             {
                 ++iterations;
 
@@ -1183,7 +1183,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError e)
+        catch (HaywardError e)
         {
             if (requireDrop)
             {
@@ -1237,7 +1237,7 @@ public class Interpreter
 
                     DropFrame();
                 }
-                catch (KiwiError)
+                catch (HaywardError)
                 {
                     if (requireDrop && InTry())
                     {
@@ -1433,7 +1433,7 @@ public class Interpreter
             result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
             DropFrame();
         }
-        catch (KiwiError)
+        catch (HaywardError)
         {
             if (requireDrop && InTry())
             {
@@ -1477,7 +1477,7 @@ public class Interpreter
                 DropFrame();
             }
         }
-        catch (KiwiError)
+        catch (HaywardError)
         {
             if (requireDrop)
             {
@@ -1506,7 +1506,7 @@ public class Interpreter
         {
             return InterpretListBuiltin(node.Token, ref obj, node.Op, GetMethodCallArguments(node.Arguments));
         }
-        else if (KiwiBuiltin.IsBuiltin(node.Op))
+        else if (CoreBuiltin.IsBuiltin(node.Op))
         {
             return BuiltinDispatch.Execute(node.Token, node.Op, obj, GetMethodCallArguments(node.Arguments));
         }
@@ -1614,7 +1614,7 @@ public class Interpreter
 
         if (!content.IsString())
         {
-            throw new KiwiError(node.Token, "Invalid parse expression.");
+            throw new HaywardError(node.Token, "Invalid parse expression.");
         }
 
         Lexer lexer = new(content.GetString(), false);
@@ -1878,7 +1878,7 @@ public class Interpreter
         {
             return CallableType.Lambda;
         }
-        else if (KiwiBuiltin.IsBuiltinMethod(name))
+        else if (CoreBuiltin.IsBuiltinMethod(name))
         {
             return CallableType.Builtin;
         }
@@ -2129,7 +2129,7 @@ public class Interpreter
 
             DropFrame();
         }
-        catch (KiwiError)
+        catch (HaywardError)
         {
             if (requireDrop)
             {

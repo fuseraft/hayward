@@ -1,16 +1,18 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace hayward.Settings;
 
-public class KiwiConfig
+public class Config
 {
     public bool PrintTokens { get; set; } = false;
     public bool PrintAST { get; set; } = false;
-    public bool CreateNewFile { get; set; } = false;
     public List<string> Args { get; set; } = [];
     public List<string> Scripts { get; set; } = [];
 
-    public static KiwiConfig Configure(IEnumerable<string> cliArgs)
+    public static Config Configure(IEnumerable<string> cliArgs)
     {
-        KiwiConfig config = new();
+        Config config = new();
 
         var iter = cliArgs.GetEnumerator();
         while (iter.MoveNext())
@@ -19,6 +21,17 @@ public class KiwiConfig
 
             switch (current.ToLower())
             {
+                case "--settings":
+                    if (config.Scripts.Count == 0)
+                    {
+                        PrintSettings();
+                    }
+                    else
+                    {
+                        config.Args.Add(current);
+                    }
+                    break;
+
                 case "-n":
                 case "--new":
                     if (config.Scripts.Count == 0)
@@ -28,16 +41,7 @@ public class KiwiConfig
                             throw new ArgumentException("Expected a filename after `new`.");
                         }
 
-                        var filename = iter.Current;
-                        if (IsScript(ref filename))
-                        {
-                            throw new ArgumentException($"The script already exists: {filename}");
-                        }
-
-                        using var fs = File.Create(filename);
-
-                        Console.WriteLine($"Created {filename}");
-                        Environment.Exit(0);
+                        CreateNewFile(iter.Current);
                     }
                     else
                     {
@@ -77,7 +81,7 @@ public class KiwiConfig
                 case "--safemode":
                     if (config.Scripts.Count == 0)
                     {
-                        Kiwi.Settings.SafeMode = true;
+                        Hayward.Settings.SafeMode = true;
                     }
                     else
                     {
@@ -89,7 +93,7 @@ public class KiwiConfig
                 case "--no-stdlib":
                     if (config.Scripts.Count == 0)
                     {
-                        Kiwi.Settings.StandardLibrary.Clear();
+                        Hayward.Settings.StandardLibrary.Clear();
                     }
                     else
                     {
@@ -136,7 +140,7 @@ public class KiwiConfig
             }
         }
 
-        foreach (var env in Kiwi.Settings.EnvironmentVariables)
+        foreach (var env in Hayward.Settings.EnvironmentVariables)
         {
             if (string.IsNullOrEmpty(env.Key))
             {
@@ -147,6 +151,25 @@ public class KiwiConfig
         }
 
         return config;
+    }
+
+    private static void PrintSettings()
+    {
+        Console.WriteLine(JsonSerializer.Serialize(Hayward.Settings));
+        Environment.Exit(0);
+    }
+
+    private static void CreateNewFile(string filename)
+    {
+        if (IsScript(ref filename))
+        {
+            throw new ArgumentException($"The script already exists: {filename}");
+        }
+
+        using var fs = File.Create(filename);
+
+        Console.WriteLine($"Created {filename}");
+        Environment.Exit(0);
     }
 
     private static string GetFilename(ref IEnumerator<string> iter)
@@ -167,7 +190,7 @@ public class KiwiConfig
 
     private static void PrintVersion()
     {
-        Console.WriteLine($"{Kiwi.Settings.Name} {Kiwi.Settings.Version}");
+        Console.WriteLine($"{Hayward.Settings.Name} {Hayward.Settings.Version}");
         Console.WriteLine();
     }
 
@@ -177,18 +200,19 @@ public class KiwiConfig
         [
             ("-h, --help", "print this message"),
             ("-v, --version", "print the current version"),
-            ("-n, --new <file_path>", $"create a `{Kiwi.Settings.Extensions.Primary}` file"),
+            ("-n, --new <file_path>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
             ("-p, --parse <code>", "parse code as an argument"),
             ("-s, --safemode", "run in safemode"),
             ("-ns, --no-stdlib", "run without standard library"),
-            ("-a, --ast <input_file_path>", $"print syntax tree of `{Kiwi.Settings.Extensions.Primary}` file"),
+            ("-a, --ast <input_file_path>", $"print syntax tree of `{Hayward.Settings.Extensions.Primary}` file"),
             ("-t, --tokenize <input_file_path>", "tokenize a file with the lexer"),
-            ("-<key>=<value>", "specify an argument as a key-value pair")
+            ("-<key>=<value>", "specify an argument as a key-value pair"),
+            ("--settings", "print the settings (for debugging)")
         ];
 
         PrintVersion();
 
-        Console.WriteLine($"Usage: {Kiwi.Settings.Name} [--flags] <script|args>");
+        Console.WriteLine($"Usage: {Hayward.Settings.Name} [--flags] <script|args>");
         Console.WriteLine("Options:");
 
         foreach (var (flag, description) in commands)
@@ -205,7 +229,7 @@ public class KiwiConfig
 
         if (!Path.HasExtension(filename))
         {
-            filename += Kiwi.Settings.Extensions.Primary;
+            filename += Hayward.Settings.Extensions.Primary;
         }
 
         if (File.Exists(filename))

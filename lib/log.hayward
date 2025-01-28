@@ -1,5 +1,5 @@
 /#
-Summary: A package for working with the Kiwi logger.
+Summary: A package for working with the Hayward logger.
 #/
 package log
   /#

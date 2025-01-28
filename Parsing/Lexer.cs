@@ -635,11 +635,11 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         {
             return CreateToken(TokenType.Lambda, span, text, kwLambda);
         }
-        else if (KiwiBuiltin.IsBuiltin(text))
+        else if (CoreBuiltin.IsBuiltin(text))
         {
-            return TokenizeKiwiBuiltin(span, text);
+            return TokenizeCoreBuiltin(span, text);
         }
-        else if (KiwiBuiltin.IsBuiltinMethod(text))
+        else if (CoreBuiltin.IsBuiltinMethod(text))
         {
             return TokenizeBuiltinMethod(span, text);
         }
@@ -670,9 +670,9 @@ public class Lexer(string path, bool isFile = true) : IDisposable
         return CreateToken(TokenType.Identifier, span, builtin, name);
     }
 
-    private static Token TokenizeKiwiBuiltin(TokenSpan span, string builtin)
+    private static Token TokenizeCoreBuiltin(TokenSpan span, string builtin)
     {
-        if (KiwiBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
+        if (CoreBuiltin.Map.TryGetValue(builtin, out TokenName name)) { }
         else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
 
         return CreateToken(TokenType.Identifier, span, builtin, name);

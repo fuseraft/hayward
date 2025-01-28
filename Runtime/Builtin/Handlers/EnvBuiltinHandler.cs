@@ -17,7 +17,7 @@ public static class EnvBuiltinHandler
             TokenName.Builtin_Env_GetAll => GetAll(token, args),
             TokenName.Builtin_Env_GetEnvironmentVariable => GetEnvironmentVariable(token, args),
             TokenName.Builtin_Env_SetEnvironmentVariable => SetEnvironmentVariable(token, args),
-            TokenName.Builtin_Env_Kiwi => GetBinPath(token, args),
+            TokenName.Builtin_Env_Hayward => GetBinPath(token, args),
             TokenName.Builtin_Env_OS => OS(token, args),
             TokenName.Builtin_Env_User => User(token, args),
             TokenName.Builtin_Env_UserDomain => UserDomain(token, args),
@@ -112,7 +112,7 @@ public static class EnvBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.Kiwi);
+            throw new ParameterCountMismatchError(token, EnvBuiltin.Hayward);
         }
 
         var exePath = Environment.ProcessPath ?? throw new FileSystemError(token, "Could not get executable path.");

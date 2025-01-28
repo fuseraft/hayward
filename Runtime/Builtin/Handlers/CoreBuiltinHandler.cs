@@ -12,78 +12,78 @@ public static class CoreBuiltinHandler
     {
         return builtin switch
         {
-            TokenName.Builtin_Kiwi_Chars => Chars(token, value, args),
-            TokenName.Builtin_Kiwi_Join => Join(token, value, args),
-            TokenName.Builtin_Kiwi_HasKey => HasKey(token, value, args),
-            TokenName.Builtin_Kiwi_Size => Size(token, value, args),
-            TokenName.Builtin_Kiwi_Uppercase => Uppercase(token, value, args),
-            TokenName.Builtin_Kiwi_Lowercase => Lowercase(token, value, args),
-            TokenName.Builtin_Kiwi_BeginsWith => BeginsWith(token, value, args),
-            TokenName.Builtin_Kiwi_Contains => Contains(token, value, args),
-            TokenName.Builtin_Kiwi_EndsWith => EndsWith(token, value, args),
-            TokenName.Builtin_Kiwi_LeftTrim => LeftTrim(token, value, args),
-            TokenName.Builtin_Kiwi_RightTrim => RightTrim(token, value, args),
-            TokenName.Builtin_Kiwi_Trim => Trim(token, value, args),
-            TokenName.Builtin_Kiwi_Empty => Empty(token, value, args),
-            TokenName.Builtin_Kiwi_Type => Type(token, value, args),
-            TokenName.Builtin_Kiwi_First => First(token, value, args),
-            TokenName.Builtin_Kiwi_Last => Last(token, value, args),
-            TokenName.Builtin_Kiwi_Push => Push(token, value, args),
-            TokenName.Builtin_Kiwi_Pop => Pop(token, value, args),
-            TokenName.Builtin_Kiwi_Clear => Clear(token, value, args),
-            TokenName.Builtin_Kiwi_Replace => Replace(token, value, args),
-            TokenName.Builtin_Kiwi_Remove => Remove(token, value, args),
-            TokenName.Builtin_Kiwi_RemoveAt => RemoveAt(token, value, args),
-            TokenName.Builtin_Kiwi_Get => Get(token, value, args),
-            TokenName.Builtin_Kiwi_Set => Set(token, value, args),
-            TokenName.Builtin_Kiwi_Truthy => Truthy(token, value, args),
-            TokenName.Builtin_Kiwi_Split => Split(token, value, args),
-            TokenName.Builtin_Kiwi_Lines => Lines(token, value, args),
-            TokenName.Builtin_Kiwi_Clone => Clone(token, value, args),
-            TokenName.Builtin_Kiwi_Reverse => Reverse(token, value, args),
-            TokenName.Builtin_Kiwi_IndexOf => IndexOf(token, value, args),
-            TokenName.Builtin_Kiwi_LastIndexOf => LastIndexOf(token, value, args),
-            TokenName.Builtin_Kiwi_Substring => Substring(token, value, args),
-            TokenName.Builtin_Kiwi_Concat => Concat(token, value, args),
-            TokenName.Builtin_Kiwi_Unique => Unique(token, value, args),
-            TokenName.Builtin_Kiwi_Count => Count(token, value, args),
-            TokenName.Builtin_Kiwi_Enqueue => Enqueue(token, value, args),
-            TokenName.Builtin_Kiwi_Dequeue => Dequeue(token, value, args),
-            TokenName.Builtin_Kiwi_Shift => Shift(token, value, args),
-            TokenName.Builtin_Kiwi_Unshift => Unshift(token, value, args),
-            TokenName.Builtin_Kiwi_Insert => Insert(token, value, args),
-            TokenName.Builtin_Kiwi_Keys => Keys(token, value, args),
-            TokenName.Builtin_Kiwi_Values => Values(token, value, args),
-            TokenName.Builtin_Kiwi_Zip => Zip(token, value, args),
-            TokenName.Builtin_Kiwi_Flatten => Flatten(token, value, args),
-            TokenName.Builtin_Kiwi_Merge => Merge(token, value, args),
-            TokenName.Builtin_Kiwi_Rotate => Rotate(token, value, args),
-            TokenName.Builtin_Kiwi_Slice => Slice(token, value, args),
-            TokenName.Builtin_Kiwi_IsA => IsA(token, value, args),
-            TokenName.Builtin_Kiwi_ToBytes => ToBytes(token, value, args),
-            TokenName.Builtin_Kiwi_ToHex => ToHex(token, value, args),
-            TokenName.Builtin_Kiwi_ToFloat => ToFloat(token, value, args),
-            TokenName.Builtin_Kiwi_ToInteger => ToInteger(token, value, args),
-            TokenName.Builtin_Kiwi_ToString => ToString(token, value, args),
-            TokenName.Builtin_Kiwi_ToDate => ToDate(token, value, args),
-            TokenName.Builtin_Kiwi_Swap => Swap(token, value, args),
-            TokenName.Builtin_Kiwi_Pretty => Pretty(token, value, args),
-            TokenName.Builtin_Kiwi_Hour => Hour(token, value, args),
-            TokenName.Builtin_Kiwi_Minute => Minute(token, value, args),
-            TokenName.Builtin_Kiwi_Second => Second(token, value, args),
-            TokenName.Builtin_Kiwi_Millisecond => Millisecond(token, value, args),
-            TokenName.Builtin_Kiwi_Day => Day(token, value, args),
-            TokenName.Builtin_Kiwi_Month => Month(token, value, args),
-            TokenName.Builtin_Kiwi_Year => Year(token, value, args),
+            TokenName.Builtin_Core_Chars => Chars(token, value, args),
+            TokenName.Builtin_Core_Join => Join(token, value, args),
+            TokenName.Builtin_Core_HasKey => HasKey(token, value, args),
+            TokenName.Builtin_Core_Size => Size(token, value, args),
+            TokenName.Builtin_Core_Uppercase => Uppercase(token, value, args),
+            TokenName.Builtin_Core_Lowercase => Lowercase(token, value, args),
+            TokenName.Builtin_Core_BeginsWith => BeginsWith(token, value, args),
+            TokenName.Builtin_Core_Contains => Contains(token, value, args),
+            TokenName.Builtin_Core_EndsWith => EndsWith(token, value, args),
+            TokenName.Builtin_Core_LeftTrim => LeftTrim(token, value, args),
+            TokenName.Builtin_Core_RightTrim => RightTrim(token, value, args),
+            TokenName.Builtin_Core_Trim => Trim(token, value, args),
+            TokenName.Builtin_Core_Empty => Empty(token, value, args),
+            TokenName.Builtin_Core_Type => Type(token, value, args),
+            TokenName.Builtin_Core_First => First(token, value, args),
+            TokenName.Builtin_Core_Last => Last(token, value, args),
+            TokenName.Builtin_Core_Push => Push(token, value, args),
+            TokenName.Builtin_Core_Pop => Pop(token, value, args),
+            TokenName.Builtin_Core_Clear => Clear(token, value, args),
+            TokenName.Builtin_Core_Replace => Replace(token, value, args),
+            TokenName.Builtin_Core_Remove => Remove(token, value, args),
+            TokenName.Builtin_Core_RemoveAt => RemoveAt(token, value, args),
+            TokenName.Builtin_Core_Get => Get(token, value, args),
+            TokenName.Builtin_Core_Set => Set(token, value, args),
+            TokenName.Builtin_Core_Truthy => Truthy(token, value, args),
+            TokenName.Builtin_Core_Split => Split(token, value, args),
+            TokenName.Builtin_Core_Lines => Lines(token, value, args),
+            TokenName.Builtin_Core_Clone => Clone(token, value, args),
+            TokenName.Builtin_Core_Reverse => Reverse(token, value, args),
+            TokenName.Builtin_Core_IndexOf => IndexOf(token, value, args),
+            TokenName.Builtin_Core_LastIndexOf => LastIndexOf(token, value, args),
+            TokenName.Builtin_Core_Substring => Substring(token, value, args),
+            TokenName.Builtin_Core_Concat => Concat(token, value, args),
+            TokenName.Builtin_Core_Unique => Unique(token, value, args),
+            TokenName.Builtin_Core_Count => Count(token, value, args),
+            TokenName.Builtin_Core_Enqueue => Enqueue(token, value, args),
+            TokenName.Builtin_Core_Dequeue => Dequeue(token, value, args),
+            TokenName.Builtin_Core_Shift => Shift(token, value, args),
+            TokenName.Builtin_Core_Unshift => Unshift(token, value, args),
+            TokenName.Builtin_Core_Insert => Insert(token, value, args),
+            TokenName.Builtin_Core_Keys => Keys(token, value, args),
+            TokenName.Builtin_Core_Values => Values(token, value, args),
+            TokenName.Builtin_Core_Zip => Zip(token, value, args),
+            TokenName.Builtin_Core_Flatten => Flatten(token, value, args),
+            TokenName.Builtin_Core_Merge => Merge(token, value, args),
+            TokenName.Builtin_Core_Rotate => Rotate(token, value, args),
+            TokenName.Builtin_Core_Slice => Slice(token, value, args),
+            TokenName.Builtin_Core_IsA => IsA(token, value, args),
+            TokenName.Builtin_Core_ToBytes => ToBytes(token, value, args),
+            TokenName.Builtin_Core_ToHex => ToHex(token, value, args),
+            TokenName.Builtin_Core_ToFloat => ToFloat(token, value, args),
+            TokenName.Builtin_Core_ToInteger => ToInteger(token, value, args),
+            TokenName.Builtin_Core_ToString => ToString(token, value, args),
+            TokenName.Builtin_Core_ToDate => ToDate(token, value, args),
+            TokenName.Builtin_Core_Swap => Swap(token, value, args),
+            TokenName.Builtin_Core_Pretty => Pretty(token, value, args),
+            TokenName.Builtin_Core_Hour => Hour(token, value, args),
+            TokenName.Builtin_Core_Minute => Minute(token, value, args),
+            TokenName.Builtin_Core_Second => Second(token, value, args),
+            TokenName.Builtin_Core_Millisecond => Millisecond(token, value, args),
+            TokenName.Builtin_Core_Day => Day(token, value, args),
+            TokenName.Builtin_Core_Month => Month(token, value, args),
+            TokenName.Builtin_Core_Year => Year(token, value, args),
             /*
-            TokenName.Builtin_Kiwi_RReplace => RReplace(token, value, args),
-            TokenName.Builtin_Kiwi_RSplit => RSplit(token, value, args),
-            TokenName.Builtin_Kiwi_Find => Find(token, value, args),
-            TokenName.Builtin_Kiwi_Match => Match(token, value, args),
-            TokenName.Builtin_Kiwi_Matches => Matches(token, value, args),
-            TokenName.Builtin_Kiwi_MatchesAll => MatchesAll(token, value, args),
-            TokenName.Builtin_Kiwi_Scan => Scan(token, value, args),
-            TokenName.Builtin_Kiwi_Tokens => Tokens(token, value, args),
+            TokenName.Builtin_Core_RReplace => RReplace(token, value, args),
+            TokenName.Builtin_Core_RSplit => RSplit(token, value, args),
+            TokenName.Builtin_Core_Find => Find(token, value, args),
+            TokenName.Builtin_Core_Match => Match(token, value, args),
+            TokenName.Builtin_Core_Matches => Matches(token, value, args),
+            TokenName.Builtin_Core_MatchesAll => MatchesAll(token, value, args),
+            TokenName.Builtin_Core_Scan => Scan(token, value, args),
+            TokenName.Builtin_Core_Tokens => Tokens(token, value, args),
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
@@ -93,7 +93,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Hour);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Hour);
         }
 
         if (!value.IsDate())
@@ -108,7 +108,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Minute);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Minute);
         }
 
         if (!value.IsDate())
@@ -123,7 +123,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Second);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Second);
         }
 
         if (!value.IsDate())
@@ -138,7 +138,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Millisecond);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Millisecond);
         }
 
         if (!value.IsDate())
@@ -153,7 +153,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Day);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Day);
         }
 
         if (!value.IsDate())
@@ -168,7 +168,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Month);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Month);
         }
 
         if (!value.IsDate())
@@ -183,7 +183,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Year);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Year);
         }
 
         if (!value.IsDate())
@@ -198,7 +198,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Pretty);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Pretty);
         }
 
         var pretty = Serializer.PrettySerialize(value);
@@ -209,7 +209,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 && !args[0].IsString())
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.IsA);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.IsA);
         }
 
         if (!args[0].IsString())
@@ -238,7 +238,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToBytes);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToBytes);
         }
 
         if (value.IsString())
@@ -285,7 +285,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToHex);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToHex);
         }
 
         // value is an integer
@@ -345,7 +345,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToF);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToF);
         }
 
         if (value.IsString())
@@ -377,7 +377,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToI);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToI);
         }
 
         var numberBase = 10;
@@ -508,7 +508,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToD);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToD);
         }
 
         try
@@ -553,7 +553,7 @@ public static class CoreBuiltinHandler
         // 0 or 1 argument is allowed
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.ToS);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.ToS);
         }
 
         // no format argument provided
@@ -685,7 +685,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2 && !args[0].IsInteger() && !args[1].IsInteger())
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Swap);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Swap);
         }
 
         if (!value.IsList())
@@ -718,7 +718,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 || !args[0].IsInteger())
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Rotate);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Rotate);
         }
 
         if (!value.IsList())
@@ -761,7 +761,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Slice);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Slice);
         }
 
         if (!value.IsList())
@@ -788,7 +788,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Merge);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Merge);
         }
 
         if (!value.IsHashmap())
@@ -816,7 +816,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 || !args[0].IsList())
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Zip);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Zip);
         }
 
         if (!value.IsList())
@@ -843,7 +843,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Flatten);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Flatten);
         }
 
         if (!value.IsList())
@@ -882,7 +882,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Insert);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Insert);
         }
 
         if (!value.IsList())
@@ -914,7 +914,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Keys);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Keys);
         }
 
         if (!value.IsHashmap())
@@ -930,7 +930,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Values);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Values);
         }
 
         if (!value.IsHashmap())
@@ -946,7 +946,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Enqueue);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Enqueue);
         }
 
         if (!value.IsList())
@@ -962,7 +962,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Dequeue);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Dequeue);
         }
 
         if (!value.IsList())
@@ -986,7 +986,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Shift);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Shift);
         }
 
         if (!value.IsList())
@@ -1010,7 +1010,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unshift);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Unshift);
         }
 
         if (!value.IsList())
@@ -1026,7 +1026,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count == 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Concat);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Concat);
         }
 
         if (value.IsString())
@@ -1067,7 +1067,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Unique);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Unique);
         }
 
         if (!value.IsList())
@@ -1093,7 +1093,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Count);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Count);
         }
 
         if (value.IsString())
@@ -1146,7 +1146,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1 && args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Substring);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Substring);
         }
 
         if (!value.IsString())
@@ -1175,7 +1175,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Reverse);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Reverse);
         }
 
         if (value.IsString())
@@ -1195,7 +1195,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.IndexOf);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.IndexOf);
         }
 
         if (value.IsString())
@@ -1219,7 +1219,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.LastIndexOf);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.LastIndexOf);
         }
 
         if (value.IsString())
@@ -1243,7 +1243,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Clone);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Clone);
         }
 
         return value.Clone();
@@ -1253,7 +1253,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Lines);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Lines);
         }
 
         if (!value.IsString())
@@ -1268,7 +1268,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Split);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Split);
         }
 
         if (!value.IsString())
@@ -1306,7 +1306,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Truthy);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Truthy);
         }
 
         return Value.CreateBoolean(BooleanOp.IsTruthy(value));
@@ -1316,7 +1316,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Get);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Get);
         }
 
         if (value.IsList())
@@ -1354,7 +1354,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Set);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Set);
         }
 
         if (value.IsList())
@@ -1387,7 +1387,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Remove);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Remove);
         }
 
         if (value.IsList())
@@ -1408,7 +1408,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.RemoveAt);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.RemoveAt);
         }
 
         if (!value.IsList())
@@ -1429,7 +1429,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 2)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Replace);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Replace);
         }
 
         var find = args[0];
@@ -1470,7 +1470,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Clear);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Clear);
         }
 
         if (value.IsString())
@@ -1496,7 +1496,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.First);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.First);
         }
 
         if (!value.IsList())
@@ -1518,7 +1518,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Last);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Last);
         }
 
         if (!value.IsList())
@@ -1540,7 +1540,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Push);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Push);
         }
 
         if (!value.IsList())
@@ -1556,7 +1556,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Pop);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Pop);
         }
 
         if (!value.IsList())
@@ -1579,7 +1579,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count > 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Chars);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Chars);
         }
 
         if (!value.IsString())
@@ -1602,7 +1602,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.HasKey);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.HasKey);
         }
 
         if (!value.IsHashmap())
@@ -1617,7 +1617,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Join);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Join);
         }
 
         if (!value.IsList())
@@ -1660,7 +1660,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Size);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Size);
         }
 
         if (value.IsString())
@@ -1683,7 +1683,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0 && args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Empty);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Empty);
         }
 
         var isEmpty = false;
@@ -1737,7 +1737,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Lowercase);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Lowercase);
         }
 
         if (!value.IsString())
@@ -1752,7 +1752,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Uppercase);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Uppercase);
         }
 
         if (!value.IsString())
@@ -1767,7 +1767,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.LeftTrim);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.LeftTrim);
         }
 
         if (!value.IsString())
@@ -1782,7 +1782,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.RightTrim);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.RightTrim);
         }
 
         if (!value.IsString())
@@ -1797,7 +1797,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Trim);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Trim);
         }
 
         if (!value.IsString())
@@ -1812,7 +1812,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Type);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Type);
         }
 
         return Value.CreateString(Serializer.GetTypenameString(value));
@@ -1822,7 +1822,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.BeginsWith);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.BeginsWith);
         }
 
         if (!value.IsString())
@@ -1842,7 +1842,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.Contains);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Contains);
         }
 
         if (value.IsString())
@@ -1866,7 +1866,7 @@ public static class CoreBuiltinHandler
     {
         if (args.Count != 1)
         {
-            throw new ParameterCountMismatchError(token, KiwiBuiltin.EndsWith);
+            throw new ParameterCountMismatchError(token, CoreBuiltin.EndsWith);
         }
 
         if (!value.IsString())

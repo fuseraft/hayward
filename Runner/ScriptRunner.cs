@@ -49,7 +49,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
 
             Interpreter.Interpret(ast);
         }
-        catch (KiwiError e)
+        catch (HaywardError e)
         {
             ErrorHandler.PrintError(e);
         }
@@ -70,7 +70,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
 
         List<string> paths = [];
 
-        foreach (var library in Kiwi.Settings.StandardLibrary)
+        foreach (var library in Hayward.Settings.StandardLibrary)
         {
             if (!library.AutoLoad)
             {
@@ -110,6 +110,6 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         }
 
         var ext = Path.GetExtension(path);
-        return Kiwi.Settings.Extensions.Recognized.Contains(ext);
+        return Hayward.Settings.Extensions.Recognized.Contains(ext);
     }
 }

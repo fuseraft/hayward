@@ -3,6 +3,6 @@
 namespace hayward.Tracing.Error;
 
 public class FunctionUndefinedError(Token t, string name)
-    : KiwiError(t, "FunctionUndefinedError", $"Function `{name}` is undefined.")
+    : HaywardError(t, "FunctionUndefinedError", $"Function `{name}` is undefined.")
 {
 }

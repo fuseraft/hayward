@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace hayward.Settings;
 
-public class Kiwi
+public class Hayward
 {
-    public static KiwiSettings Settings { get; } = KiwiSettings.LoadKiwiSettings("hayward-settings.json");
+    public static HaywardSettings Settings { get; } = HaywardSettings.LoadHaywardSettings("hayward-settings.json");
 }
 
-public class KiwiSettings
+public class HaywardSettings
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
@@ -34,12 +34,34 @@ public class KiwiSettings
     [JsonPropertyName("crashdump_path")]
     public string CrashDumpPath { get; set; } = string.Empty;
 
-    public static KiwiSettings LoadKiwiSettings(string filePath)
+    public static HaywardSettings LoadHaywardSettings(string filePath)
     {
-        return JsonSerializer.Deserialize<KiwiSettings>(File.ReadAllText(filePath), new JsonSerializerOptions
+        var binPath = Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty;
+        var settingsPath = Path.Combine(binPath, filePath);
+
+        if (File.Exists(settingsPath))
         {
-            PropertyNameCaseInsensitive = true
-        })!;
+            return JsonSerializer.Deserialize<HaywardSettings>(File.ReadAllText(filePath), new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            })!;
+        }
+
+        Console.WriteLine("Could not find hayward-settings.json. Run with --settings to view defaults.");
+
+        return new HaywardSettings
+        {
+            Name = "hayward",
+            Version = "",
+            SafeMode = true,
+            Extensions = new FileExtensions {
+                Primary = ".hayward",
+                Minified = ".min.hayward",
+                Recognized = [".hayward", ".kiwi"]
+            },
+            Debug = new DebugSettings {},
+            CrashDumpPath = "hayward-crash.log"
+        };
     }
 }
 

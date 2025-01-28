@@ -10,8 +10,8 @@ public static class EnvBuiltin
     public const string GetAll                    = "__env_getall__";
     public const string GetEnvironmentVariable    = "__env_getenv__";
     public const string SetEnvironmentVariable    = "__env_setenv__";
-    public const string Kiwi                    = "__env_bin__";
-    public const string KiwiLib                 = "__env_lib__";
+    public const string Hayward                    = "__env_bin__";
+    public const string HaywardLib                 = "__env_lib__";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>
@@ -24,8 +24,8 @@ public static class EnvBuiltin
             { UserDomain,               TokenName.Builtin_Env_UserDomain },
             { GetEnvironmentVariable,   TokenName.Builtin_Env_GetEnvironmentVariable },
             { SetEnvironmentVariable,   TokenName.Builtin_Env_SetEnvironmentVariable },
-            { Kiwi,                   TokenName.Builtin_Env_Kiwi },
-            { KiwiLib,                TokenName.Builtin_Env_KiwiLib }
+            { Hayward,                   TokenName.Builtin_Env_Hayward },
+            { HaywardLib,                TokenName.Builtin_Env_HaywardLib }
         };
 
     private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();
