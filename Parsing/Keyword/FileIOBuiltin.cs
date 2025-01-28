@@ -3,38 +3,38 @@ namespace hayward.Parsing.Keyword;
 public static class FileIOBuiltin
 {
     // File operations
-    public const string AppendText = "__fileio_appendtext__";
-    public const string CopyFile = "__fileio_copyfile__";
-    public const string CopyR = "__fileio_copyr__";
-    public const string Combine = "__fileio_combine__";
-    public const string CreateFile = "__fileio_createfile__";
-    public const string DeleteFile = "__fileio_deletefile__";
-    public const string MoveFile = "__fileio_movefile__";
-    public const string ReadFile = "__fileio_readfile__";
-    public const string ReadLines = "__fileio_readlines__";
-    public const string ReadBytes = "__fileio_readbytes__";
-    public const string WriteLine = "__fileio_writeline__";
-    public const string WriteText = "__fileio_writetext__";
-    public const string WriteBytes = "__fileio_writebytes__";
-    public const string FileExists = "__fileio_isfile__";
-    public const string GetFileExtension = "__fileio_fileext__";
-    public const string FileName = "__fileio_filename__";
-    public const string FileSize = "__fileio_filesize__";
-    public const string GetFilePath = "__fileio_filepath__";
-    public const string GetFileAbsolutePath = "__fileio_fileabspath__";
-    public const string GetFileAttributes = "__fileio_fileattrs__";
-    public const string Glob = "__fileio_glob__";
+    public const string AppendText = "__fio_appendtext__";
+    public const string CopyFile = "__fio_copyfile__";
+    public const string CopyR = "__fio_copyr__";
+    public const string Combine = "__fio_combine__";
+    public const string CreateFile = "__fio_createfile__";
+    public const string DeleteFile = "__fio_deletefile__";
+    public const string MoveFile = "__fio_movefile__";
+    public const string ReadFile = "__fio_readfile__";
+    public const string ReadLines = "__fio_readlines__";
+    public const string ReadBytes = "__fio_readbytes__";
+    public const string WriteLine = "__fio_writeline__";
+    public const string WriteText = "__fio_writetext__";
+    public const string WriteBytes = "__fio_writebytes__";
+    public const string FileExists = "__fio_isfile__";
+    public const string GetFileExtension = "__fio_fileext__";
+    public const string FileName = "__fio_filename__";
+    public const string FileSize = "__fio_filesize__";
+    public const string GetFilePath = "__fio_filepath__";
+    public const string GetFileAbsolutePath = "__fio_fileabspath__";
+    public const string GetFileAttributes = "__fio_fileattrs__";
+    public const string Glob = "__fio_glob__";
 
     // Directory operations
-    public const string ListDirectory = "__fileio_listdir__";
-    public const string MakeDirectory = "__fileio_mkdir__";
-    public const string MakeDirectoryP = "__fileio_mkdirp__";
-    public const string RemoveDirectory = "__fileio_rmdir__";
-    public const string RemoveDirectoryF = "__fileio_rmdirf__";
-    public const string IsDirectory = "__fileio_isdir__";
-    public const string ChangeDirectory = "__fileio_chdir__";
-    public const string GetCurrentDirectory = "__fileio_cwd__";
-    public const string TempDir = "__fileio_tmpdir__";
+    public const string ListDirectory = "__fio_listdir__";
+    public const string MakeDirectory = "__fio_mkdir__";
+    public const string MakeDirectoryP = "__fio_mkdirp__";
+    public const string RemoveDirectory = "__fio_rmdir__";
+    public const string RemoveDirectoryF = "__fio_rmdirf__";
+    public const string IsDirectory = "__fio_isdir__";
+    public const string ChangeDirectory = "__fio_chdir__";
+    public const string GetCurrentDirectory = "__fio_cwd__";
+    public const string TempDir = "__fio_tmpdir__";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>

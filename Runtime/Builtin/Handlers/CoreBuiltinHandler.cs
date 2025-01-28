@@ -893,7 +893,7 @@ public static class CoreBuiltinHandler
         var lst = value.GetList();
         var index = 0;
 
-        // note: in kiwi, the second parameter of `.insert()` is the index.
+        // note: in hayward, the second parameter of `.insert()` is the index.
         if (!args[0].IsInteger())
         {
             throw new InvalidOperationError(token, "Expected an integer.");

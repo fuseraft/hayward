@@ -10,9 +10,13 @@
         }
     ],
     "file_extensions": {
-        "primary": ".kiwi",
-        "minified": ".min.kiwi",
-        "recognized": [".min.kiwi", ".kiwi", ".min.🥝", ".🥝", ".min.k", ".k"]
+        "primary": ".hay",
+        "minified": ".min.hay",
+        "recognized": [
+            ".min.hay", ".hay", ".kiwi",
+            ".min.hayward", ".hayward", 
+            ".min.🥝", ".🥝"
+        ]
     },
     "debug": {
         "cli_args": [

@@ -70,7 +70,7 @@ public static class FileIOBuiltinHandler
         }
 
         var path = FileUtil.CombinePath(token, paths);
-        return Value.CreateList(path);
+        return Value.CreateString(path);
     }
 
     private static Value GetFileSize(Token token, List<Value> args)

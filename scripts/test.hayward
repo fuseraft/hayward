@@ -369,8 +369,8 @@ guava::register_test("hashmaps", with do
   other_hashmap.hello = "world"
   guava::assert(other_hashmap.get("hello") == "world", "A6")
   
-  other_hashmap.set("hello", "kiwi")
-  guava::assert(other_hashmap.hello == "kiwi", "A7")
+  other_hashmap.set("hello", "hayward")
+  guava::assert(other_hashmap.hello == "hayward", "A7")
 end)
 
 guava::register_test("structs", with do
@@ -441,7 +441,7 @@ guava::register_test("nulls", with do
 end)
 
 guava::register_test("type checks", with do
-  s = "kiwi"
+  s = "hayward"
   i = 100
   d = 3.14159
   b = true
@@ -457,7 +457,7 @@ guava::register_test("type checks", with do
 end)
 
 guava::register_test("loops", with do
-  fruits = ["kiwi", "strawberry", "pineapple", "lime", "mango", "guava"]
+  fruits = ["hayward", "strawberry", "pineapple", "lime", "mango", "guava"]
   new_list = []
 
   # iterate list
@@ -465,7 +465,7 @@ guava::register_test("loops", with do
     new_list.push(fruit)
   end
 
-  guava::assert(new_list.join() == "kiwistrawberrypineapplelimemangoguava", "A1")
+  guava::assert(new_list.join() == "haywardstrawberrypineapplelimemangoguava", "A1")
   new_list.clear()
 
   # iterate index
@@ -477,15 +477,15 @@ guava::register_test("loops", with do
   new_list.clear()
 
   # iterate inline list
-  for item in ["kiwi", "is", "fun"] do
+  for item in ["hayward", "is", "fun"] do
     new_list.push(item)
   end
 
-  guava::assert(new_list.join() == "kiwiisfun", "A3")
+  guava::assert(new_list.join() == "haywardisfun", "A3")
   new_list.clear()
 
   # iterate an inline list with an index
-  for item, index in ["kiwi", "is", "fun"] do
+  for item, index in ["hayward", "is", "fun"] do
     new_list.push(index)
   end
 
