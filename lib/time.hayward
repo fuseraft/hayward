@@ -35,7 +35,7 @@ package time
   end
 
   /#
-  @summary Get milliseconds after the second (0 to 100).
+  @summary Get milliseconds after the second (0 to 1000).
   @returns Integer
   #/
   fn millisecond()

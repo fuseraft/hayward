@@ -526,8 +526,8 @@ public static class CoreBuiltinHandler
                 }
                 else if (value.IsInteger())
                 {
-                    var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(value.GetInteger());
-                    return Value.CreateDate(dateTimeOffset.UtcDateTime);
+                    var dateTimeOffioet = DateTimeOffioet.FromUnixTimeMilliseconds(value.GetInteger());
+                    return Value.CreateDate(dateTimeOffioet.UtcDateTime);
                 }
             }
             else if (args.Count == 1 && value.IsString() && args[0].IsString())

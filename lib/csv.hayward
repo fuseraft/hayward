@@ -10,7 +10,7 @@ export "csv"
 
 struct CSVParser
   fn new(input_path: string, delimiter: string = ",")
-    var (lines: list = fs::readlines(input_path))
+    var (lines: list = fio::readlines(input_path))
     @line_no = -1
     @lines = lines
     @max_lines = lines.size()

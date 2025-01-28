@@ -134,7 +134,7 @@ public struct FileUtil
     {
         try
         {
-            using var fs = File.Create(path);
+            using var fio = File.Create(path);
             return File.Exists(path);
         }
         catch (Exception)

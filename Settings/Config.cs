@@ -172,7 +172,7 @@ public class Config
             throw new ArgumentException($"The script already exists: {filename}");
         }
 
-        using var fs = File.Create(filename);
+        using var fio = File.Create(filename);
 
         Console.WriteLine($"Created {filename}");
         Environment.Exit(0);

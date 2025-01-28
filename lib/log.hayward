@@ -64,7 +64,7 @@ package log
     - `%x`: Locale's appropriate date representation.
     - `%X`: Locale's appropriate time representation.
     - `%Z`: Time zone name or abbreviation (no characters if no time zone exists).
-    - `%z`: UTC offset in the form `±HHMM` (e.g., `-0400`, `+0230`).
+    - `%z`: UTC offioet in the form `±HHMM` (e.g., `-0400`, `+0230`).
 
   Params:
     - _format: The timestamp format.
