@@ -41,7 +41,7 @@ public class HaywardSettings
 
         if (File.Exists(settingsPath))
         {
-            return JsonSerializer.Deserialize<HaywardSettings>(File.ReadAllText(filePath), new JsonSerializerOptions
+            return JsonSerializer.Deserialize<HaywardSettings>(File.ReadAllText(settingsPath), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             })!;
