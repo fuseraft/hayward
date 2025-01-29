@@ -39,7 +39,7 @@ public class Config
                     {
                         if (!iter.MoveNext())
                         {
-                            throw new CliError("Expected a filename after `new`.");
+                            throw new CliError($"Expected a filename after `{current}`.");
                         }
 
                         CreateNewFile(iter.Current);
@@ -170,6 +170,11 @@ public class Config
         if (IsScript(ref filename))
         {
             throw new CliError($"The script already exists: {filename}");
+        }
+
+        if (!Path.HasExtension(filename))
+        {
+            filename += Hayward.Settings.Extensions.Primary;
         }
 
         using var fio = File.Create(filename);
