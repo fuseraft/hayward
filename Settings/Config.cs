@@ -1,5 +1,5 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using hayward.Tracing.Error;
 
 namespace hayward.Settings;
 
@@ -39,7 +39,7 @@ public class Config
                     {
                         if (!iter.MoveNext())
                         {
-                            throw new ArgumentException("Expected a filename after `new`.");
+                            throw new CliError("Expected a filename after `new`.");
                         }
 
                         CreateNewFile(iter.Current);
@@ -169,7 +169,7 @@ public class Config
     {
         if (IsScript(ref filename))
         {
-            throw new ArgumentException($"The script already exists: {filename}");
+            throw new CliError($"The script already exists: {filename}");
         }
 
         using var fio = File.Create(filename);
@@ -182,13 +182,13 @@ public class Config
     {
         if (!iter.MoveNext())
         {
-            throw new ArgumentException("Expected a filename.");
+            throw new CliError("Expected a filename.");
         }
 
         var filename = iter.Current;
         if (!IsScript(ref filename))
         {
-            throw new FileNotFoundException($"The file does not exist: {filename}");
+            throw new CliError($"The file does not exist: {filename}");
         }
 
         return filename;

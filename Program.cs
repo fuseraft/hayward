@@ -2,12 +2,15 @@
 using hayward.Settings;
 using hayward.Tracing;
 using hayward.Runner;
+using hayward.Tracing.Error;
 
 namespace hayward;
 public class Program
 {
     public static int Main(string[] args)
     {
+        var exitCode = 1;
+
         if (System.Diagnostics.Debugger.IsAttached)
         {
             args = [.. Hayward.Settings.Debug.CommandLineArguments];
@@ -26,13 +29,18 @@ public class Program
                 _ = runner.Run(script, config.Args);
             }
 
-            return 0;
+            exitCode = 0;
+        }
+        catch (CliError e)
+        {
+            Console.WriteLine(e.Message);
         }
         catch (Exception e)
         {
             ErrorHandler.DumpCrashLog(e);
-            return 1;
         }
+
+        return exitCode;
     }
 
     private static IRunner GetRunner(Config config, IRunner runner)
