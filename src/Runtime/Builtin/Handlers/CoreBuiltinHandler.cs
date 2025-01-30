@@ -75,6 +75,7 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Core_Day => Day(token, value, args),
             TokenName.Builtin_Core_Month => Month(token, value, args),
             TokenName.Builtin_Core_Year => Year(token, value, args),
+            TokenName.Builtin_Core_Between => Between(token, value, args),
             /*
             TokenName.Builtin_Core_RReplace => RReplace(token, value, args),
             TokenName.Builtin_Core_RSplit => RSplit(token, value, args),
@@ -87,6 +88,53 @@ public static class CoreBuiltinHandler
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value Between(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 2)
+        {
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Between);
+        }
+
+        if (value.IsNumber())
+        {
+            if (!(args[0].IsNumber() && args[1].IsNumber()))
+            {
+                throw new InvalidOperationError(token, "Expected numbers for both parameters.");
+            }
+
+            List<double> range = [args[0].GetNumber(), args[1].GetNumber()];
+            var test = value.GetNumber();
+
+            return Value.CreateBoolean(range.Min() <= test && test <= range.Max());
+        }
+        else if (value.IsString())
+        {
+            if (!(args[0].IsString() && args[1].IsString()))
+            {
+                throw new InvalidOperationError(token, "Expected strings for both parameters.");
+            }
+
+            List<string> range = [args[0].GetString(), args[1].GetString()];
+            var test = value.GetString();
+
+            return Value.CreateBoolean(range.Min()!.CompareTo(test) <= 0 && test.CompareTo(range.Max()!) <= 0);
+        }
+        else if (value.IsDate())
+        {
+            if (!(args[0].IsDate() && args[1].IsDate()))
+            {
+                throw new InvalidOperationError(token, "Expected dates for both parameters.");
+            }
+
+            List<DateTime> range = [args[0].GetDate(), args[1].GetDate()];
+            var test = value.GetDate();
+
+            return Value.CreateBoolean(range.Min() <= test && test <= range.Max());
+        }
+
+        throw new InvalidOperationError(token, $"Invalid type for `{CoreBuiltin.Between}`: {Serializer.GetTypenameString(value)}");
     }
 
     private static Value Hour(Token token, Value value, List<Value> args)

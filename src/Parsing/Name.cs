@@ -54,6 +54,7 @@ public enum TokenName
   Builtin_FileIO_WriteLine,
   Builtin_FileIO_WriteText,
   Builtin_Core_Append,
+  Builtin_Core_Between,
   Builtin_Core_Base,
   Builtin_Core_BeginsWith,
   Builtin_Core_Chars,

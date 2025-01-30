@@ -5,6 +5,7 @@ namespace hayward.Parsing.Keyword;
 public static class CoreBuiltin
 {
     public const string Append       = "append";
+    public const string Between      = "between";
     public const string Chars        = "chars";
     public const string IsA          = "is_a";
     public const string Join         = "join";
@@ -82,6 +83,7 @@ public static class CoreBuiltin
         = new Dictionary<string, TokenName>
         {
             { Append,       TokenName.Builtin_Core_Append      },
+            { Between,      TokenName.Builtin_Core_Between     },
             { Chars,        TokenName.Builtin_Core_Chars       },
             { IsA,          TokenName.Builtin_Core_IsA         },
             { Join,         TokenName.Builtin_Core_Join        },
