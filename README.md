@@ -13,13 +13,17 @@ git clone https://github.com/fuseraft/hayward.git
 
 Build Hayward:
 ```bash
-dotnet publish -c Release -o ./bin
+./build.sh
 ```
 
 Run the test suite:
 ```bash
 ./bin/hayward scripts/test
 ```
+
+## VS Code Extension
+
+For syntax highlighting and code snippets in Visual Studio Code, install the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=fuseraft.kiwi-lang).
 
 ## Contributing
 

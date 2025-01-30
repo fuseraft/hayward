@@ -20,11 +20,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Navigate to source code
-      run: cd src
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    #- name: Test
-    #  run: dotnet test --no-build --verbosity normal
+    - name: Run build.sh
+      run: ./build.sh
+    - name: Run test suite
+      run: ./bin/hayward scripts/test

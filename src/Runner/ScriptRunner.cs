@@ -69,6 +69,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         }
 
         List<string> paths = [];
+        var exePath = Environment.ProcessPath ?? string.Empty;
 
         foreach (var library in Hayward.Settings.StandardLibrary)
         {
@@ -76,10 +77,12 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
             {
                 continue;
             }
-
-            if (Directory.Exists(library.Path) && library.IncludeSubdirectories)
+            
+            var libraryPath = Path.Combine(Path.GetDirectoryName(exePath) ?? string.Empty, library.Path);
+            
+            if (Directory.Exists(libraryPath) && library.IncludeSubdirectories)
             {
-                foreach (var path in Directory.EnumerateFiles(library.Path, "*.*"))
+                foreach (var path in Directory.EnumerateFiles(libraryPath, "*.*"))
                 {
                     if (IsRecognizedScript(path))
                     {
@@ -87,9 +90,9 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
                     }
                 }
             }
-            else if (IsRecognizedScript(library.Path))
+            else if (IsRecognizedScript(libraryPath))
             {
-                paths.Add(library.Path);
+                paths.Add(libraryPath);
             }
         }
 

@@ -17,19 +17,19 @@
     "standard_library": [
       {
         "autoload": true,
-        "path": "/home/scs/GitHub/hayward/lib",
+        "path": "../lib",
         "include_subdirectories": true
       }
     ],
     "safemode": true,
     "debug": {
       "cli_args": [
-        "/home/scs/GitHub/hayward/scripts/debug"
+        ""
       ]
     },
     "environment_variables": {
       "_KIWI": ""
     },
-    "crashdump_path": "/home/scs/hayward_crash.log"
+    "crashdump_path": "../hayward_crash.log"
   }
   
