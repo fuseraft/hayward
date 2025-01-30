@@ -1617,7 +1617,7 @@ public class Interpreter
             throw new HaywardError(node.Token, "Invalid parse expression.");
         }
 
-        Lexer lexer = new(content.GetString(), false);
+        using Lexer lexer = new(node.Token.Span.File, content.GetString());
 
         Parser p = new(true);
         var tokenStream = lexer.GetTokenStream();
@@ -2564,7 +2564,7 @@ public class Interpreter
         }
 
         var path = FileUtil.GetAbsolutePath(token, packagePath);
-        Lexer lexer = new(path, true);
+        using Lexer lexer = new(path);
 
         Parser p = new(true);
         var tokenStream = lexer.GetTokenStream();

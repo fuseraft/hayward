@@ -5,12 +5,24 @@ using hayward.Typing;
 
 namespace hayward.Parsing;
 
-public class Lexer(string path, bool isFile = true) : IDisposable
+public class Lexer : IDisposable
 {
-    private readonly Stream stream = isFile ? System.IO.File.OpenRead(path) : new MemoryStream(System.Text.Encoding.UTF8.GetBytes(path));
-    private readonly int File = isFile ? FileRegistry.Instance.RegisterFile(path) : 0;
+    private readonly Stream stream;
+    private readonly int File;
     private int LineNumber = 1;
     private int Position = 1;
+
+    public Lexer(string path)
+    {
+        stream = System.IO.File.OpenRead(path);
+        File = FileRegistry.Instance.RegisterFile(path);
+    }
+
+    public Lexer(int fileId, string code)
+    {
+        File = fileId;
+        stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(code));
+    }
 
     public TokenStream GetTokenStream()
     {
@@ -221,7 +233,7 @@ public class Lexer(string path, bool isFile = true) : IDisposable
                         }
 
                         var code = sv.ToString();
-                        Lexer lex = new(code, false);
+                        Lexer lex = new(token.Span.File, code);
                         sv.Clear();
 
                         var tmpTokens = lex.GetTokens();

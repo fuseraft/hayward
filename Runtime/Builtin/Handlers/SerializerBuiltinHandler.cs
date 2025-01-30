@@ -31,7 +31,7 @@ public class SerializerBuiltinHandler
 
         var input = args[0].GetString();
         Parser parser = new (true);
-        using Lexer lexer = new (input, false);
+        using Lexer lexer = new (token.Span.File, input);
         var stream = lexer.GetTokenStream();
         var ast = parser.ParseTokenStream(stream, true);
 
