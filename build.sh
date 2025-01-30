@@ -33,4 +33,9 @@ if [ -d "src/obj" ]; then
   echo "Removed src/obj"
 fi
 
+if [ -d "obj" ]; then
+  rm -rf "obj"
+  echo "Removed obj"
+fi
+
 echo "Try running ``./bin/hayward -h`` and happy coding!"
