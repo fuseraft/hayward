@@ -83,7 +83,7 @@ public static class MathBuiltinHandler
             if (args[0].IsInteger() && args[1].IsInteger())
             {
                 List<long> ints = [args[0].GetInteger(), args[1].GetInteger()];
-                var rand = System.Random.Shared.NextInt64(ints.Min(), ints.Max());
+                var rand = System.Random.Shared.NextInt64(ints.Min(), ints.Max() + 1);
                 return Value.CreateInteger(rand);
             }
             else if (args[0].IsString() && args[1].IsInteger())
