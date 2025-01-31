@@ -34,8 +34,7 @@ fn set_gosper_glider_gun(board, top_left_x, top_left_y)
   ]
 
   for coord in gun_coords do
-    dx = coord.first()
-    dy = coord.last()
+    dx, dy =< coord
     
     x = top_left_x + dx
     y = top_left_y + dy
