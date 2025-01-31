@@ -70,7 +70,8 @@ fn next_generation(board)
           end
         end
       end
-        
+
+      # Conway's Game of Life
       if alive and (neighbors == 2 or neighbors == 3)
         new_board[y][x] = true
       elsif not alive and neighbors == 3
