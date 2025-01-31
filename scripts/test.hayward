@@ -111,16 +111,16 @@ guava::register_test("constants", with do
 end)
 
 guava::register_test("truthiness", with do
-  guava::assert(!null.truthy(), "A1")       # null is never truthy
-  guava::assert(!(0).truthy(), "A2")        # 0 is the only non-truthy number
+  guava::assert(not null.truthy(), "A1")       # null is never truthy
+  guava::assert(not (0).truthy(), "A2")        # 0 is the only non-truthy number
   guava::assert((1).truthy(), "A3")         # non-zero numbers are always truthy
-  guava::assert(!"".truthy(), "A4")         # empty strings are not truthy
+  guava::assert(not "".truthy(), "A4")         # empty strings are not truthy
   guava::assert("0".truthy(), "A5")         # non-empty strings are truthy
-  guava::assert(![].truthy(), "A6")         # empty lists are not truthy
+  guava::assert(not [].truthy(), "A6")         # empty lists are not truthy
   guava::assert([0].truthy(), "A7")         # non-empty lists are truthy
-  guava::assert(!{}.truthy(), "A8")         # empty hashmaps are not truthy
+  guava::assert(not {}.truthy(), "A8")         # empty hashmaps are not truthy
   guava::assert({"a": 1}.truthy(), "A9")    # non-empty hashmaps are truthy
-  guava::assert(!false.truthy(), "A10")     # false is never truthy
+  guava::assert(not false.truthy(), "A10")     # false is never truthy
   guava::assert(true.truthy(), "A11")       # true is always truthy
 end)
 
@@ -128,8 +128,8 @@ guava::register_test("unpacking", with do
   a, b, c =< true, {"a": false}, [1, 2, 3]
 
   guava::assert(a == true, "A1")
-  guava::assert(b.keys().size() == 1 && b.to_string() == "{\"a\": false}", "A2")
-  guava::assert(c.size() == 3 && c.to_string() == "[1, 2, 3]", "A3")
+  guava::assert(b.keys().size() == 1 and b.to_string() == "{\"a\": false}", "A2")
+  guava::assert(c.size() == 3 and c.to_string() == "[1, 2, 3]", "A3")
 
   fn get_zero_and_one()
     return [0, 1]
@@ -142,8 +142,8 @@ guava::register_test("unpacking", with do
 
   a, b =< [[1, 2], ["a", "b"]]
 
-  guava::assert(a.size() == 2 && a.sum() == 3, "A6")
-  guava::assert(b.size() == 2 && b.join() == "ab", "A7")
+  guava::assert(a.size() == 2 and a.sum() == 3, "A6")
+  guava::assert(b.size() == 2 and b.join() == "ab", "A7")
 end)
 
 guava::register_test("operators", with do
@@ -156,21 +156,21 @@ guava::register_test("operators", with do
   guava::assert(10 ** 2 == 100)  # exponentiation
 
   # logical or 
-  guava::assert(!(false || false))
-  guava::assert(false || true)
-  guava::assert(true || false)
-  guava::assert(true || true)
+  guava::assert(not (false or false))
+  guava::assert(false or true)
+  guava::assert(true or false)
+  guava::assert(true or true)
 
   # logical and
-  guava::assert(!(false && false))
-  guava::assert(!(false && true))
-  guava::assert(!(true && false))
-  guava::assert(true && true)
+  guava::assert(not (false and false))
+  guava::assert(not (false and true))
+  guava::assert(not (true and false))
+  guava::assert(true and true)
 
   # logical not
-  guava::assert(false == !true)
-  guava::assert(!!true)
-  guava::assert(!false)
+  guava::assert(false == not true)
+  guava::assert(not not true)
+  guava::assert(not false)
 
   # comparison
   guava::assert(1 < 2)
@@ -235,11 +235,11 @@ guava::register_test("lists", with do
   guava::assert(basic_list[2] == 3, "A4")
   # List Insertion
   basic_list.push(4)
-  guava::assert(basic_list.size() == 4 && basic_list.sum() == 10, "A5")
+  guava::assert(basic_list.size() == 4 and basic_list.sum() == 10, "A5")
   # List Concatenation
   other_list = [5, 6, 7]
   combined_list = basic_list.concat(other_list)
-  guava::assert(combined_list.size() == 7 && combined_list.sum() == 28, "A6")
+  guava::assert(combined_list.size() == 7 and combined_list.sum() == 28, "A6")
 
   # List Joining
   words = ["The", "Hayward", "Programming", "Language"]
@@ -250,15 +250,15 @@ guava::register_test("lists", with do
 
   # List Slicing
   sliced_list = combined_list[2:5]
-  guava::assert(sliced_list.size() == 3 && sliced_list.sum() == 12, "A11")
+  guava::assert(sliced_list.size() == 3 and sliced_list.sum() == 12, "A11")
 
   # List Reversal
   reversed_list = combined_list[::-1]
-  guava::assert(reversed_list.size() == 7 && reversed_list.first() == 7 && reversed_list.sum() == 28, "A12")
+  guava::assert(reversed_list.size() == 7 and reversed_list.first() == 7 and reversed_list.sum() == 28, "A12")
 
   # Nested Lists and Flattening
   nested_list = [1, 2, [3, 4], [5, [6, 7]]].flatten()
-  guava::assert(nested_list.size() == 7 && nested_list.sum() == 28, "A13")
+  guava::assert(nested_list.size() == 7 and nested_list.sum() == 28, "A13")
 
   # String to List Conversion and Manipulation
   char_list = "abcdef".chars().reverse()
@@ -266,7 +266,7 @@ guava::register_test("lists", with do
 
   # Empty List Verification
   new_list = []
-  while !char_list.empty() do
+  while not char_list.empty() do
     new_list.push(char_list.first())
     char_list.remove_at(0)
   end
@@ -275,7 +275,7 @@ guava::register_test("lists", with do
 
   # List Initialization with a Range
   range_list = [1..5]
-  guava::assert(range_list.size() == 5 && range_list.sum() == 15, "A17")
+  guava::assert(range_list.size() == 5 and range_list.sum() == 15, "A17")
 
   a = [1..10]
   b = a.select(with (i) do i % 2 == 0 end)
@@ -406,9 +406,9 @@ guava::register_test("builtins", with do
   guava::assert(a.index("bar") == 3, "A2")
   guava::assert(a.chars().size() == 6, "A3")
   guava::assert("foobar".replace("foo", "food") == "foodbar", "A4")
-  guava::assert(!a.begins_with("food"), "A5")
+  guava::assert(not a.begins_with("food"), "A5")
   guava::assert("foobar".ends_with("bar"), "A6")
-  guava::assert(!"foobar".ends_with("bark"), "A7")
+  guava::assert(not "foobar".ends_with("bark"), "A7")
 end)
 
 guava::register_test("standard library", with do
@@ -436,8 +436,8 @@ guava::register_test("nulls", with do
   e = 0
   guava::assert(e != null, "A8")
 
-  guava::assert(!null, "A9")
-  guava::assert(!!!null, "A10")
+  guava::assert(not null, "A9")
+  guava::assert(not not not null, "A10")
 end)
 
 guava::register_test("type checks", with do
@@ -489,7 +489,7 @@ guava::register_test("loops", with do
     new_list.push(index)
   end
 
-  guava::assert(new_list.sum() == 3 && new_list.size() == 3, "A4")
+  guava::assert(new_list.sum() == 3 and new_list.size() == 3, "A4")
   new_list.clear()
 
   # iterate a range
@@ -497,7 +497,7 @@ guava::register_test("loops", with do
     new_list.push(i)
   end
 
-  guava::assert(new_list.size() == 6 && new_list.sum() == 15, "A5")
+  guava::assert(new_list.size() == 6 and new_list.sum() == 15, "A5")
   new_list.clear()
 
   # nested while loops
