@@ -623,29 +623,33 @@ public class Lexer : IDisposable
         {
             return CreateToken(TokenType.Keyword, span, text, kw);
         }
-        else if (IsTypenameKeyword(text, out TokenName kwTypename))
+        else if (IsTypenameKeyword(text, out kw))
         {
-            var typeName = CreateToken(TokenType.Typename, span, text, kwTypename);
+            var typeName = CreateToken(TokenType.Typename, span, text, kw);
             typeName.Value = Value.CreateString(text);
             return typeName;
         }
-        else if (IsConditionalKeyword(text, out TokenName kwCond))
+        else if (IsLogicalKeyword(text, out kw))
         {
-            return CreateToken(TokenType.Conditional, span, text, kwCond);
+            return CreateToken(TokenType.Operator, span, text, kw);
         }
-        else if (IsLiteralKeyword(text, out TokenName kwLiteral))
+        else if (IsConditionalKeyword(text, out kw))
+        {
+            return CreateToken(TokenType.Conditional, span, text, kw);
+        }
+        else if (IsLiteralKeyword(text, out kw))
         {
             return text switch
             {
-                "null" => CreateLiteralToken(span, text, Value.CreateNull(), kwLiteral),
-                "true" => CreateLiteralToken(span, text, Value.CreateBoolean(true), kwLiteral),
-                "false" => CreateLiteralToken(span, text, Value.CreateBoolean(false), kwLiteral),
+                "null" => CreateLiteralToken(span, text, Value.CreateNull(), kw),
+                "true" => CreateLiteralToken(span, text, Value.CreateBoolean(true), kw),
+                "false" => CreateLiteralToken(span, text, Value.CreateBoolean(false), kw),
                 _ => CreateToken(TokenType.Error, span, text)
             };
         }
-        else if (IsLambdaKeyword(text, out TokenName kwLambda))
+        else if (IsLambdaKeyword(text, out kw))
         {
-            return CreateToken(TokenType.Lambda, span, text, kwLambda);
+            return CreateToken(TokenType.Lambda, span, text, kw);
         }
         else if (CoreBuiltin.IsBuiltin(text))
         {
@@ -826,6 +830,19 @@ public class Lexer : IDisposable
             "null" => TokenName.KW_Null,
             "true" => TokenName.KW_True,
             "false" => TokenName.KW_False,
+            _ => TokenName.Default,
+        };
+
+        return name != TokenName.Default;
+    }
+
+    private static bool IsLogicalKeyword(string text, out TokenName name)
+    {
+        name = text switch
+        {
+            "and" => TokenName.Ops_And,
+            "or" => TokenName.Ops_Or,
+            "not" => TokenName.Ops_Not,
             _ => TokenName.Default,
         };
 

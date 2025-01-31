@@ -27,7 +27,7 @@ public struct ListOp
         {
             foreach (var item in list)
             {
-                newList.Add(item);
+                newList.Add(item.Clone());
             }
         }
 
