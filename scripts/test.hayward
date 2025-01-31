@@ -5,11 +5,10 @@
 fn testsuite()
   println "Running Hayward Test Suite ...\n"
 
-  results = guava::run_tests()
-
-  succeeded = 0
-  failed = 0
-  duration = 0
+  var (results:   list    = guava::run_tests())
+  var (succeeded: integer = 0)
+  var (failed:    integer = 0)
+  var (duration:  integer = 0)
 
   for r in results do
     duration += r.duration
@@ -49,7 +48,7 @@ guava::register_test("assignments", with do
 end)
 
 guava::register_test("var declaration", with do
-  fn var_decl_one()
+  fn var_decl_one(): list
     var (
       f: float = 0.5,            # type-hint with initializer 
       s = "string",              # regular variable declaration
@@ -64,7 +63,7 @@ guava::register_test("var declaration", with do
     return [f, s, n, b, m, l, h, i]
   end
 
-  fn var_decl_two()
+  fn var_decl_two(): list
     var (f: float = 0.5)          # type-hint with initializer 
     var (s = "string")            # regular variable declaration
     var (n)                       # uninitialized variable defaults to null
@@ -78,8 +77,8 @@ guava::register_test("var declaration", with do
   end
 
   # declare the variables one and two
-  var (one = var_decl_one())
-  var (two = var_decl_two())
+  var (one: list = var_decl_one())
+  var (two: list = var_decl_two())
 
   guava::assert(one.to_string() == two.to_string(), "A1")
 
@@ -90,7 +89,7 @@ end)
 
 guava::register_test("constants", with do
   const MSG = "hello"
-  err_c = 0
+  var (err_c: integer = 0)
 
   try
     MSG = "foobar"
@@ -131,7 +130,7 @@ guava::register_test("unpacking", with do
   guava::assert(b.keys().size() == 1 and b.to_string() == "{\"a\": false}", "A2")
   guava::assert(c.size() == 3 and c.to_string() == "[1, 2, 3]", "A3")
 
-  fn get_zero_and_one()
+  fn get_zero_and_one(): list
     return [0, 1]
   end
 
@@ -340,13 +339,13 @@ guava::register_test("heaps", with do
 end)
 
 guava::register_test("hashmaps", with do
-  hash = {
+  var (hash: hashmap = {
     "key1": true, 
     "key2": 1, 
     "key3": ["a", "b", "c"]
-  }
+  })
 
-  other_hashmap = {}
+  var (other_hashmap: hashmap)
 
   for key in hash.keys() do 
     other_hashmap[key] = hash[key] 
@@ -354,6 +353,7 @@ guava::register_test("hashmaps", with do
   
   other_hashmap = {}
   other_hashmap = hash.merge(other_hashmap)
+  
   for k in hash.keys() do
     guava::assert(other_hashmap.has_key(k), "A1")
     guava::assert(other_hashmap.get(k).to_string() == hash.get(k).to_string(), "A2")
@@ -384,11 +384,11 @@ guava::register_test("structs", with do
       @radius = radius
     end
 
-    fn area()
+    fn area(): float
       return 3.14159 * @radius * @radius
     end
 
-    fn perimeter()
+    fn perimeter(): float
       return 2 * 3.14159 * @radius
     end
   end
@@ -396,12 +396,12 @@ guava::register_test("structs", with do
   circle = Circle.new(5)
 
   # magic numbers everywhere
-  guava::assert(__floor__(circle.area()).to_integer() == 78)
-  guava::assert(__floor__(circle.perimeter()).to_integer() == 31)
+  guava::assert(math::floor(circle.area()).to_integer() == 78)
+  guava::assert(math::floor(circle.perimeter()).to_integer() == 31)
 end)
 
 guava::register_test("builtins", with do
-  a = "FooBar".lowercase() 
+  var (a: string = "FooBar".lowercase()) 
   guava::assert("${a}${a.uppercase()}" == "foobarFOOBAR", "A1")
   guava::assert(a.index("bar") == 3, "A2")
   guava::assert(a.chars().size() == 6, "A3")
@@ -416,7 +416,7 @@ guava::register_test("standard library", with do
 end)
 
 guava::register_test("nulls", with do
-  e = {"a": null, "b": null}
+  var (e: hashmap = {"a": null, "b": null})
   guava::assert(e.get("a") == null, "A1")
   guava::assert(e.get("b") == null, "A2")
 
@@ -505,13 +505,13 @@ guava::register_test("loops", with do
   i = 0
   j = 0
   while i < 10 do
-      i += 1
-      j = 0
+    i += 1
+    j = 0
 
-      while j < 10 do
-          j += 1
-          test_sum += 1
-      end
+    while j < 10 do
+      j += 1
+      test_sum += 1
+    end
   end
 
   guava::assert(test_sum == 100, "A7")
@@ -560,7 +560,7 @@ guava::register_test("try-finally", with do
 
   try
     a += 1
-    println "${1 / 0}"
+    println "${1 / 0}" # throws DivideByZeroError
     a += 1
   finally
     b += 1
@@ -576,7 +576,7 @@ guava::register_test("try-catch-finally", with do
   try
     for i in [0 .. 1] do
       a += 1
-      println "${i / 0}"
+      println "${i / 0}" # throws DivideByZeroError
       a += 1
     end
   catch (err)
@@ -596,7 +596,7 @@ guava::register_test("nested try-catch", with do
   for i in [0 .. 1] do
     try
       a += 1
-      println "${i / 0}"
+      println "${i / 0}" # throws DivideByZeroError
     catch (err, msg)
       b += 1
     finally
@@ -629,14 +629,14 @@ guava::register_test("lambdas", with do
   # List.reduce
   numbers = [1, 2, 3, 4, 5]
 
-  guava::assert((numbers.reduce(0, with (accumulator, number) do
-    accumulator += number
+  guava::assert((numbers.reduce(0, with (acc, n) do
+    acc += n
   end)) == 15, "A6")
 
-  guava::assert((numbers.reduce({}, with (accumulator, number) do
-    accumulator["key${number}"] = number
-  end)).keys().reduce("", with (accumulator, key) do 
-    accumulator += key end
+  guava::assert((numbers.reduce({}, with (acc, n) do
+    acc["key${n}"] = n
+  end)).keys().reduce("", with (acc, key) do 
+    acc += key end
   ) == "key1key2key3key4key5", "A7")
 
   # Inline lambda assignment
@@ -645,7 +645,7 @@ guava::register_test("lambdas", with do
 end)
 
 guava::register_test("md5", with do
-  a_str = "just a test string"
+  var (a_str: string = "just a test string")
   
   guava::assert("d41d8cd98f00b204e9800998ecf8427e" == crypto::md5_hash(""), "A1")
   guava::assert("c105456108ab41026a95d4f0cc66fe78" == crypto::md5_hash(a_str), "A2")
@@ -653,7 +653,7 @@ guava::register_test("md5", with do
 end)
 
 guava::register_test("sha224", with do
-  a_str = "just a test string"
+  var (a_str: string = "just a test string")
 
   guava::assert("d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f" == crypto::sha224_hash(), "A1")
   guava::assert("bba476fc42a4327019c6239a15d662f327c646ad3d8b4c0ca32e33e5" == crypto::sha224_hash(a_str), "A2")
@@ -661,7 +661,7 @@ guava::register_test("sha224", with do
 end)
 
 guava::register_test("sha256", with do
-  a_str = "just a test string"
+  var (a_str: string = "just a test string")
 
   guava::assert("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" == crypto::sha256_hash(), "A1")
   guava::assert("d7b553c6f09ac85d142415f857c5310f3bbbe7cdd787cce4b985acedd585266f" == crypto::sha256_hash(a_str), "A2")
