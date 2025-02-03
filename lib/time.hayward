@@ -3,10 +3,73 @@
 #/
 package time
   /#
-  @summary Get hours since midnight (0 to 23).
-  @returns Integer
+  @summary Adds a number of days to a date.
+  @params The number of days.
+  @returns The modified date.
   #/
-  fn now()
+  fn add_days(dt: date, n: integer): date
+    return __time_dayadd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of months to a date.
+  @params The number of months.
+  @returns The modified date.
+  #/
+  fn add_months(dt: date, n: integer): date
+    return __time_monthadd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of years to a date.
+  @params The number of years.
+  @returns The modified date.
+  #/
+  fn add_years(dt: date, n: integer): date
+    return __time_yearadd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of hours to a date.
+  @params The number of hours.
+  @returns The modified date.
+  #/
+  fn add_hours(dt: date, n: integer): date
+    return __time_houradd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of minutes to a date.
+  @params The number of minutes.
+  @returns The modified date.
+  #/
+  fn add_minutes(dt: date, n: integer): date
+    return __time_minuteadd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of seconds to a date.
+  @params The number of seconds.
+  @returns The modified date.
+  #/
+  fn add_seconds(dt: date, n: integer): date
+    return __time_secadd__(dt, n)
+  end
+
+  /#
+  @summary Adds a number of milliseconds to a date.
+  @params The number of milliseconds.
+  @returns The modified date.
+  #/
+  fn add_milliseconds(dt: date, n: integer): date
+    return __time_millisecadd__(dt, n)
+  end
+  
+  /#
+  @summary Returns the current time as a date value.
+  @returns Date
+  #/
+  fn now(): date
     return __time_now__()
   end
 
@@ -14,7 +77,7 @@ package time
   @summary Get hours since midnight (0 to 23).
   @returns Integer
   #/
-  fn hour()
+  fn hour(): integer
     return __time_hour__()
   end
 

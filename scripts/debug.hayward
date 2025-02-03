@@ -1,3 +1,33 @@
+# a digital spell
 
+fn cast(spell)
+  spell()
+end
 
-println time::now().hour()
+var (spell: lambda = with () do
+  var (past: date = d(2006, 12, 24),
+       future: date = d("2026/12/24 11:11 AM"),
+       now: date = d())
+
+  for dt in [future, now, past].sort() do
+    var (period: string = case 
+          when dt < now "past"
+          when dt == now "present"
+          when dt > now "future"
+        end)
+
+    println "${dt} is in the ${period}!"
+  end
+
+  # subtract 20 years from the second date
+  future = time::add_years(future, -(future.year() - past.year()))
+
+  # add 11 hours and 11 minutes 
+  past = time::add_minutes(time::add_hours(past, 11), 11)
+
+  if past == future and future < now
+    println "they are now the same!"
+  end
+end)
+
+cast(spell)

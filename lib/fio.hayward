@@ -190,12 +190,12 @@ package fio
   /#
   @summary Get the content of a file as a list of strings.
   @param _path The path to a file.
-  @param _offioet The position in the file to read from.
+  @param _offset The position in the file to read from.
   @param _size  The number of bytes to read from the file.
   @return List
   #/
-  fn readbytes(_path, _offioet, _size)
-    return __fio_readbytes__(_path, _offioet, _size)
+  fn readbytes(_path, _offset, _size)
+    return __fio_readbytes__(_path, _offset, _size)
   end
 
   /#
