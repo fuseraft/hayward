@@ -1,22 +1,12 @@
 namespace hayward.Parsing.AST;
 
-public class AssignmentNode : ASTNode
+public class AssignmentNode(ASTNode? left, string name, TokenName op, ASTNode? initializer) : ASTNode(ASTNodeType.Assignment)
 {
-    public AssignmentNode() : base(ASTNodeType.Assignment) { }
-    public AssignmentNode(ASTNode? left, string name,
-                   TokenName op, ASTNode? initializer)
-        : base(ASTNodeType.Assignment)
-    {
-        Left = left;
-        Name = name;
-        Op = op;
-        Initializer = initializer;
-    }
-
-    public ASTNode? Left { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public TokenName Op { get; set; } = TokenName.Default;
-    public ASTNode? Initializer { get; set; }
+    public ASTNode? Left { get; set; } = left;
+    public string Name { get; set; } = name;
+    public TokenName Op { get; set; } = op;
+    public ASTNode? Initializer { get; set; } = initializer;
+    public ASTNode? Condition { get; set; } = null;
 
     public override void Print(int depth)
     {
@@ -29,6 +19,9 @@ public class AssignmentNode : ASTNode
 
     public override ASTNode Clone()
     {
-        return new AssignmentNode(Left?.Clone(), Name, Op, Initializer?.Clone());
+        return new AssignmentNode(Left?.Clone(), Name, Op, Initializer?.Clone())
+        {
+            Condition = Condition?.Clone()
+        };
     }
 }

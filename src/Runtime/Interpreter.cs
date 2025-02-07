@@ -303,6 +303,16 @@ public class Interpreter
         var type = node.Op;
         var name = node.Name;
 
+        if (node.Condition != null)
+        {
+            var eval = Interpret(node.Condition);
+
+            if (!BooleanOp.IsTruthy(eval))
+            {
+                return Value.Default();
+            }
+        }
+
         if (type == TokenName.Ops_Assign)
         {
             if (Global.Equals(name) || Context.HasConstant(name))

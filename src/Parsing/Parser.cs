@@ -1665,22 +1665,38 @@ public partial class Parser
         }
 
         var type = GetTokenName();
+        AssignmentNode? assignment = null;
+
         if (type == TokenName.KW_Spawn)
         {
             var node = ParseSpawn();
-            return new AssignmentNode(baseNode, identifierName, type, node);
+            assignment = new (baseNode, identifierName, type, node);
         }
         else if (type == TokenName.KW_Case)
         {
             var node = ParseCase();
-            return new AssignmentNode(baseNode, identifierName, type, node);
+            assignment = new (baseNode, identifierName, type, node);
+        }
+        else
+        {
+            Next();
+
+            var initializer = ParseExpression();
+
+            assignment = new (baseNode, identifierName, type, initializer);
         }
 
-        Next();
+        if (assignment != null && MatchName(TokenName.KW_When))
+        {
+            if (!HasValue())
+            {
+                throw new SyntaxError(GetErrorToken(), "Expected condition after 'when'.");
+            }
 
-        var initializer = ParseExpression();
+            assignment.Condition = ParseExpression();
+        }
 
-        return new AssignmentNode(baseNode, identifierName, type, initializer);
+        return assignment;
     }
 
     private ASTNode? ParseQualifiedIdentifier(string prefix)

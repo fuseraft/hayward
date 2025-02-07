@@ -10,10 +10,7 @@ package string
   @return  Boolean          : True if found.
   #/
   fn contains_any(str, matches = [])
-    if matches.type() == "String"
-      matches = matches.chars()
-    end
-
+    matches = matches.chars() when matches.type() == "String"
     throw "matches must be a list" when matches.type() != "List"
 
     for m in matches do
@@ -70,7 +67,7 @@ package string
   #/
   fn padstart(_input, _size, _padding = " ")
     return "${_input}" when ("${_input}").size() >= _size
-    if _padding.size() != 1 _padding = " " end
+    _padding = " " when _padding.size() != 1
     _padding_size = _size - ("${_input}").size()
     _pad = _padding * _padding_size
     return _pad + "${_input}"
@@ -85,7 +82,7 @@ package string
   #/
   fn padend(_input, _size, _padding = " ")
     return "${_input}" when ("${_input}").size() >= _size
-    if _padding.size() != 1 _padding = " " end
+    _padding = " " when _padding.size() != 1
     _padding_size = _size - ("${_input}").size()
     _pad = _padding * _padding_size
     return "${_input}" + _pad
@@ -100,7 +97,7 @@ package string
   #/
   fn center(_input, _width, _padding = " ")
     return "${_input}" when ("${_input}").size() >= _width
-    if _padding.size() != 1 _padding = " " end
+    _padding = " " when _padding.size() != 1
     _total_padding = _width - ("${_input}").size()
     _left_padding_size = _total_padding / 2
     _right_padding_size = _total_padding - _left_padding_size
@@ -133,8 +130,8 @@ package string
     _output = ""
     _length = [("${_input1}").size(), ("${_input2}").size()].max()
     for i in [0 .. _length - 1] do
-      if i < ("${_input1}").size() _output = _output + ("${_input1}")[i] end
-      if i < ("${_input2}").size() _output = _output + ("${_input2}")[i] end
+      _output = _output + ("${_input1}")[i] when i < ("${_input1}").size()
+      _output = _output + ("${_input2}")[i] when i < ("${_input2}").size()
     end
     return _output
   end
@@ -146,8 +143,7 @@ package string
   @return  String            : The mirrored string.
   #/
   fn mirror(_input, _delimiter = "")
-    _reversed = ("${_input}").reverse()
-    return ("${_input}") + _delimiter + _reversed
+    return ("${_input}") + _delimiter + ("${_input}").reverse()
   end
 
   /#
@@ -162,9 +158,7 @@ package string
     while _n > 1 do
       _n = _n - 1
       _k = __random__(0, _n)
-      _temp = _array[_k]
-      _array[_k] = _array[_n]
-      _array[_n] = _temp
+      _array.swap(_k, _n)
     end
 
     return _array.join("")

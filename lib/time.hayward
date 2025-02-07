@@ -118,19 +118,20 @@ package time
   @returns String
   #/
   fn timestamp()
-    year = __time_year__()
-    month = __time_mon__()
-    day = __time_monthday__()
-    hour = __time_hour__()
-    minute = __time_minute__()
-    second = __time_second__()
-    ampm = __time_ampm__()
+    var (year = time::year())
+    var (month = time::month())
+    var (day = time::day())
+    var (hour = time::hour())
+    var (minute = time::minute())
+    var (second = time::second())
+    var (ampm = time::ampm())
 
-    if hour > 12 hour -= 12 end
-    if minute < 10 minute = "0${minute}" end
-    if day < 10 day = "0${day}" end
-    if month < 10 month = "0${month}" end
-    if second < 10 second = "0${second}" end
+    hour -= 12 when hour > 12
+    hour = "0${hour}" when hour < 10
+    minute = "0${minute}" when minute < 10
+    second = "0${second}" when second < 10
+    month = "0${month}" when month < 10
+    day = "0${day}" when day < 10
 
     return "${year}/${month}/${day} ${hour}:${minute}:${second} ${ampm}"
   end
@@ -165,7 +166,7 @@ package time
     _year: The year to check.
   @returns Boolean
   #/
-  fn leapyear(_year)
+  fn leapyear(_year: integer)
     return (_year % 4 == 0 && _year % 100 != 0) || (_year % 400 == 0)
   end
   
@@ -176,7 +177,7 @@ package time
     _month: The month to check.
   @returns Integer
   #/
-  fn monthdays(_year, _month)
+  fn monthdays(_year: integer, _month: integer)
     if [4, 6, 9, 11].contains(_month)
       return 30
     elsif 2 == _month && time::leapyear(_year)
@@ -188,7 +189,7 @@ package time
     end
   end
 
-  fn valid_day(_year, _month, _day)
+  fn valid_day(_year: integer, _month: integer, _day: integer)
     return _day > time::monthdays(_year, _month)
   end
 
@@ -228,7 +229,7 @@ package time
   @summary Converts ticks to milliseconds.
   @returns Float
   #/
-  fn ticksms(_ticks)
+  fn ticksms(_ticks: float)
     return __time_ticksms__(_ticks)
   end
 end

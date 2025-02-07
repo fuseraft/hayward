@@ -31,3 +31,27 @@ var (spell: lambda = with () do
 end)
 
 cast(spell)
+
+println string::interweave("hello", "world")
+println string::shuffle("hello")
+println ""
+
+var (tests: list = ["123a", "asdf", "0321", ".145"],
+     results: hashmap = {
+      "isalpha": [],
+      "isnumeric": [],
+      "isalphanumeric": [],
+     })
+
+for test in tests do
+  results["isalpha"].push(string::padend("isalpha: ", 20) + "${test} -> " + string::isalpha(test))
+  results["isnumeric"].push(string::padend("isnumeric: ", 20) + "${test} -> " + string::isnumeric(test))
+  results["isalphanumeric"].push(string::padend("isalphanumeric: ", 20) + "${test} -> " + string::isalphanumeric(test))
+end
+
+for _, res in results do
+  for r in res do
+    println r
+  end
+  println ""
+end
