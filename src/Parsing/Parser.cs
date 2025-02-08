@@ -1669,21 +1669,17 @@ public partial class Parser
 
         if (type == TokenName.KW_Spawn)
         {
-            var node = ParseSpawn();
-            assignment = new (baseNode, identifierName, type, node);
+            assignment = new (baseNode, identifierName, type, ParseSpawn());
         }
         else if (type == TokenName.KW_Case)
         {
-            var node = ParseCase();
-            assignment = new (baseNode, identifierName, type, node);
+            assignment = new (baseNode, identifierName, type, ParseCase());
         }
         else
         {
             Next();
 
-            var initializer = ParseExpression();
-
-            assignment = new (baseNode, identifierName, type, initializer);
+            assignment = new (baseNode, identifierName, type, ParseExpression());
         }
 
         if (assignment != null && MatchName(TokenName.KW_When))

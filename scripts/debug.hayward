@@ -1,57 +1,71 @@
-# a digital spell
+# electronic spellcasting
 
-fn cast(spell)
-  spell()
+package program
+  var (hello: string = "world")
+
+  fn fun()
+    var (tests: list = ["1234", "A234", "A23D", "123D", "ABCD"],
+         results: hashmap = {
+          "isalpha": [],
+          "isnumeric": [],
+          "isalphanumeric": [],
+         })
+
+    for test in tests do
+      results["isalpha"].push(string::padend("isalpha('${test}'): ", 25) + string::isalpha(test))
+      results["isnumeric"].push(string::padend("isnumeric('${test}'): ", 25) + string::isnumeric(test))
+      results["isalphanumeric"].push(string::padend("isalphanumeric('${test}'): ", 25) + string::isalphanumeric(test))
+    end
+
+    for _, res in results do
+      for r in res do
+        println r
+      end
+
+      println ""
+    end
+  end
 end
 
-var (spell: lambda = with () do
-  var (past: date = d(2006, 12, 24),
-       future: date = d("2026/12/24 11:11 AM"),
-       now: date = d())
+export "program"
 
-  for dt in [future, now, past].sort() do
-    var (period: string = case 
-          when dt < now "past"
-          when dt == now "present"
-          when dt > now "future"
-        end)
+# program::fun()
+# println __rlist__().pretty()
 
-    println "${dt} is in the ${period}!"
-  end
+dt = time::now()
 
-  # subtract 20 years from the second date
-  future = time::add_years(future, -(future.year() - past.year()))
+println "dt.hour = ${dt.hour()}"
 
-  # add 11 hours and 11 minutes 
-  past = time::add_minutes(time::add_hours(past, 11), 11)
-
-  if past == future and future < now
-    println "they are now the same!"
-  end
-end)
-
-cast(spell)
-
-println string::interweave("hello", "world")
-println string::shuffle("hello")
-println ""
-
-var (tests: list = ["123a", "asdf", "0321", ".145"],
-     results: hashmap = {
-      "isalpha": [],
-      "isnumeric": [],
-      "isalphanumeric": [],
-     })
-
-for test in tests do
-  results["isalpha"].push(string::padend("isalpha: ", 20) + "${test} -> " + string::isalpha(test))
-  results["isnumeric"].push(string::padend("isnumeric: ", 20) + "${test} -> " + string::isnumeric(test))
-  results["isalphanumeric"].push(string::padend("isalphanumeric: ", 20) + "${test} -> " + string::isalphanumeric(test))
+# A `case` statement without a test.
+case
+    when dt.hour() < 12
+        println "good morning"
+    when dt.hour() < 17
+        println "good afternoon"
+    when dt.hour() < 21
+        println "good evening"
+    else
+        println "good night"
 end
 
-for _, res in results do
-  for r in res do
-    println r
-  end
-  println ""
+# A `case` statement with a test and an alias for the test value (for better hallway vision).
+case dt.hour() as hour
+    when hour < 12
+        println "good morning"
+    when hour < 17
+        println "good afternoon"
+    when hour < 21
+        println "good evening"
+    else
+        println "good night, the time is: ${dt}, hour is ${hour}"
 end
+
+# Using a `case` statement to assign a value conditionally.
+x = case dt.hour() as hour
+        when hour < 12 "morning: ${hour}"
+        when hour < 17 "afternoon: ${hour}"
+        when hour < 21 "evening: ${hour}"
+        else "night: ${hour}"
+    end
+
+println x

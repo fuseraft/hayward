@@ -145,7 +145,7 @@ public class ReflectorBuiltinHandler
         var functionsKey = Value.CreateString("functions");
         var stackKey = Value.CreateString("stack");
 
-        foreach (var m in ctx.Methods)
+        foreach (var m in ctx.Functions)
         {
             rlistFunctions.Add(Value.CreateString(m.Key));
         }
