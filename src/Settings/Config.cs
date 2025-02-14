@@ -50,6 +50,22 @@ public class Config
                     }
                     break;
 
+                case "-p":
+                case "--stdlib-path":
+                    if (!iter.MoveNext())
+                    {
+                        throw new CliError($"Expected a path after `{current}`.");
+                    }
+
+                    Hayward.Settings.StandardLibrary = [new StandardLibraryPath
+                    {
+                        AutoLoad = true,
+                        IncludeSubdirectories = true,
+                        IsOverride = true,
+                        Path = iter.Current
+                    }];
+                    break;
+
                 case "-t":
                 case "--tokens":
                     if (config.Scripts.Count == 0)
@@ -216,6 +232,7 @@ public class Config
             ("-n, --new <filename>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
             ("-ns, --no-stdlib", "run without standard library"),
             ("-sm, --safemode", "run in safemode"),
+            ("-p, --stdlib-path", "run in safemode"),
             ("-<key>=<value>", "pass an argument to a program as a key-value pair")
         ];
 
@@ -233,6 +250,14 @@ public class Config
     private static bool IsScript(ref string filename)
     {
         var original = filename;
+
+        if (filename.StartsWith("~/"))
+        {
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var path = filename.Replace("~", home).Replace("//", "/");
+            var dir = Path.GetDirectoryName(path) ?? throw new CliError($"Unable to retrieve parent path for: {path}");
+            filename = Path.Combine([dir, Path.GetFileName(filename)]);
+        }
 
         if (!Path.HasExtension(filename))
         {

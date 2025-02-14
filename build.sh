@@ -17,25 +17,27 @@ if [[ "$DOTNET_VERSION_MAJOR" -lt 8 ]]; then
   exit 1
 fi
 
-SOLUTION_PATH="./src/hayward.sln"
+SOLUTION_PATH="./src/hayward.csproj"
 OUTPUT_DIR="bin"
 
-echo "Publishing solution..."
-dotnet publish "$SOLUTION_PATH" -c Release -o "$OUTPUT_DIR"
+BUILD_OUTPUT=""
+echo "Building Hayward..."
+if ! BUILD_OUTPUT=$(dotnet publish "$SOLUTION_PATH" -c Release -o "$OUTPUT_DIR" 2>&1); then
+  echo "Build failed. Output:"
+  echo "$BUILD_OUTPUT"
+  exit 1
+fi
 
 if [ -d "src/bin" ]; then
   rm -rf "src/bin"
-  echo "Removed src/bin"
 fi
 
 if [ -d "src/obj" ]; then
   rm -rf "src/obj"
-  echo "Removed src/obj"
 fi
 
 if [ -d "obj" ]; then
   rm -rf "obj"
-  echo "Removed obj"
 fi
 
-echo "Try running ``./bin/hayward -h`` and happy coding!"
+echo "Build succeeded! Try running ``./bin/hayward -h`` and happy coding!"

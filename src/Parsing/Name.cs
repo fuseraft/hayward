@@ -58,6 +58,7 @@ public enum TokenName
   Builtin_Core_Base,
   Builtin_Core_BeginsWith,
   Builtin_Core_Chars,
+  Builtin_Core_Chomp,
   Builtin_Core_Clear,
   Builtin_Core_Clone,
   Builtin_Core_Contains,

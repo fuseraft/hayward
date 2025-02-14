@@ -172,6 +172,13 @@ public struct FileUtil
         return Environment.CurrentDirectory;
     }
 
+    public static string ExpandPath(string expand)
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var path = expand.Replace("~", home).Replace("//", "/");
+        return Path.GetFullPath(path);
+    }
+
     public static string GetAbsolutePath(Token token, string path)
     {
         try

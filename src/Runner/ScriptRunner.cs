@@ -1,6 +1,7 @@
 
 using hayward.Parsing;
 using hayward.Runtime;
+using hayward.Runtime.Builtin;
 using hayward.Settings;
 using hayward.Tracing;
 using hayward.Tracing.Error;
@@ -78,8 +79,9 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
                 continue;
             }
             
-            var libraryPath = Path.Combine(Path.GetDirectoryName(exePath) ?? string.Empty, library.Path);
-            
+            var libraryPath = library.IsOverride ? FileUtil.ExpandPath(library.Path) : Path.Combine(Path.GetDirectoryName(exePath) ?? string.Empty, library.Path);
+            libraryPath = Path.GetFullPath(libraryPath);
+
             if (Directory.Exists(libraryPath) && library.IncludeSubdirectories)
             {
                 foreach (var path in Directory.EnumerateFiles(libraryPath, "*.*"))

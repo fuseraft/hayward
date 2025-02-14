@@ -7,6 +7,7 @@ public static class CoreBuiltin
     public const string Append       = "append";
     public const string Between      = "between";
     public const string Chars        = "chars";
+    public const string Chomp        = "chomp";
     public const string IsA          = "is_a";
     public const string Join         = "join";
     public const string Split        = "split";
@@ -85,6 +86,7 @@ public static class CoreBuiltin
             { Append,       TokenName.Builtin_Core_Append      },
             { Between,      TokenName.Builtin_Core_Between     },
             { Chars,        TokenName.Builtin_Core_Chars       },
+            { Chomp,        TokenName.Builtin_Core_Chomp       },
             { IsA,          TokenName.Builtin_Core_IsA         },
             { Join,         TokenName.Builtin_Core_Join        },
             { Split,        TokenName.Builtin_Core_Split       },

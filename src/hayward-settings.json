@@ -24,7 +24,9 @@
     "safemode": true,
     "debug": {
       "cli_args": [
-        ""
+        "~/GitHub/hayward/scripts/debug",
+        "--stdlib-path",
+        "~/GitHub/hayward/lib"
       ]
     },
     "environment_variables": {

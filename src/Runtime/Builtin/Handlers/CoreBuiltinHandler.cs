@@ -13,6 +13,7 @@ public static class CoreBuiltinHandler
         return builtin switch
         {
             TokenName.Builtin_Core_Chars => Chars(token, value, args),
+            TokenName.Builtin_Core_Chomp => Chomp(token, value, args),
             TokenName.Builtin_Core_Join => Join(token, value, args),
             TokenName.Builtin_Core_HasKey => HasKey(token, value, args),
             TokenName.Builtin_Core_Size => Size(token, value, args),
@@ -1645,6 +1646,36 @@ public static class CoreBuiltinHandler
 
         var chars = s.ToCharArray().Select(x => Value.CreateString(x.ToString())).ToList();
         return Value.CreateList(chars);
+    }
+
+    private static Value Chomp(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 0)
+        {
+            throw new ParameterCountMismatchError(token, CoreBuiltin.Chomp);
+        }
+
+        if (!value.IsString())
+        {
+            throw new InvalidOperationError(token, "Expected a string.");
+        }
+
+        var input = value.GetString();
+
+        if (string.IsNullOrEmpty(input))
+        {
+            value = Value.EmptyString();
+        }
+        else if (input.EndsWith("\r\n"))
+        {
+            value = Value.CreateString(input[..^2]);
+        }
+        else if (input.EndsWith('\n') || input.EndsWith('\r'))
+        {
+            value = Value.CreateString(input[..^1]);
+        }
+
+        return value;
     }
 
     private static Value HasKey(Token token, Value value, List<Value> args)

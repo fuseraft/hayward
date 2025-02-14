@@ -81,6 +81,9 @@ public class StandardLibraryPath
 
     [JsonPropertyName("include_subdirectories")]
     public bool IncludeSubdirectories { get; set; } = true;
+
+    [JsonPropertyName("is_override")]
+    public bool IsOverride { get; set; } = false;
 }
 
 public class FileExtensions

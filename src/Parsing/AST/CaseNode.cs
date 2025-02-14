@@ -63,6 +63,7 @@ public class CaseNode : ASTNode
         return new CaseNode
         {
             TestValue = TestValue?.Clone(),
+            TestValueAlias = TestValueAlias?.Clone(),
             ElseBody = clonedElseBody,
             WhenNodes = clonedWhenNodes
         };

@@ -892,17 +892,19 @@ public class Interpreter
     private Value Visit(CaseWhenNode node)
     {
         var testValue = Interpret(node.Condition);
-        return Value.CreateBoolean(BooleanOp.IsTruthy(testValue));
+        return testValue;
     }
 
     private Value Visit(CaseNode node)
     {
         var testValue = Value.CreateBoolean(true);
+        var isSwitch = false;
         var result = Value.Default();
 
         if (node.TestValue != null)
         {
             testValue = Interpret(node.TestValue);
+            isSwitch = true;
 
             if (node.TestValueAlias != null)
             {
@@ -915,7 +917,8 @@ public class Interpreter
         {
             var whenCondition = Interpret(whenNode);
 
-            if (ComparisonOp.Equal(ref testValue, ref whenCondition))
+            if ((isSwitch && BooleanOp.IsTruthy(whenCondition)) 
+                || (!isSwitch && ComparisonOp.Equal(ref testValue, ref whenCondition)))
             {
                 var frame = CallStack.Peek();
                 foreach (var stmt in whenNode.Body)
