@@ -2,20 +2,27 @@ const WIDTH  = 60
 const HEIGHT = 30
 
 fn main()
-  board = [[false] * WIDTH] * HEIGHT 
+  grid = [[false] * WIDTH] * HEIGHT 
 
   # Gosper Glider Gun in the upper-left quadrant
-  set_gosper_glider_gun(board, 1, 1)
+  add_gun(grid, 1, 1)
 
   repeat 1500 do
     console::clear()
-    print_board(board)
-    board = next_generation(board)
+    print_grid(grid)
+    grid = update(grid)
   end
 end
 
-fn set_gosper_glider_gun(board, top_left_x, top_left_y)
-  gun_coords = [
+fn print_grid(grid: list)
+  for row in grid do
+    row_str = row.map(with (cell) do cell ? "O" : " " end).join()
+    println row_str
+  end
+end
+
+fn add_gun(grid: list, top_left_x: integer, top_left_y: integer)
+  var (gun_coords: list = [
     [0,4], [0,5], [1,4], [1,5],
     [10,4], [10,5], [10,6],
     [11,3], [11,7],
@@ -31,41 +38,33 @@ fn set_gosper_glider_gun(board, top_left_x, top_left_y)
     [24,0], [24,1], [24,5], [24,6],
     [34,2], [34,3],
     [35,2], [35,3]
-  ]
+  ])
 
   for coord in gun_coords do
     dx, dy =< coord
     
-    x = top_left_x + dx
-    y = top_left_y + dy
+    var (x: integer = top_left_x + dx)
+    var (y: integer = top_left_y + dy)
 
-    board[y][x] = x.between(0, WIDTH - 1) and y.between(0, HEIGHT - 1)
+    grid[y][x] = x.between(0, WIDTH - 1) and y.between(0, HEIGHT - 1)
   end
 end
 
-fn print_board(board)
-  for row in board do
-    row_str = row.map(with (cell) do cell ? "O" : "." end).join()
-    println row_str
-  end
-end
-
-fn next_generation(board)
-  new_board = [[false] * WIDTH] * HEIGHT 
+fn update(grid: list): list
+  var (new_grid: list = [[false] * WIDTH] * HEIGHT) 
 
   for y in [0 .. HEIGHT - 1] do
     for x in [0 .. WIDTH - 1] do
-      alive = board[y][x]
-
       # count neighbors
-      neighbors = 0
+      var (alive: boolean = grid[y][x])
+      var (neighbors: integer)
 
       for dy in [-1, 0, 1] do
         for dx in [-1, 0, 1] do
           next when dx == 0 and dy == 0
           ny = y + dy
           nx = x + dx
-          if ny.between(0, HEIGHT - 1) and nx.between(0, WIDTH - 1) and board[ny][nx]
+          if ny.between(0, HEIGHT - 1) and nx.between(0, WIDTH - 1) and grid[ny][nx]
             neighbors += 1
           end
         end
@@ -73,14 +72,14 @@ fn next_generation(board)
 
       # Conway's Game of Life
       if alive and (neighbors == 2 or neighbors == 3)
-        new_board[y][x] = true
+        new_grid[y][x] = true
       elsif not alive and neighbors == 3
-        new_board[y][x] = true 
+        new_grid[y][x] = true 
       end
     end
   end
 
-  return new_board
+  return new_grid
 end
 
 main()

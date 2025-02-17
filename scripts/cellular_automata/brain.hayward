@@ -1,25 +1,23 @@
 global.min_grid_size = 20
 
-fn main(args)
+fn main(args: list)
   grid_size = get_grid_size(args)
 
-  if grid_size == null
-    exit print_help()
-  end
+  exit print_help() when grid_size == null
 
   rows = grid_size
   cols = grid_size
 
   grid = [[0] * cols] * rows
   initialize(grid, rows, cols)
-
+  
   while true do
     display(grid, rows, cols)
-    update(grid, rows, cols)
+    grid = update(grid, rows, cols)
   end
 end
 
-fn get_grid_size(args)
+fn get_grid_size(args: list): integer
   grid_size = null
 
   try
@@ -34,13 +32,13 @@ fn get_grid_size(args)
 end
 
 fn print_help()
-  println "usage: kiwi brain <int_grid_size>"
+  println "usage: hayward brain <int_grid_size>"
 end
 
 /#
 Initializes cells to either 0 (off), 1 (on), or 2 (dying)
 #/
-fn initialize(grid, rows, cols)
+fn initialize(grid: list, rows: integer, cols: integer)
   for x in [0 .. rows - 1] do
     for y in [0 .. cols - 1] do
       grid[x][y] = math::random(0, 2)
@@ -48,7 +46,7 @@ fn initialize(grid, rows, cols)
   end
 end
 
-fn display(grid, rows, cols)
+fn display(grid: list, rows: integer, cols: integer)
   console::clear()
   len = rows - 1
   changed = false
@@ -72,13 +70,15 @@ fn display(grid, rows, cols)
   end
 
   if !changed
-    initialize(grid, rows, cols)
+    # initialize(grid, rows, cols)
+    exit
   end
 end
 
-fn update(grid, rows, cols)
-  x_range = [0 .. rows - 1]
-  y_range = [0 .. cols - 1]
+fn update(grid: list, rows: integer, cols: integer): list
+  var (new_grid: list = grid.clone(),
+       x_range: list = [0 .. rows - 1],
+       y_range: list = [0 .. cols - 1])
   
   for x in x_range do
     for y in y_range do
@@ -86,31 +86,32 @@ fn update(grid, rows, cols)
       on_neighbors = count_on_neighbors(grid, rows, cols, x, y)
 
       if current_state == 0 && on_neighbors == 2
-        grid[x][y] = 1  # off to on
+        new_grid[x][y] = 1  # off to on
       elsif current_state == 1
-        grid[x][y] = 2  # on to dying
+        new_grid[x][y] = 2  # on to dying
       else
-        grid[x][y] = 0  # dying to off
+        new_grid[x][y] = 0  # dying to off
       end
     end
   end
+
+  return new_grid
 end
 
-fn count_on_neighbors(grid, rows, cols, x, y)
-  directions = [
-    [x - 1, y - 1],
-    [x - 1, y],
-    [x - 1, y + 1],
-    [x, y - 1],
-    [x, y + 1],
-    [x + 1, y - 1],
-    [x + 1, y],
-    [x + 1, y + 1]
-  ]
-
-  res = 0
-  nx = null
-  ny = null
+fn count_on_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: integer): integer
+  var (directions: list = [
+          [x - 1, y - 1],
+          [x - 1, y],
+          [x - 1, y + 1],
+          [x, y - 1],
+          [x, y + 1],
+          [x + 1, y - 1],
+          [x + 1, y],
+          [x + 1, y + 1]
+        ],
+       nx: integer,
+       ny: integer,
+       res: integer)
 
   for direction in directions do
     nx = direction[0], ny = direction[1]

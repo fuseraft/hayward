@@ -1,8 +1,8 @@
-package guava
+package tester
   fn initialize()
-    if !global.has_key("guava_tests")
-      global.guava_tests = {}
-      global.guava_test_results = []
+    if !global.has_key("unit_tests")
+      global.unit_tests = {}
+      global.unit_test_results = []
     end
   end
 
@@ -11,15 +11,15 @@ package guava
   end
   
   fn register_test(name, t)
-    guava::initialize()
-    global.guava_tests.set(name, t)
+    tester::initialize()
+    global.unit_tests.set(name, t)
   end
   
   fn run_test(name, test, results = [])
     print string::padend("Running test: ${name} ", 45, " ")
-    guava::initialize()
+    tester::initialize()
   
-    test_start = __time_ticks__()
+    test_start = time::ticks()
     passed = false
     error_message = ""
   
@@ -30,8 +30,8 @@ package guava
       error_message = err
     end
     
-    test_stop = __time_ticks__()
-    duration = __time_ticksms__(test_stop - test_start)
+    test_stop = time::ticks()
+    duration = time::ticksms(test_stop - test_start)
     results.push({ "name": t, "result": passed, "duration": duration })
   
     println (passed ? "passed" : "failed").uppercase() + " in ${duration}ms"
@@ -41,15 +41,15 @@ package guava
   end
   
   fn run_tests()
-    guava::initialize()
+    tester::initialize()
     results = []
 
-    for name, t in global.guava_tests do
-      guava::run_test(name, t, results)
+    for name, t in global.unit_tests do
+      tester::run_test(name, t, results)
     end
   
     return results
   end
 end
 
-export "guava"
+export "tester"

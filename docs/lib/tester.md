@@ -1,6 +1,6 @@
-# `guava`
+# `tester`
 
-The `guava` package contains functionality for registering and running tests with assertions.
+The `tester` package contains functionality for registering and running tests with assertions.
 
 ## Table of Contents
 

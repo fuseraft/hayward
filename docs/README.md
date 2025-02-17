@@ -39,7 +39,7 @@
    - [`env`](lib/env.md): For interacting with command-line arguments and environment variables.
    <!-- - [`ffi`](lib/ffi.md): A simple Foreign Function Interface package. -->
    - [`fio`](lib/fio.md): Functions for file system operations.
-   - [`guava`](lib/guava.md): A simple unit testing framework.
+   - [`tester`](lib/tester.md): A simple unit testing framework.
    <!-- - [`http`](lib/http.md): Functions for HTTP requests (GET, POST, etc). -->
    <!-- - [`log`](lib/log.md): A minimal logging interface. -->
    - [`math`](lib/math.md): Common mathematical functions and utilities.

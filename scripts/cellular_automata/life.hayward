@@ -8,31 +8,29 @@ fn main(args)
   rows = grid_size
   cols = grid_size
 
-  global.y_range = [0 .. rows - 1]
-  global.x_range = [0 .. cols - 1]
-
-  grid = [[0] * cols] * rows
+  var (grid: list = [[0] * cols] * rows)
   randomize(grid, rows, cols)
-  last_res = null
+  var (last_res: string)
 
   while true do
-    res = display(grid, rows, cols)
+    var (res: string = display(grid, rows))
     println res
-    if last_res == res
-      randomize(grid, rows, cols)
+
+    if res != last_res
+      grid = update(grid, rows, cols)
     else
-      update(grid, rows, cols)
+      exit
     end
 
-    last_res = res
+    last_res = res.clone()
   end
 end
 
 fn print_help()
-  println "usage: kiwi life <integer_grid_size>"
+  println "usage: hayward life <integer_grid_size>"
 end
 
-fn get_grid_size(args)
+fn get_grid_size(args: list): integer
   grid_size = null
 
   if args.empty()
@@ -40,25 +38,26 @@ fn get_grid_size(args)
   end
 
   try
-    grid_size = args.get(0).to_integer()
+    grid_size = args[0].to_integer()
     grid_size = [grid_size, 20].max()
   end
 
   return grid_size
 end
 
-fn randomize(grid, rows, cols)
-  for x in global.x_range do
-    for y in global.y_range do
+fn randomize(grid: list, rows: integer, cols: integer)
+  for x in [0 .. cols - 1] do
+    for y in [0 .. rows - 1] do
       grid[x][y] = math::random(0, 1)
     end
   end
 end
 
-fn display(grid, rows, cols)
+fn display(grid: list, rows: integer): string
   console::clear()
-  len = rows - 1
-  disp = [0] * len
+
+  var (len: integer = rows - 1,
+       disp: list = [0] * len)
 
   repeat len as i do
     disp.set(i - 1, grid[i - 1].join(" "))
@@ -67,21 +66,7 @@ fn display(grid, rows, cols)
   return disp.join("\n").replace("0", " ").replace("1", "O")
 end
 
-fn set_cell(grid, rows, cols, x, y, state)
-  if x >= 0 && x < rows && y >= 0 && y < cols
-    grid[x][y] = state
-  end
-end
-
-fn count_neighbor(grid, rows, cols, nx, ny)
-  if (nx >= 0 && nx < rows && ny >= 0 && ny < cols)
-    return (grid[nx][ny])
-  end
-
-  return 0
-end
-
-fn count_neighbors(grid, rows, cols, x, y)
+fn count_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: integer): integer
   directions = [
     [x - 1, y - 1],
     [x - 1, y],
@@ -107,20 +92,24 @@ fn count_neighbors(grid, rows, cols, x, y)
   return res
 end
 
-fn update(grid, rows, cols)
-  for x in global.x_range do
-    for y in global.y_range do
+fn update(grid: list, rows: integer, cols: integer): list
+  new_grid = grid.clone()
+
+  for x in [0 .. cols - 1] do
+    for y in [0 .. rows - 1] do
       live_neighbors = count_neighbors(grid, rows, cols, x, y)
 
       if grid[x][y] == 1 && (live_neighbors == 2 || live_neighbors == 3)
-        grid[x][y] = 1
+        new_grid[x][y] = 1
       elsif grid[x][y] == 0 && live_neighbors == 3
-        grid[x][y] = 1
+        new_grid[x][y] = 1
       else
-        grid[x][y] = 0
+        new_grid[x][y] = 0
       end
     end
   end
+
+  return new_grid
 end
 
 main(env::argv().keys())
