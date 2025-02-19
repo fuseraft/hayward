@@ -98,6 +98,9 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
             }
         }
 
+        paths.Sort();
+        paths.Reverse();
+
         foreach (var path in paths)
         {
             using Lexer lexer = new(path);
