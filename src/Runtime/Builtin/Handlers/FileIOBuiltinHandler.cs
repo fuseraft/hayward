@@ -213,15 +213,29 @@ public static class FileIOBuiltinHandler
 
     private static Value WriteLine(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
+        if (args.Count != 2 && !args[0].IsString())
         {
             throw new ParameterCountMismatchError(token, FileIOBuiltin.WriteLine);
         }
 
         var path = args[0].GetString();
-        var text = args[1].GetString();
 
-        return Value.CreateBoolean(FileUtil.WriteLine(token, path, text));
+        if (args[1].IsString())
+        {
+            var text = args[1].GetString();
+            return Value.CreateBoolean(FileUtil.WriteLine(token, path, text));
+        }
+        else if (args[1].IsList())
+        {
+            List<string> text = [];
+            foreach (var item in args[1].GetList())
+            {
+                text.Add(Serializer.Serialize(item));
+            }
+            return Value.CreateBoolean(FileUtil.WriteLines(token, path, text));
+        }
+
+        throw new InvalidOperationError(token, "Expected a string or a list.");
     }
 
     private static Value ReadBytes(Token token, List<Value> args)
@@ -243,7 +257,7 @@ public static class FileIOBuiltinHandler
         }
 
         var path = args[0].GetString();
-        return Value.CreateList(FileUtil.ReadFile(token, path));
+        return Value.CreateString(FileUtil.ReadFile(token, path));
     }
 
     private static Value ReadLines(Token token, List<Value> args)

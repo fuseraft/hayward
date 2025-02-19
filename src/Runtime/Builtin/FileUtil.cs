@@ -405,7 +405,20 @@ public struct FileUtil
     {
         try
         {
-            File.WriteAllText(path, text + Environment.NewLine);
+            File.AppendAllText(path, text + Environment.NewLine);
+            return true;
+        }
+        catch (Exception)
+        {
+            throw new FileSystemError(token, $"Could not write to file: {path}");
+        }
+    }
+
+    public static bool WriteLines(Token token, string path, List<string> text)
+    {
+        try
+        {
+            File.AppendAllLines(path, text);
             return true;
         }
         catch (Exception)

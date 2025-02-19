@@ -1,25 +1,40 @@
 /#
-
-Let's demonstrate some OOP.
-
+This simple markdown generator reads all `.hayward` files found within the current 
+directory and its subdirectories, and generates a markdown file called `output.md` 
+containing the contents of each file.
 #/
 
-struct Xyz;
+try
+  # get the absolute path to the output file (in the current directory)
+  var (output_path: string = fio::abspath("./output.md"),
+       # this list will contain the markdown content
+       output_text: list   = [])
+  
+  # remove the file if it exists
+  fio::remove(output_path)
 
-xyz = Xyz.new()
+  # loop through each .hayward file in the current directory and subdirectories
+  for path in fio::glob("./", ["./**/*.hayward"]) do
+    # get the filename and read the text from the file
+    var (filename:  string = fio::filename(path),
+         content:   string = fio::read(path))
 
-/#
-Xyz.set_x = fn(x: integer) 
-  @x = x
-;
-#/
+    # create markdown content for the current file
+    output_text.push([
+      "## ${filename}", 
+      "```hayward", 
+      content, 
+      "```"
+    ]);
 
-# println xyz
+  /# write the markdown content to the output file, 
+  flattening the list of lists into a single list. #/
+  fio::writeln(output_path, output_text.flatten())
 
-if xyz != null
-  if xyz 
-    println "hello";
-;
-
-for i in [1 .. 10] do
-  println "i: ${i}";
+  # throw an error if we could not generate the file
+  throw "could not generate ${output_path}" 
+    when !fio::exists(output_path)
+  
+  println "generated ${output_path}"
+catch (err)
+  println "an error occurred: ${err}";
