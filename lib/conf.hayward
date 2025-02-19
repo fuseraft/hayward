@@ -24,11 +24,9 @@ package conf
 
     for _key in _conf_hashmap.keys() do
       _val = _conf_hashmap[_key]
-      _conf_hashmap[_key] = conf::convert(_val)
-    end
+      _conf_hashmap[_key] = conf::convert(_val);
 
-    return _conf_hashmap
-  end
+    return _conf_hashmap;
 
   /#
   Summary: Reads settings from a `json` file into a hashmap.
@@ -39,20 +37,17 @@ package conf
   fn readjson(_json_path)
     try
       if !__fio_isfile__(_json_path)
-        return {}
-      end
+        return {};
 
       return __fio_readfile__(_json_path).to_hashmap()
     catch
-      return {}
-    end
-  end
+      return {};
+  ;
 
   fn read_confhashmap(_conf_path, _delim)
     try
       if !__fio_isfile__(_conf_path)
-        return {}
-      end
+        return {};
   
       return __fio_readlines__(_conf_path).reduce({}, with (_acc, _line) do
         _delim_index = _line.index(_delim)
@@ -60,15 +55,12 @@ package conf
         if _delim_index > -1
           _key = _line[0:_delim_index]
           _value = _line.replace(_key, "")[1:]
-          _acc[_key.trim()] = _value.trim()
-        end
+          _acc[_key.trim()] = _value.trim();
 
-        return _acc
-      end)
+        return _acc;)
     catch
-      return {}
-    end
-  end
+      return {};
+  ;
 
   fn convert(_value)
     _ret_val = _value
@@ -89,29 +81,24 @@ package conf
             _dot_count += 1
           else
             _is_string = true
-            break
-          end
+            break;
 
           if _dot_count > 1
             _is_string = true
-            break
-          end
-        end
+            break;
+        ;
 
-        _builder.push(_c)
-      end
+        _builder.push(_c);
 
       if !_is_string
         if _dot_count == 1
           _ret_val = _builder.join().to_float()
         else
-          _ret_val = _builder.join().to_integer()
-        end
-      end
-    end
+          _ret_val = _builder.join().to_integer();
+      ;
+    ;
 
-    return _ret_val
-  end
-end
+    return _ret_val;
+;
 
 export "conf"

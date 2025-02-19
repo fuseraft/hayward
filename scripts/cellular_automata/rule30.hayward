@@ -7,13 +7,11 @@ fn main()
   
   for gen in [0 .. generations - 1] do
     println display(state)
-    state = rule30(state)
-  end
-end
+    state = rule30(state);
+;
 
 fn display(state: list): string
-  return state.join().replace("0", " ").replace("1", "*")
-end
+  return state.join().replace("0", " ").replace("1", "*");
 
 fn rule30(current_state: list): list
   var (cells: integer = current_state.size() - 1)
@@ -23,10 +21,8 @@ fn rule30(current_state: list): list
     var (left: integer = i == 0 ? 0 : current_state[i - 1])
     var (center: integer = current_state[i])
     var (right: integer = i == (cells - 1) ? 0 : current_state[i + 1])
-    new_state[i] = (left ^ (center | right)) & !(left & center & right)
-  end
+    new_state[i] = (left ^ (center | right)) & !(left & center & right);
   
-  return new_state
-end
+  return new_state;
 
 main()

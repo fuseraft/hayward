@@ -76,8 +76,7 @@ fn initialize_variables()
     metadata: hashmap = {"key": "value"}
   )
 
-  return [counter, name, active, data, metadata]
-end
+  return [counter, name, active, data, metadata];
 ```
 
 ---
@@ -137,8 +136,7 @@ This can also be used with functions that return multiple values:
 
 ```hayward
 fn get_zero_and_one()
-  return [0, 1]
-end
+  return [0, 1];
 
 zero, one =< get_zero_and_one()
 ```
@@ -152,8 +150,7 @@ For example:
 
 ```hayward
 fn example_scope()
-  x = 100  # `x` is only available within this function
-end
+  x = 100;  # `x` is only available within this function
 
 println(x)  # null
 ```

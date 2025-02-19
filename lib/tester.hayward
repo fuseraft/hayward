@@ -2,18 +2,15 @@ package tester
   fn initialize()
     if !global.has_key("unit_tests")
       global.unit_tests = {}
-      global.unit_test_results = []
-    end
-  end
+      global.unit_test_results = [];
+  ;
 
   fn assert(condition, msg = "Assertion failed.")
-    throw msg when condition == false
-  end
+    throw msg when condition == false;
   
   fn register_test(name, t)
     tester::initialize()
-    global.unit_tests.set(name, t)
-  end
+    global.unit_tests.set(name, t);
   
   fn run_test(name, test, results = [])
     print string::padend("Running test: ${name} ", 45, " ")
@@ -27,8 +24,7 @@ package tester
       test()
       passed = true
     catch (err)
-      error_message = err
-    end
+      error_message = err;
     
     test_stop = time::ticks()
     duration = time::ticksms(test_stop - test_start)
@@ -36,20 +32,17 @@ package tester
   
     println (passed ? "passed" : "failed").uppercase() + " in ${duration}ms"
     if !error_message.empty()
-      println "  " + error_message
-    end
-  end
+      println "  " + error_message;
+  ;
   
   fn run_tests()
     tester::initialize()
     results = []
 
     for name, t in global.unit_tests do
-      tester::run_test(name, t, results)
-    end
+      tester::run_test(name, t, results);
   
-    return results
-  end
-end
+    return results;
+;
 
 export "tester"

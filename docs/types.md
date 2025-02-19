@@ -99,10 +99,7 @@ An instance of a `struct`.  See [Structs](structs.md) and [Abstract Structs](abs
 
 ```hayward
 # Define an empty struct called `MyStruct`
-struct MyStruct
-  fn new()
-  end
-end
+struct MyStruct;
 
 # Create an instance of `MyStruct`
 inst = MyStruct.new()
@@ -117,8 +114,7 @@ An anonymous function. Lambdas can be assigned identifiers for code reuse.  See 
 ```hayward
 # Define a reusable lambda called `puts` which accepts a parameter called `s` and prints its value.
 puts = with (s) do
-  println(s)
-end
+  println(s);
 
 puts("Hello, World!") # prints: Hello, World!
 ```
@@ -152,20 +148,16 @@ println(d) # prints: null
 
 # Explicitly checking if `d` is null.
 if d == null
-  println "d is null" # prints: d is null
-end
+  println "d is null"; # prints: d is null
 
 # Set `d` to a non-null value.
 d = 0
 
 # Explicitly checking if `d` is non-null.
 if d != null
-  println "d is not null" # prints: d is not null
-end
+  println "d is not null"; # prints: d is not null
 
 # Type coercion of null to a Boolean.
 if !null
-  println "hello world" # prints: hello world
-end
-
+  println "hello world"; # prints: hello world
 ```

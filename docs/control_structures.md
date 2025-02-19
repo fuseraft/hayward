@@ -30,7 +30,7 @@ It is crafted using the following keywords:
 - `if`: keyword used to define the first conditional path. 
 - `elsif`: keyword used to define alternate conditional paths.
 - `else`: keyword used to define the default conditional path.
-- `end`: keyword for ending blocks.
+- `end` or `;`: keyword for ending blocks.
 
 #### Syntax: `if`
 
@@ -41,7 +41,7 @@ if condition
     [ elsif_statements ] ]
 [ else
     [ else_statements ] ]
-end
+;
 ```
 
 #### Example: `if`
@@ -49,12 +49,11 @@ end
 a = 0, b = 1
 
 if a < b
-  println("${a} is less than ${b}")
+  println "${a} is less than ${b}"
 elsif a > b
-  println("${a} is greater than ${b}")
+  println "${a} is greater than ${b}"
 else
-  println("${a} is equal to ${b}")
-end
+  println "${a} is equal to ${b}";
 ```
 
 ### `case`
@@ -68,35 +67,32 @@ dt = time::now()
 
 # A `case` statement without a test.
 case
-    when dt.hour() < 12
-        println "good morning"
-    when dt.hour() < 17
-        println "good afternoon"
-    when dt.hour() < 21
-        println "good evening"
-    else
-        println "good night"
-end
+  when dt.hour() < 12
+    println "good morning"
+  when dt.hour() < 17
+    println "good afternoon"
+  when dt.hour() < 21
+    println "good evening"
+  else
+    println "good night";
 
 # A `case` statement with a test and an alias for the test value (for better hallway vision).
 case dt.hour() as hour
-    when hour < 12
-        println "good morning"
-    when hour < 17
-        println "good afternoon"
-    when hour < 21
-        println "good evening"
-    else
-        println "good night, the time is: ${dt}"
-end
+  when hour < 12
+    println "good morning"
+  when hour < 17
+    println "good afternoon"
+  when hour < 21
+    println "good evening"
+  else
+    println "good night, the time is: ${dt}";
 
 # Using a `case` statement to assign a value conditionally.
 x = case dt.hour() as hour
         when hour < 12 "morning"
         when hour < 17 "afternoon"
         when hour < 21 "evening"
-        else "night"
-    end
+        else "night";
 ```
 
 ### `when`
@@ -118,11 +114,10 @@ control_structure [ expression ] when condition
 #### Example: `when`
 
 ```hayward
-fn sum(list)
-  throw "Cannot sum a non-List value." when !list.is_a(List)
-  return 0 when list.empty()
-  return list.sum()
-end
+fn sum(numbers)
+  throw "Cannot sum a non-List value." when !numbers.is_a(List)
+  return 0 when numbers.empty()
+  return numbers.sum();
 
 println(sum([1, 2])) # prints: 3
 println(sum([]))     # prints: 0
@@ -140,8 +135,7 @@ condition ? true_expression : false_expression
 
 ```hayward
 fn min(a, b)
-  return a < b ? a : b
-end
+  return a < b ? a : b;
 
 println(min(5, 2))  # prints: 2
 println(min(1, 10)) # prints: 1

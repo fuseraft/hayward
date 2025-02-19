@@ -10,16 +10,14 @@ fn main()
   repeat 1500 do
     console::clear()
     print_grid(grid)
-    grid = update(grid)
-  end
-end
+    grid = update(grid);
+;
 
 fn print_grid(grid: list)
   for row in grid do
-    row_str = row.map(with (cell) do cell ? "O" : " " end).join()
-    println row_str
-  end
-end
+    row_str = row.map(with (cell) do cell ? "O" : " " ;).join()
+    println row_str;
+;
 
 fn add_gun(grid: list, top_left_x: integer, top_left_y: integer)
   var (gun_coords: list = [
@@ -46,9 +44,8 @@ fn add_gun(grid: list, top_left_x: integer, top_left_y: integer)
     var (x: integer = top_left_x + dx)
     var (y: integer = top_left_y + dy)
 
-    grid[y][x] = x.between(0, WIDTH - 1) and y.between(0, HEIGHT - 1)
-  end
-end
+    grid[y][x] = x.between(0, WIDTH - 1) and y.between(0, HEIGHT - 1);
+;
 
 fn update(grid: list): list
   var (new_grid: list = [[false] * WIDTH] * HEIGHT) 
@@ -65,21 +62,18 @@ fn update(grid: list): list
           ny = y + dy
           nx = x + dx
           if ny.between(0, HEIGHT - 1) and nx.between(0, WIDTH - 1) and grid[ny][nx]
-            neighbors += 1
-          end
-        end
-      end
+            neighbors += 1;
+        ;
+      ;
 
       # Conway's Game of Life
       if alive and (neighbors == 2 or neighbors == 3)
         new_grid[y][x] = true
       elsif not alive and neighbors == 3
-        new_grid[y][x] = true 
-      end
-    end
-  end
+        new_grid[y][x] = true;
+    ;
+  ;
 
-  return new_grid
-end
+  return new_grid;
 
 main()

@@ -12,17 +12,14 @@ package program
     for test in tests do
       results["isalpha"].push(string::padend("isalpha('${test}'): ", 25) + string::isalpha(test))
       results["isnumeric"].push(string::padend("isnumeric('${test}'): ", 25) + string::isnumeric(test))
-      results["isalphanumeric"].push(string::padend("isalphanumeric('${test}'): ", 25) + string::isalphanumeric(test))
-    end
+      results["isalphanumeric"].push(string::padend("isalphanumeric('${test}'): ", 25) + string::isalphanumeric(test));
 
     for _, res in results do
       for r in res do
-        println r
-      end
+        println r;
 
-      println ""
-    end
-  end
+      println "";
+  ;
 
   fn fun_case()
     dt = time::now()
@@ -31,39 +28,35 @@ package program
     
     # A `case` statement without a test.
     case
-        when dt.hour() < 12
-            println "good morning"
-        when dt.hour() < 17
-            println "good afternoon"
-        when dt.hour() < 21
-            println "good evening"
-        else
-            println "good night"
-    end
+      when dt.hour() < 12
+        println "good morning"
+      when dt.hour() < 17
+        println "good afternoon"
+      when dt.hour() < 21
+        println "good evening"
+      else
+        println "good night";
     
     # A `case` statement with a test and an alias for the test value (for better hallway vision).
     case dt.hour() as hour
-        when hour < 12
-            println "good morning"
-        when hour < 17
-            println "good afternoon"
-        when hour < 21
-            println "good evening"
-        else
-            println "good night, the time is: ${dt}, hour is ${hour}"
-    end
+      when hour < 12
+        println "good morning"
+      when hour < 17
+        println "good afternoon"
+      when hour < 21
+        println "good evening"
+      else
+        println "good night, the time is: ${dt}, hour is ${hour}";
     
     # Using a `case` statement to assign a value conditionally.
     x = case dt.hour() as hour
             when hour < 12 "morning: ${hour}"
             when hour < 17 "afternoon: ${hour}"
             when hour < 21 "evening: ${hour}"
-            else "night: ${hour}"
-        end
+            else "night: ${hour}";
     
-    println "${x}\n"
-  end
-end
+    println "${x}\n";
+;
 
 export "program"
 

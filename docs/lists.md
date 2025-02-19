@@ -70,7 +70,7 @@ You can use the `.select(lambda)` builtin to filter a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.select(with (item) do return item.contains("i") end))
+println(list.select(with (item) do return item.contains("i");))
 # prints: ["kiwi"]
 ```
 
@@ -81,13 +81,11 @@ Use the `for` keyword to iterate a list.
 ```hayward
 # Iterate the values in the list.
 for item in myList do
-  println("${item}")
-end
+  println("${item}");
 
 # Iterate the values in the list, with an index.
 for item, index in myList do
-  println("Item ${index}: ${item}")
-end
+  println("Item ${index}: ${item}");
 ```
 
 ### An Example
@@ -96,8 +94,7 @@ end
 fn sieve_of_eratosthenes(limit)
   isPrime = []
   for i in [0..limit] do
-     isPrime.push(true)
-  end
+     isPrime.push(true);
 
   isPrime[0] = false
   isPrime[1] = false
@@ -111,25 +108,20 @@ fn sieve_of_eratosthenes(limit)
       multiple = p * 2
       while multiple <= limit do
         isPrime[multiple] = false
-        multiple += p
-      end
-    end
+        multiple += p;
+    ;
 
-    p += 1
-  end
+    p += 1;
 
   # Collect all prime numbers
   primes = []
   for i in [0..limit] do
     if isPrime[i]
-      primes.push(i)
-    end
-  end
+      primes.push(i);
+  ;
 
-  return primes
-end
+  return primes;
 
 for prime, index in sieve_of_eratosthenes(30) do
-  println("${index}:\t${prime}")
-end
+  println("${index}:\t${prime}");
 ```

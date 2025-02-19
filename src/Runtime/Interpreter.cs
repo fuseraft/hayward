@@ -2014,24 +2014,29 @@ public class Interpreter
         var frame = CallStack.Peek();
         var kstruct = Context.Structs[struc.Identifier];
         var methods = kstruct.Methods;
+        var isCtor = methodName == "new";
 
-        // check base
+        // if the struct does not have the method, check the base struct
         if (!methods.ContainsKey(methodName))
         {
-            if (string.IsNullOrEmpty(kstruct.BaseStruct))
+            // if there is no base, throw if not a constructor
+            if (string.IsNullOrEmpty(kstruct.BaseStruct) && !isCtor)
             {
                 throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
             }
 
-            var baseStruct = Context.Structs[kstruct.BaseStruct];
-            var baseStructMethods = baseStruct.Methods;
-
-            if (!baseStructMethods.ContainsKey(methodName))
+            if (!isCtor)
             {
-                throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
-            }
+                var baseStruct = Context.Structs[kstruct.BaseStruct];
+                var baseStructMethods = baseStruct.Methods;
 
-            return ExecuteStructMethod(baseStructMethods, methodName, frame, node, struc);
+                if (!baseStructMethods.ContainsKey(methodName))
+                {
+                    throw new UnimplementedMethodError(node.Token, struc.Identifier, methodName);
+                }
+
+                return ExecuteStructMethod(baseStructMethods, methodName, frame, node, struc);
+            }
         }
 
         return ExecuteStructMethod(methods, methodName, frame, node, struc);
@@ -2478,15 +2483,16 @@ public class Interpreter
 
     private Value ExecuteStructMethod(Dictionary<string, KFunction> methods, string methodName, StackFrame frame, MethodCallNode node, StructRef struc)
     {
-        var function = methods[methodName];
+        methods.TryGetValue(methodName, out KFunction? function);
         InstanceRef obj = new();
-        bool isCtor = methodName == "new";
+        var isCtor = methodName == "new";
 
         var oldObjectContext = frame.GetObjectContext();
-        bool contextSwitch = false;
+        var contextSwitch = false;
 
         if (function == null && isCtor)
         {
+            obj.StructName = struc.Identifier;
             // default constructor
             return Value.CreateObject(obj);
         }

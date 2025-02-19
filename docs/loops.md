@@ -19,8 +19,7 @@ The `repeat`-loop is used to loop `n` number of times where `n` is a positive no
 i = 0
 
 repeat 10 do
-  i += 1
-end
+  i += 1;
 
 print i
 
@@ -40,8 +39,7 @@ You can use the `as` keyword to specify an *iterator variable* which stores the 
 sum = 0
 
 repeat 10 as i do
-  sum += i
-end
+  sum += i;
 
 print sum
 
@@ -58,8 +56,7 @@ The `while`-loop is used to loop based on a condition.
 i = 0
 while i <= 10 do
   i += 1
-  println(i)
-end
+  println(i);
 ```
 
 ##### Infinite Loops
@@ -70,8 +67,7 @@ To loop indefinitely, the loop condition expression must evaluate to `true`.
 import "time" # for `delay()`
 while true do
   print("\rPress Ctrl+C to exit!")
-  time::delay(500) # sleep for 500 seconds
-end
+  time::delay(500); # sleep for 500 seconds
 ```
 
 ##### Exit a Loop
@@ -84,9 +80,8 @@ while true do
   i += 1
 
   if i == 2
-    break
-  end
-end
+    break;
+;
 ```
 
 ##### Loop Continuation
@@ -97,15 +92,13 @@ while true do
   i += 1
 
   if i % 2 == 0
-    next
-  end
+    next;
 
   println(i)
 
   if i >= 10
-    break
-  end
-end
+    break;
+;
 ```
 
 ## `for`
@@ -119,13 +112,11 @@ Loop on the `.keys()` builtin to iterate the keys of a hashmap.
 ```hayward
 # Iterate the keys in the hashmap.
 for key in myHashmap.keys() do
-  println("${key}: ${myHashmap[key]}")
-end
+  println("${key}: ${myHashmap[key]}");
 
 # Iterate the keys in the hashmap, with an index.
 for key, index in myHashmap.keys() do
-  println("Key ${index}: ${key}")
-end
+  println("Key ${index}: ${key}");
 ```
 
 Loop on the `.values()` builtin to iterate the values of a hashmap.
@@ -133,13 +124,11 @@ Loop on the `.values()` builtin to iterate the values of a hashmap.
 ```hayward
 # Iterate the values in the hashmap.
 for value in myHashmap.values() do
-  println(value)
-end
+  println(value);
 
 # Iterate the values in the hashmap, with an index.
 for value, index in myHashmap.values() do
-  println("Value ${index}: ${value}")
-end
+  println("Value ${index}: ${value}");
 ```
 
 ##### Iterating a List
@@ -151,13 +140,11 @@ fruits = ["kiwi", "mango", "lime"]
 
 # Iterate the values in the list.
 for fruit in fruits do
-  println(fruit)
-end
+  println(fruit);
 
 # Iterate the values in the list, with an index.
 for fruit, index in fruits do
-  println("Fruit ${index}: ${item}")
-end
+  println("Fruit ${index}: ${item}");
 ```
 
 ##### Iterating a range
@@ -166,8 +153,7 @@ Use the `for` keyword to iterate a range.
 
 ```hayward
 for i in [1..10] do
-  println("${i}")
-end
+  println("${i}");
 ```
 
 To learn more about collections, see [Hashmaps](hashmaps.md), [Lists](lists.md), and [Ranges](ranges.md).

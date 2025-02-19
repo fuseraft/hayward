@@ -8,8 +8,7 @@ package log
     - _file_path: The log file path.
   #/
   fn set_file(_file_path)
-    __log_filepath__(_file_path)
-  end
+    __log_filepath__(_file_path);
 
   /#
   Summary: Sets the log mode. 
@@ -21,8 +20,7 @@ package log
     - _mode: The log mode. Defaults to `CONSOLE`.
   #/
   fn set_mode(_mode = "CONSOLE")
-    __log_mode__(_mode)
-  end
+    __log_mode__(_mode);
 
   /#
   Summary: Sets the log entry format.
@@ -36,8 +34,7 @@ package log
     - _format: The log entry format.
   #/
   fn logformat(_format)
-    __log_format__(_format)
-  end
+    __log_format__(_format);
 
   /#
   Summary: Sets the log timestamp format.
@@ -70,8 +67,7 @@ package log
     - _format: The timestamp format.
   #/
   fn tsformat(_format)
-    __log_tsformat__(_format)
-  end
+    __log_tsformat__(_format);
 
   /#
   Summary: Sets the minimum log level. Defaults to `INFO`.
@@ -86,8 +82,7 @@ package log
     - _level: The log level. Defaults to `INFO`.
   #/
   fn minlevel(_level = "INFO")
-    __log_level__(_level)
-  end
+    __log_level__(_level);
 
   /#
   Summary: Writes a log entry at the DEBUG level.
@@ -96,8 +91,7 @@ package log
     - _source: The source. Optional.
   #/
   fn debug(_message, _source = "")
-    __log_debug__(_message, _source)
-  end
+    __log_debug__(_message, _source);
 
   /#
   Summary: Writes a log entry at the WARNING level.
@@ -106,8 +100,7 @@ package log
     - _source: The source. Optional.
   #/
   fn warn(_message, _source = "")
-    __log_warn__(_message, _source)
-  end
+    __log_warn__(_message, _source);
 
   /#
   Summary: Writes a log entry at the INFO level.
@@ -116,8 +109,7 @@ package log
     - _source: The source. Optional.
   #/
   fn info(_message, _source = "")
-    __log_info__(_message, _source)
-  end
+    __log_info__(_message, _source);
 
   /#
   Summary: Writes a log entry at the ERROR level.
@@ -126,8 +118,7 @@ package log
     - _source: The source. Optional.
   #/
   fn error(_message, _source = "")
-    __log_error__(_message, _source)
-  end
-end
+    __log_error__(_message, _source);
+;
 
 export "log"

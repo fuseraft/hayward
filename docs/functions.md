@@ -8,8 +8,7 @@ The distinction between a function and a method in Hayward is purely semantic.
 
 ```hayward
 fn greet(name = "Hayward")
-  println("Hello, ${name}!")
-end
+  println("Hello, ${name}!");
 
 greet("world") # prints: Hello, world!
 greet()        # prints: Hello, Hayward!
@@ -21,8 +20,7 @@ Use the `return` keyword to return a value from a method, or to exit a method ea
 
 ```hayward
 fn get_greeting(name)
-  return "Hello, ${name}"
-end
+  return "Hello, ${name}";
 
 greeting = get_greeting("World!")
 
@@ -33,19 +31,16 @@ println(greeting)
 
 ```hayward
 fn say(msg = "Hello, World!")
-  println(msg)
-end
+  println(msg);
 
 say()       # prints: Hello, World!
 say("Hey!") # prints: Hey!
 
 fn configure(data, config = {})
   for key in config.keys() do
-    data[key] = config[key]
-  end
+    data[key] = config[key];
 
-  return data
-end
+  return data;
 
 data = configure({ "name": "Scott" })
 println(data) # prints: {"name": "Scott"}
@@ -62,14 +57,12 @@ You can access all global variables from within a method.
 counter = 0
 
 fn uptick()
-  counter += 1
-end
+  counter += 1;
 
 i = 1
 while i <= 5 do
   uptick()
-  i += 1
-end
+  i += 1;
 
 # 5
 println(counter)

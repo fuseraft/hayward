@@ -17,8 +17,7 @@ Block comments begin with `/#` and end with `#/`.
 /# remove the first forward slash to uncomment this block. :)
 
 fn hello()
-  println "Hello, World!"
-end
+  println "Hello, World!";
 
 hello() #/
 ```

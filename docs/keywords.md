@@ -11,7 +11,7 @@ This document provides an overview of reserved keywords in Hayward, along with e
   - [`do`](#do)
   - [`else`](#else)
   - [`elsif`](#elsif)
-  - [`end`](#end)
+  - [`end` or `;`](#end)
   - [`for`](#for)
   - [`if`](#if)
   - [`in`](#in)
@@ -89,7 +89,7 @@ The `elsif` keyword is used to define an `elsif` branch in a conditional stateme
 See [Conditionals](conditionals.md) and [Control Structures](control_structures.md).
 
 ### `end`
-The `end` keyword is used to end a code-block.
+The `end` or `;` keyword is used to terminate a code-block.
 
 ### `for`
 The `for` keyword is used to define a for-loop.

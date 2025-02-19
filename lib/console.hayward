@@ -1,32 +1,25 @@
 package console
   fn bg(color)
-    __console_background__(color)
-  end
+    __console_background__(color);
 
   fn fg(color)
-    __console_foreground__(color)
-  end
+    __console_foreground__(color);
 
   fn reset()
-    __console_reset__()
-  end
+    __console_reset__();
 
   fn clear()
-    __console_clear__()
-  end
+    __console_clear__();
 
   fn read(msg = "")
-    return input(msg)
-  end
+    return input(msg);
 
   fn write(msg = "")
-    print msg
-  end
+    print msg;
 
   fn writeln(msg = "")
-    println msg
-  end
-end
+    println msg;
+;
 
 export "console"
 
@@ -47,6 +40,6 @@ package console_color
   const MAGENTA = 13
   const YELLOW = 14
   const WHITE = 15
-end
+;
 
 export "console_color"

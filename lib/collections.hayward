@@ -1,18 +1,15 @@
-package collections
-end
+package collections;
 
 /# An implementation for working with heaps. #/
 
 struct Heap
   fn new(type: string = "min")
     @heap = []
-    @heap_type = ["min", "max"].contains(type) ? type : "min"
-  end
+    @heap_type = ["min", "max"].contains(type) ? type : "min";
 
   fn insert(value: any)
     @heap.push(value)
-    heapify_up(@heap.size() - 1)
-  end
+    heapify_up(@heap.size() - 1);
 
   fn extract_root(): any
     throw "Heap is empty" when @heap.empty()
@@ -23,24 +20,19 @@ struct Heap
       @heap.set(0, @heap.pop())  # Move the last element to the root
       heapify_down(0)
     else
-      @heap.pop()  # Remove the last element if it's the only one left
-    end
+      @heap.pop();  # Remove the last element if it's the only one left
 
-    return root
-  end
+    return root;
 
   fn peek(): any
     throw "Heap is empty" when @heap.empty()
-    return @heap.get(0)
-  end
+    return @heap.get(0);
 
   fn size(): integer
-    return @heap.size()
-  end
+    return @heap.size();
 
   fn is_empty(): boolean
-    return @heap.empty()
-  end
+    return @heap.empty();
 
   private fn heapify_up(index: integer)
     var (parent_index: integer = (index - 1) / 2)
@@ -49,16 +41,14 @@ struct Heap
       while index > 0 && @heap.get(index) < @heap.get(parent_index) do
         swap(index, parent_index)
         index = parent_index
-        parent_index = (index - 1) / 2
-      end
+        parent_index = (index - 1) / 2;
     else
       while index > 0 && @heap.get(index) > @heap.get(parent_index) do
         swap(index, parent_index)
         index = parent_index
-        parent_index = (index - 1) / 2
-      end
-    end
-  end
+        parent_index = (index - 1) / 2;
+    ;
+  ;
 
   private fn heapify_down(index: integer)
     var (left_child_index: integer = 2 * index + 1)
@@ -69,123 +59,100 @@ struct Heap
       var (smallest: integer = index)
 
       if left_child_index < size && @heap.get(left_child_index) < @heap.get(smallest)
-        smallest = left_child_index
-      end
+        smallest = left_child_index;
       
       if right_child_index < size && @heap.get(right_child_index) < @heap.get(smallest)
-        smallest = right_child_index
-      end
+        smallest = right_child_index;
       
       if smallest != index
         swap(index, smallest)
-        heapify_down(smallest)
-      end
+        heapify_down(smallest);
     else
       var (largest: integer = index)
       
       if left_child_index < size && @heap.get(left_child_index) > @heap.get(largest)
-        largest = left_child_index
-      end
+        largest = left_child_index;
       
       if right_child_index < size && @heap.get(right_child_index) > @heap.get(largest)
-        largest = right_child_index
-      end
+        largest = right_child_index;
       
       if largest != index
         swap(index, largest)
-        heapify_down(largest)
-      end
-    end
-  end
+        heapify_down(largest);
+    ;
+  ;
 
   private fn swap(i: integer, j: integer)
-    @heap.swap(i, j)
-  end
-end
+    @heap.swap(i, j);
+;
 
 /# An implementation for working with sets. #/
 
 struct Set
   fn new(data: list = [])
-    @data = data.unique()
-  end
+    @data = data.unique();
 
   fn add(item: any)
     new_data = (@data).clone()
     new_data.push(item)
-    @data = new_data.flatten().unique()
-  end
+    @data = new_data.flatten().unique();
 
   fn remove(item: any)
-    new_data = to_list().select(with (n) do return n != item end)
-    @data = new_data
-  end
+    new_data = to_list().select(with (n) do return n != item;)
+    @data = new_data;
 
   fn contains(item: any): boolean
-    return to_list().contains(item)
-  end
+    return to_list().contains(item);
 
   fn size(): integer
-    return to_list().size()
-  end
+    return to_list().size();
 
   fn clear()
-    @data = []
-  end
+    @data = [];
 
   fn difference(data: any)
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return Set.new(new_data.select(with (n: any) do return !input_data.contains(n) end))
-  end
+    return Set.new(new_data.select(with (n: any) do return !input_data.contains(n);));
 
   fn disjoint(data: any)
-    return !intersect(data)
-  end
+    return !intersect(data);
 
   fn intersect(data: any)
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return !new_data.select(with (n: any) do return input_data.contains(n) end).empty()
-  end
+    return !new_data.select(with (n: any) do return input_data.contains(n);).empty();
 
   fn merge(data: any)
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
     new_data.push(input_data)
-    @data = new_data.flatten().unique()
-  end
+    @data = new_data.flatten().unique();
 
   fn union(data: any): object
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
     new_data.push(input_data)
-    return Set.new(new_data.flatten())
-  end
+    return Set.new(new_data.flatten());
 
   fn subset(data: any): boolean
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return input_data.select(with (n) do return new_data.contains(n) end).size() == new_data.size()
-  end
+    return input_data.select(with (n) do return new_data.contains(n);).size() == new_data.size();
 
   fn superset(data: any): boolean
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return input_data.select(with (n) do return new_data.contains(n) end).size() == input_data.size()
-  end
+    return input_data.select(with (n) do return new_data.contains(n);).size() == input_data.size();
 
   fn to_list(): list
-    return ((@data).clone())
-  end
+    return ((@data).clone());
 
   fn to_string(): string
-    return to_list().to_string()
-  end
+    return to_list().to_string();
 
   fn type(): string
-    return "Set"
-  end
+    return "Set";
 
   private fn get_input_data(data: any): list
     input_data = []
@@ -194,10 +161,8 @@ struct Set
     elsif data.is_a(List)
       input_data = data
     else
-      throw "Expected a List or a Set."
-    end
-    return input_data
-  end
-end
+      throw "Expected a List or a Set.";
+    return input_data;
+;
 
 export "collections"

@@ -19,7 +19,7 @@ list = [
 Lambdas can be used inline (without assignment).
 
 ```hayward
-println(list.select(with (item) do return item["id"] % 2 == 0 end))
+println(list.select(with (item) do return item["id"] % 2 == 0;))
 # prints: [{"id": 0}, {"id": 2}, {"id": 4}, {"id": 6}, {"id": 8}]
 ```
 
@@ -29,8 +29,7 @@ You can assign a reference to a lambda for reuse.
 
 ```hayward
 odd_item_id = with (item) do
-  return item["id"] % 2 != 0
-end
+  return item["id"] % 2 != 0;
 
 println(list.select(odd_item_id))
 # prints: [{"id": 1}, {"id": 3}, {"id": 5}, {"id": 7}, {"id": 9}]
@@ -42,14 +41,12 @@ You can pass lambdas as parameters to methods.
 
 ```hayward
 puts = with (s) do
-  println(s)
-end
+  println(s);
 
 puts("Hello, World!") # prints: Hello, World!
 
 fn use_lambda(print_func, message)
-  print_func(message)
-end
+  print_func(message);
 
 use_lambda(puts, "Hello, Hayward!") # prints: Hello, Hayward!
 ```

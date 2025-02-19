@@ -4,48 +4,38 @@ A work in progress.
 
 package std
   fn len(n)
-    return n.size()
-  end
+    return n.size();
 
   fn type(n)
-    return n.type()
-  end
+    return n.type();
 
   fn is_int(n)
-    return std::type(n) == Integer
-  end
+    return std::type(n) == Integer;
 
   fn is_float(n)
-    return std::type(n) == Float
-  end
+    return std::type(n) == Float;
 
   fn is_string(s)
-    return std::type(s) == String
-  end
+    return std::type(s) == String;
 
   fn is_hashmap(s)
-    return std::type(s) == Hashmap
-  end
+    return std::type(s) == Hashmap;
 
   fn range(x, y)
-    throw Error.InvalidRange() when ![x, y].all(with (n) do std::is_int(n) end)
-    return [x..y - 1]
-  end
-end
+    throw Error.InvalidRange() when ![x, y].all(with (n) do std::is_int(n);)
+    return [x..y - 1];
+;
 
 package std::error
   fn create(error_type: string = "HaywardError", error_message: string = "An error occurred."): hashmap
-    return { "error": error_type, "message": error_message }
-  end
+    return { "error": error_type, "message": error_message };
 
   fn InvalidRange(msg = "Invalid range.")
-    return std::error::create("InvalidRange", msg)
-  end
+    return std::error::create("InvalidRange", msg);
 
   fn InvalidOperation(msg = "Invalid operation.")
-    return std::error::create("InvalidOperation", msg)
-  end
-end
+    return std::error::create("InvalidOperation", msg);
+;
 
 export "std"
 export "std::error"

@@ -39,11 +39,9 @@ fn error_handling_example()
     b += 1
   finally
     println "Executing finally block"
-    c += 1
-  end
+    c += 1;
 
-  println "Values after error handling: a=${a}, b=${b}, c=${c}"
-end
+  println "Values after error handling: a=${a}, b=${b}, c=${c}";
 
 error_handling_example()
 ```
@@ -74,12 +72,10 @@ fn nested_error_handling_example()
       b += 1
     finally
       println "Executing finally block in loop"
-      c += 1
-    end
-  end
+      c += 1;
+  ;
 
-  println "Values after nested error handling: a=${a}, b=${b}, c=${c}"
-end
+  println "Values after nested error handling: a=${a}, b=${b}, c=${c}";
 
 nested_error_handling_example()
 ```
@@ -102,8 +98,7 @@ In Hayward, you can use the `throw` statement to raise custom errors. This can b
 ```hayward
 fn validate_input(input)
   throw "Invalid input: Must be a positive number" when input <= 0
-  println "Valid input: ${input}"
-end
+  println "Valid input: ${input}";
 
 fn custom_error_example()
   try
@@ -111,9 +106,8 @@ fn custom_error_example()
   catch (err)
     println "Caught an error: ${err}"
   finally
-    println "Validation complete"
-  end
-end
+    println "Validation complete";
+;
 
 custom_error_example()
 ```
@@ -137,6 +131,5 @@ This feature enables conditionally handling specific errors when they occur.
 try
   throw { "error": "MyError", "message": "An error occurred!" }
 catch (err, msg)
-  println("${err}: ${msg}") # prints: MyError: An error occurred!
-end
+  println("${err}: ${msg}"); # prints: MyError: An error occurred!
 ```

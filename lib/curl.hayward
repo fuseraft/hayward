@@ -16,40 +16,33 @@ package curl
     # Add headers as curl arguments
     for header_key, header_value in headers do
       cmd_args.append("-H")
-      cmd_args.append(header_key + ": " + header_value)
-    end
+      cmd_args.append(header_key + ": " + header_value);
     
     # Add data if provided and if the method allows it
     if data != "" && (method == "POST" || method == "PUT")
       cmd_args.append("-d")
-      cmd_args.append(data)
-    end
+      cmd_args.append(data);
     
     # Run the command and capture output if specified
-    return sys::command("curl", cmd_args, capture_output)
-  end
+    return sys::command("curl", cmd_args, capture_output);
 
   # Convenience functions for common HTTP methods
 
   # Sends a GET request to the specified URL with optional headers.
   fn get(url: string, headers: hashmap = {}, capture_output: boolean = true)
-    return curl::request(url, "GET", headers, "", capture_output)
-  end
+    return curl::request(url, "GET", headers, "", capture_output);
 
   # Sends a POST request to the specified URL with optional headers and data.
   fn post(url: string, headers: hashmap = {}, data: string = "", capture_output: boolean = true)
-    return curl::request(url, "POST", headers, data, capture_output)
-  end
+    return curl::request(url, "POST", headers, data, capture_output);
 
   # Sends a PUT request to the specified URL with optional headers and data.
   fn put(url: string, headers: hashmap = {}, data: string = "", capture_output: boolean = true)
-    return curl::request(url, "PUT", headers, data, capture_output)
-  end
+    return curl::request(url, "PUT", headers, data, capture_output);
 
   # Sends a DELETE request to the specified URL with optional headers.
   fn delete(url: string, headers: hashmap = {}, capture_output: boolean = true)
-    return curl::request(url, "DELETE", headers, "", capture_output)
-  end
-end
+    return curl::request(url, "DELETE", headers, "", capture_output);
+;
 
 export "curl"

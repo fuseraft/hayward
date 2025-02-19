@@ -8,8 +8,7 @@ package fio
   @return String
   #/
   fn abspath(_path)
-    return __fio_fileabspath__(_path)
-  end
+    return __fio_fileabspath__(_path);
 
   /#
   @summary Append text to a file.
@@ -18,8 +17,7 @@ package fio
   @return Boolean
   #/
   fn append(_path, _text)
-    return __fio_appendtext__(_path, _text)
-  end
+    return __fio_appendtext__(_path, _text);
 
   /#
   @summary Changes the current directory.
@@ -27,8 +25,7 @@ package fio
   @return Boolean
   #/
   fn chdir(_path)
-    return __fio_chdir__(_path)
-  end
+    return __fio_chdir__(_path);
 
   /#
   @summary Combine two paths.
@@ -36,8 +33,7 @@ package fio
   @return String
   #/
   fn combine(_path_parts: list = [])
-    return __fio_combine__(_path_parts)
-  end
+    return __fio_combine__(_path_parts);
 
   /#
   @summary Copy a file.
@@ -46,8 +42,7 @@ package fio
   @return Boolean
   #/
   fn copy(_source, _dest)
-    return __fio_copyfile__(_source, _dest)
-  end
+    return __fio_copyfile__(_source, _dest);
 
   /#
   @summary Copy a directory recursively.
@@ -56,16 +51,14 @@ package fio
   @return Boolean
   #/
   fn copyr(_source, _dest)
-    return __fio_copyr__(_source, _dest)
-  end
+    return __fio_copyr__(_source, _dest);
 
   /#
   @summary Get the current working directory.
   @return Boolean
   #/
   fn cwd()
-    return __fio_cwd__()
-  end
+    return __fio_cwd__();
 
   /#
   @summary Check if a path exists.
@@ -73,8 +66,7 @@ package fio
   @return Boolean
   #/
   fn exists(_path)
-    return __fio_isfile__(_path)
-  end
+    return __fio_isfile__(_path);
 
   /#
   @summary Get a file extension.
@@ -82,8 +74,7 @@ package fio
   @return String
   #/
   fn ext(_path)
-    return __fio_fileext__(_path)
-  end
+    return __fio_fileext__(_path);
 
   /#
   @summary Get the filename from a file path.
@@ -91,8 +82,7 @@ package fio
   @return String
   #/
   fn filename(_path)
-    return __fio_filename__(_path)
-  end
+    return __fio_filename__(_path);
 
   /#
   @summary Get size of a file in bytes.
@@ -100,8 +90,7 @@ package fio
   @return Float
   #/
   fn filesize(_path)
-    return __fio_filesize__(_path)
-  end
+    return __fio_filesize__(_path);
 
   /#
   @summary Get a list of files from glob patterns.
@@ -111,8 +100,7 @@ package fio
   @return String
   #/
   fn glob(_path: string, _include_patterns: list, _exclude_patterns: list = []): list
-    return __fio_glob__(_path, _include_patterns, _exclude_patterns)
-  end
+    return __fio_glob__(_path, _include_patterns, _exclude_patterns);
 
   /#
   @summary Check if a path exists.
@@ -120,8 +108,7 @@ package fio
   @return Boolean
   #/
   fn isdir(_path)
-    return __fio_isdir__(_path)
-  end
+    return __fio_isdir__(_path);
 
   /#
   @summary Retrieve a List of directory entries.
@@ -129,8 +116,7 @@ package fio
   @return List
   #/
   fn listdir(_path)
-    return __fio_listdir__(_path)
-  end
+    return __fio_listdir__(_path);
 
   /#
   @summary Creates a directory.
@@ -138,8 +124,7 @@ package fio
   @return Boolean
   #/
   fn mkdir(_path)
-    return __fio_mkdir__(_path)
-  end
+    return __fio_mkdir__(_path);
 
   /#
   @summary Creates a directory and all subdirectories specified in the path.
@@ -147,8 +132,7 @@ package fio
   @return Boolean
   #/
   fn mkdirp(_path)
-    return __fio_mkdirp__(_path)
-  end
+    return __fio_mkdirp__(_path);
 
   /#
   @summary Move or rename a file.
@@ -157,8 +141,7 @@ package fio
   @return Boolean
   #/
   fn move(_source, _dest)
-    return __fio_movefile__(_source, _dest)
-  end
+    return __fio_movefile__(_source, _dest);
 
   /#
   @summary Get the parent directory of an absolute path.
@@ -166,8 +149,7 @@ package fio
   @return String
   #/
   fn parentdir(_path)
-    return __fio_filepath__(_path)
-  end
+    return __fio_filepath__(_path);
 
   /#
   @summary Get the content of a file as a string.
@@ -175,8 +157,7 @@ package fio
   @return String
   #/
   fn read(_path)
-    return __fio_readfile__(_path)
-  end
+    return __fio_readfile__(_path);
 
   /#
   @summary Get the content of a file as a list of strings.
@@ -184,8 +165,7 @@ package fio
   @return List
   #/
   fn readlines(_path)
-    return __fio_readlines__(_path)
-  end
+    return __fio_readlines__(_path);
 
   /#
   @summary Get the content of a file as a list of strings.
@@ -195,8 +175,7 @@ package fio
   @return List
   #/
   fn readbytes(_path, _offset, _size)
-    return __fio_readbytes__(_path, _offset, _size)
-  end
+    return __fio_readbytes__(_path, _offset, _size);
 
   /#
   @summary Get the content of a file as a list of bytes.
@@ -204,8 +183,7 @@ package fio
   @return List
   #/
   fn getbytes(_path)
-    return __fio_readbytes__(_path)
-  end
+    return __fio_readbytes__(_path);
 
   /#
   @summary Delete a file.
@@ -213,8 +191,7 @@ package fio
   @return Boolean
   #/
   fn remove(_path)
-    return __fio_deletefile__(_path)
-  end
+    return __fio_deletefile__(_path);
 
   /#
   @summary Delete a directory.
@@ -222,8 +199,7 @@ package fio
   @return Boolean
   #/
   fn rmdir(_path)
-    return __fio_rmdir__(_path)
-  end
+    return __fio_rmdir__(_path);
 
   /#
   @summary Delete a directory and all of its contents recursively.
@@ -231,8 +207,7 @@ package fio
   @return Boolean
   #/
   fn rmdirf(_path)
-    return __fio_rmdirf__(_path)
-  end
+    return __fio_rmdirf__(_path);
 
   /#
   @summary Create an empty file.
@@ -240,16 +215,14 @@ package fio
   @return Boolean
   #/
   fn touch(_path)
-    return __fio_createfile__(_path)
-  end
+    return __fio_createfile__(_path);
   
   /#
   @summary Gets the path to the temporary directory.
   @return String
   #/
   fn tmpdir()
-    return __fio_tmpdir__()
-  end
+    return __fio_tmpdir__();
 
   /#
   @summary Write text to a file. This overwrites the file if it exists.
@@ -258,8 +231,7 @@ package fio
   @return Boolean
   #/
   fn write(_path, _text = "")
-    return __fio_writetext__(_path, _text)
-  end
+    return __fio_writetext__(_path, _text);
 
   /#
   @summary Write a line of text to a file. This always appends to a file.
@@ -268,8 +240,7 @@ package fio
   @return Boolean
   #/
   fn writeln(_path, _text)
-    return __fio_writeline__(_path, _text)
-  end
+    return __fio_writeline__(_path, _text);
 
   /#
   @summary Write a list of bytes to a file. This overwrites the file if it exists.
@@ -277,8 +248,7 @@ package fio
   @param _bytes The list of bytes to write.
   #/
   fn writebytes(_path, _text)
-    __fio_writebytes__(_path, _text)
-  end
-end
+    __fio_writebytes__(_path, _text);
+;
 
 export "fio"

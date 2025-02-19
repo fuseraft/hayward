@@ -12,8 +12,7 @@ package web
   Returns: A hashmap with content, content-type, and status.
   #/
   fn ok(_content, _content_type, _status = 200)
-    return { "content": _content, "content-type": _content_type, "status": _status }
-  end
+    return { "content": _content, "content-type": _content_type, "status": _status };
 
   /#
   Summary: Returns an BAD response.
@@ -24,8 +23,7 @@ package web
   Returns: A hashmap with content, content-type, and status.
   #/
   fn bad(_content, _content_type, _status = 500)
-    return { "content": _content, "content-type": _content_type, "status": _status }
-  end
+    return { "content": _content, "content-type": _content_type, "status": _status };
 
   /#
   Summary: Redirects a request.
@@ -34,8 +32,7 @@ package web
   Returns: A hashmap with content, content-type, and status.
   #/
   fn redirect(_url, _status = 302)
-    return { "redirect": _url, "status": _status }
-  end
+    return { "redirect": _url, "status": _status };
 
   /#
   Summary: Registers a GET endpoint.
@@ -44,8 +41,7 @@ package web
     - _handler: A request handler lambda.
   #/
   fn get(_endpoint, _handler)
-    __webs_get__(_endpoint, _handler)
-  end
+    __webs_get__(_endpoint, _handler);
 
   /#
   Summary: Registers a POST endpoint.
@@ -54,8 +50,7 @@ package web
     - _handler: A request handler lambda.
   #/
   fn post(_endpoint, _handler)
-    __webs_post__(_endpoint, _handler)
-  end
+    __webs_post__(_endpoint, _handler);
 
   /#
   Summary: Instructs the web server to listen for HTTP requests.
@@ -64,8 +59,7 @@ package web
     - _port: The port. Defaults to 8080.
   #/
   fn listen(_ipaddr = "0.0.0.0", _port = 8080)
-    __webs_listen__(_ipaddr, _port)
-  end
+    __webs_listen__(_ipaddr, _port);
 
   /#
   Summary: Instructs the web server to serve static content.
@@ -74,18 +68,15 @@ package web
     - _public_path: The server-side path containing static content to be served.
   #/
   fn public(_public_endpoint, _public_path)
-    __webs_public__(_public_endpoint, _public_path)
-  end
+    __webs_public__(_public_endpoint, _public_path);
 
   /#
   fn port()
-    return __webs_port__()
-  end
+    return __webs_port__();
 
   fn host()
-    return __webs_host__()
-  end
+    return __webs_host__();
   #/
-end
+;
 
 export "web"

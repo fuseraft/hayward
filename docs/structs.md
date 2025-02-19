@@ -12,13 +12,11 @@ Each concrete struct should define a constructor method, called `new`.
 struct MyStruct
   fn new(name)
     # Use the `@` symbol to declare an instance variable.
-    @name = name 
-  end
+    @name = name ;
 
   fn say_hello()
-    println("Hello, ${name}!")
-  end
-end
+    println("Hello, ${name}!");
+;
 ```
 
 ### Creating Instances
@@ -36,12 +34,9 @@ Hayward supports single inheritance. Use the `<` symbol to specify the parent st
 
 ```hayward
 struct MySubStruct < MyStruct
-  fn new() end
-
   fn say_goodbye()
-    println("Goodbye, ${name}!")
-  end
-end
+    println("Goodbye, ${name}!");
+;
 ```
 
 ### Method Definition
@@ -50,12 +45,10 @@ Methods are defined using the `fn` keyword, followed by the method name and any 
 
 ```hayward
 struct MyStruct
-  fn new() end
-
   fn my_method(param)
     # Method code here
-  end
-end
+  ;
+;
 ```
 
 ### Overriding `to_string()`
@@ -64,12 +57,9 @@ The `override` keyword is not required to override `to_string()`.
 
 ```hayward
 struct HaywardStruct
-  fn new() end
-
   fn to_string()
-    return "I am a Hayward struct"
-  end
-end
+    return "I am a Hayward struct";
+;
 
 instance = HaywardStruct.new()
 string_repr = instance.to_string()
@@ -83,11 +73,9 @@ Methods declared as static can be invoked directly through the struct and cannot
 
 ```hayward
 struct MyStruct
-  fn new() end
   static fn static_method()
-    println("I can be invoked without an instance!")
-  end
-end
+    println("I can be invoked without an instance!");
+;
 
 MyStruct.static_method() # prints: I can be invoked without an instance!
 ```
@@ -98,12 +86,10 @@ Hayward supports `private` methods that cannot be called outside the struct defi
 
 ```hayward
 struct MyStruct
-  fn new() end
-
   private fn my_private_method()
     # Private method code here
-  end
-end
+  ;
+;
 ```
 
 All instance variables are private by default. You must explicitly implement accessors and modifiers to access them outside of the struct.
@@ -111,9 +97,8 @@ All instance variables are private by default. You must explicitly implement acc
 ```hayward
 struct MyStruct
   fn new(name)
-    @name = name
-  end
-end
+    @name = name;
+;
 
 inst = MyStruct.new("kiwi")
 ```

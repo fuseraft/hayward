@@ -7,19 +7,16 @@ package math
   Returns: Float
   #/
   fn epsilon()
-    return __eps__()
-  end
+    return __eps__();
 
   fn eps(n = 9)
     n = n.type() == "Integer" && n > 0 && n < 16 ? n : 9
     epsilon = 1.0
 
     repeat n do
-      epsilon *= 0.1
-    end
+      epsilon *= 0.1;
 
-    return epsilon
-  end
+    return epsilon;
 
   /#
   @summary: Gets a random number between x and y.
@@ -28,8 +25,7 @@ package math
   @return  Integer|Float            : A random number.
   #/
   fn random(_valueX, _valueY)
-    return __random__(_valueX, _valueY)
-  end
+    return __random__(_valueX, _valueY);
 
   /#
   Summary: Gets a random set of numbers of a given size.
@@ -44,8 +40,7 @@ package math
 
     # Ensure valid size and range, then generate a set of unique random numbers
     if _size == 0 || _range_start == _range_end || (_max - _min) < _size
-      return []
-    end
+      return [];
     
     _set = []
     _count = 0
@@ -55,12 +50,10 @@ package math
 
       if _set.index(_n) < 0
         _set.push(_n)
-        _count += 1
-      end
-    end
+        _count += 1;
+    ;
 
-    return _set
-  end
+    return _set;
 
   /#
   Summary: Get a list of prime numbers up to a limit.
@@ -69,8 +62,7 @@ package math
   Returns: List
   #/
   fn listprimes(_limit)
-    return __listprimes__(_limit)
-  end
+    return __listprimes__(_limit);
 
   /#
   Summary: Get the n-th prime number.
@@ -79,8 +71,7 @@ package math
   Returns: Integer
   #/
   fn nthprime(_n)
-    return __nthprime__(_n)
-  end
+    return __nthprime__(_n);
 
   /#
   Summary: Computes the sine of a number.
@@ -89,8 +80,7 @@ package math
   Returns: Float
   #/
   fn sin(_value)
-    return __sin__(_value)
-  end
+    return __sin__(_value);
 
   /#
   Summary: Computes the cosine of a number.
@@ -99,8 +89,7 @@ package math
   Returns: Float
   #/
   fn cos(_value)
-    return __cos__(_value)
-  end
+    return __cos__(_value);
 
   /#
   Summary: Computes the tangent of a number.
@@ -109,8 +98,7 @@ package math
   Returns: Float
   #/
   fn tan(_value)
-    return __tan__(_value)
-  end
+    return __tan__(_value);
 
   /#
   Summary: Computes the arc sine of a number.
@@ -119,8 +107,7 @@ package math
   Returns: Float
   #/
   fn asin(_value)
-    return __asin__(_value)
-  end
+    return __asin__(_value);
 
   /#
   Summary: Computes the arc cosine of a number.
@@ -129,8 +116,7 @@ package math
   Returns: Float
   #/
   fn acos(_value)
-    return __acos__(_value)
-  end
+    return __acos__(_value);
 
   /#
   Summary: Computes the arc tangent of a number.
@@ -139,8 +125,7 @@ package math
   Returns: Float
   #/
   fn atan(_value)
-    return __atan__(_value)
-  end
+    return __atan__(_value);
 
   /#
   Summary: Computes the arc tangent of y / x, handling quadrants correctly.
@@ -150,8 +135,7 @@ package math
   Returns: Float
   #/
   fn atan2(_valueY, _valueX)
-    return __atan2__(_valueY, _valueX)
-  end
+    return __atan2__(_valueY, _valueX);
 
   /#
   Summary: Computes the hyperbolic sine of a number.
@@ -160,8 +144,7 @@ package math
   Returns: Float
   #/
   fn sinh(_value)
-    return __sinh__(_value)
-  end
+    return __sinh__(_value);
 
   /#
   Summary: Computes the hyperbolic cosine of a number.
@@ -170,8 +153,7 @@ package math
   Returns: Float
   #/
   fn cosh(_value)
-    return __cosh__(_value)
-  end
+    return __cosh__(_value);
 
   /#
   Summary: Computes the hyperbolic tangent of a number.
@@ -180,8 +162,7 @@ package math
   Returns: Float
   #/
   fn tanh(_value)
-    return __tanh__(_value)
-  end
+    return __tanh__(_value);
 
   /#
   Summary: Computes the natural logarithm (base e) of a number.
@@ -190,8 +171,7 @@ package math
   Returns: Float
   #/
   fn log(_value)
-    return __log__(_value)
-  end
+    return __log__(_value);
 
   /#
   Summary: Computes the logarithm to base 2 of a number.
@@ -200,8 +180,7 @@ package math
   Returns: Float
   #/
   fn log2(_value)
-    return __log2__(_value)
-  end
+    return __log2__(_value);
 
   /#
   Summary: Computes the logarithm to base 10 of a number.
@@ -210,8 +189,7 @@ package math
   Returns: Float
   #/
   fn log10(_value)
-    return __log10__(_value)
-  end
+    return __log10__(_value);
 
   /#
   Summary: Computes log(1 + x).
@@ -220,8 +198,7 @@ package math
   Returns: Float
   #/
   fn log1p(_value)
-    return __log1p__(_value)
-  end
+    return __log1p__(_value);
 
   /#
   Summary: Computes the square root of a number.
@@ -230,8 +207,7 @@ package math
   Returns: Float
   #/
   fn sqrt(_value)
-    return __sqrt__(_value)
-  end
+    return __sqrt__(_value);
 
   /#
   Summary: Computes the cube root of a number.
@@ -240,8 +216,7 @@ package math
   Returns: Float
   #/
   fn cbrt(_value)
-    return __cbrt__(_value)
-  end
+    return __cbrt__(_value);
 
   /#
   Summary: Gets the FP remainder of x / y.
@@ -251,8 +226,7 @@ package math
   Returns: Float
   #/
   fn fmod(_valueX, _valueY)
-    return __fmod__(_valueX, _valueY)
-  end
+    return __fmod__(_valueX, _valueY);
 
   /#
   Summary: Computes sqrt(x**2 + y**2) without undue overflow or underflow.
@@ -262,8 +236,7 @@ package math
   Returns: Float
   #/
   fn hypot(_valueX, _valueY)
-    return __hypot__(_valueX, _valueY)
-  end
+    return __hypot__(_valueX, _valueY);
 
   /#
   Summary: Checks if x is a finite value.
@@ -272,8 +245,7 @@ package math
   Returns: Float
   #/
   fn isfinite(_value)
-    return __isfinite__(_value)
-  end
+    return __isfinite__(_value);
 
   /#
   Summary: Checks if x is a finite value.
@@ -282,8 +254,7 @@ package math
   Returns: Float
   #/
   fn isinf(_value)
-    return __isinf__(_value)
-  end
+    return __isinf__(_value);
 
   /#
   Summary: Checks if x is NaN.
@@ -292,8 +263,7 @@ package math
   Returns: Float
   #/
   fn isnan(_value)
-    return __isnan__(_value)
-  end
+    return __isnan__(_value);
 
   /#
   Summary: Checks if x is a normal FP number.
@@ -302,8 +272,7 @@ package math
   Returns: Float
   #/
   fn isnormal(_value)
-    return __isnormal__(_value)
-  end
+    return __isnormal__(_value);
 
   /#
   Summary: Rounds x to the nearest integer, away from zero in halfway cases.
@@ -312,8 +281,7 @@ package math
   Returns: Float
   #/
   fn floor(_value)
-    return __floor__(_value)
-  end
+    return __floor__(_value);
 
   /#
   Summary: Rounds x to the largest integer not greater than x.
@@ -322,8 +290,7 @@ package math
   Returns: Float
   #/
   fn ceil(_value)
-    return __ceil__(_value)
-  end
+    return __ceil__(_value);
 
   /#
   Summary: Rounds x to the nearest integer, away from zero in halfway cases.
@@ -332,8 +299,7 @@ package math
   Returns: Float
   #/
   fn round(_value)
-    return __round__(_value)
-  end
+    return __round__(_value);
 
   /#
   Summary: Truncates x to the integer part, towards zero.
@@ -342,8 +308,7 @@ package math
   Returns: Float
   #/
   fn trunc(_value)
-    return __trunc__(_value)
-  end
+    return __trunc__(_value);
 
   /#
   Summary: IEEE 754 FP remainder of x / y.
@@ -353,8 +318,7 @@ package math
   Returns: Float
   #/
   fn remainder(_valueX, _valueY)
-    return __remainder__(_valueX, _valueY)
-  end
+    return __remainder__(_valueX, _valueY);
 
   /#
   Summary: Computes e**x.
@@ -363,8 +327,7 @@ package math
   Returns: Float
   #/
   fn exp(_value)
-    return __exp__(_value)
-  end
+    return __exp__(_value);
 
   /#
   Summary: Computes e**x - 1.
@@ -373,8 +336,7 @@ package math
   Returns: Float
   #/
   fn expm1(_value)
-    return __expm1__(_value)
-  end
+    return __expm1__(_value);
 
   /#
   Summary: Error function.
@@ -383,8 +345,7 @@ package math
   Returns: Float
   #/
   fn erf(_value)
-    return __erf__(_value)
-  end
+    return __erf__(_value);
 
   /#
   Summary: Complementary error function.
@@ -393,8 +354,7 @@ package math
   Returns: Float
   #/
   fn erfc(_value)
-    return __erfc__(_value)
-  end
+    return __erfc__(_value);
 
   /#
   Summary: The natural logarithm of the absolute value of the gamma function.
@@ -403,8 +363,7 @@ package math
   Returns: Float
   #/
   fn lgamma(_value)
-    return __lgamma__(_value)
-  end
+    return __lgamma__(_value);
 
   /#
   Summary: The gamma function.
@@ -413,8 +372,7 @@ package math
   Returns: Float
   #/
   fn tgamma(_value)
-    return __tgamma__(_value)
-  end
+    return __tgamma__(_value);
 
   /#
   Summary: Copies the sign of y to x.
@@ -424,8 +382,7 @@ package math
   Returns: Float
   #/
   fn copysign(_valueX, _valueY)
-    return __copysign__(_valueX, _valueY)
-  end
+    return __copysign__(_valueX, _valueY);
 
   /#
   Summary: Get the next representable value after x towards y.
@@ -435,8 +392,7 @@ package math
   Returns: Float
   #/
   fn nextafter(_valueX, _valueY)
-    return __nextafter__(_valueX, _valueY)
-  end
+    return __nextafter__(_valueX, _valueY);
 
   /#
   Summary: Get the maximum of x and y.
@@ -446,8 +402,7 @@ package math
   Returns: Float
   #/
   fn fmax(_valueX, _valueY)
-    return __fmax__(_valueX, _valueY)
-  end
+    return __fmax__(_valueX, _valueY);
 
   /#
   Summary: Get the minimum of x and y.
@@ -457,8 +412,7 @@ package math
   Returns: Float
   #/
   fn fmin(_valueX, _valueY)
-    return __fmin__(_valueX, _valueY)
-  end
+    return __fmin__(_valueX, _valueY);
 
   /#
   Summary: Get the positive difference between x and y.
@@ -468,8 +422,7 @@ package math
   Returns: Float
   #/
   fn fdim(_valueX, _valueY)
-    return __fdim__(_valueX, _valueY)
-  end
+    return __fdim__(_valueX, _valueY);
 
   /#
   Summary: Get x raised to the power of y.
@@ -479,8 +432,7 @@ package math
   Returns: Float
   #/
   fn pow(_valueX, _valueY)
-    return __pow__(_valueX, _valueY)
-  end
+    return __pow__(_valueX, _valueY);
 
   /#
   Summary: Get the absolute value of a number.
@@ -489,8 +441,7 @@ package math
   Returns: Integer|Float
   #/
   fn abs(_value)
-    return __abs__(_value)
-  end
-end
+    return __abs__(_value);
+;
 
 import "math"

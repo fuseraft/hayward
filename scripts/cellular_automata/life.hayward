@@ -2,8 +2,7 @@ fn main(args)
   grid_size = get_grid_size(args)
 
   if grid_size == null
-    exit print_help()
-  end
+    exit print_help();
 
   rows = grid_size
   cols = grid_size
@@ -19,39 +18,32 @@ fn main(args)
     if res != last_res
       grid = update(grid, rows, cols)
     else
-      exit
-    end
+      exit;
 
-    last_res = res.clone()
-  end
-end
+    last_res = res.clone();
+;
 
 fn print_help()
-  println "usage: hayward life <integer_grid_size>"
-end
+  println "usage: hayward life <integer_grid_size>";
 
-fn get_grid_size(args: list): integer
+fn get_grid_size(args: list)
   grid_size = null
 
   if args.empty()
-    return null
-  end
+    return null;
 
   try
     grid_size = args[0].to_integer()
-    grid_size = [grid_size, 20].max()
-  end
+    grid_size = [grid_size, 20].max();
 
-  return grid_size
-end
+  return grid_size;
 
 fn randomize(grid: list, rows: integer, cols: integer)
   for x in [0 .. cols - 1] do
     for y in [0 .. rows - 1] do
-      grid[x][y] = math::random(0, 1)
-    end
-  end
-end
+      grid[x][y] = math::random(0, 1);
+  ;
+;
 
 fn display(grid: list, rows: integer): string
   console::clear()
@@ -60,11 +52,9 @@ fn display(grid: list, rows: integer): string
        disp: list = [0] * len)
 
   repeat len as i do
-    disp.set(i - 1, grid[i - 1].join(" "))
-  end
+    disp.set(i - 1, grid[i - 1].join(" "));
 
-  return disp.join("\n").replace("0", " ").replace("1", "O")
-end
+  return disp.join("\n").replace("0", " ").replace("1", "O");
 
 fn count_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: integer): integer
   directions = [
@@ -85,12 +75,10 @@ fn count_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: inte
   for direction in directions do
     nx = direction[0], ny = direction[1]
     if (nx >= 0 && nx < rows && ny >= 0 && ny < cols)
-      res += grid[nx][ny]
-    end
-  end
+      res += grid[nx][ny];
+  ;
 
-  return res
-end
+  return res;
 
 fn update(grid: list, rows: integer, cols: integer): list
   new_grid = grid.clone()
@@ -104,12 +92,10 @@ fn update(grid: list, rows: integer, cols: integer): list
       elsif grid[x][y] == 0 && live_neighbors == 3
         new_grid[x][y] = 1
       else
-        new_grid[x][y] = 0
-      end
-    end
-  end
+        new_grid[x][y] = 0;
+    ;
+  ;
 
-  return new_grid
-end
+  return new_grid;
 
 main(env::argv().keys())

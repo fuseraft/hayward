@@ -1,0 +1,25 @@
+/#
+
+Let's demonstrate some OOP.
+
+#/
+
+struct Xyz;
+
+xyz = Xyz.new()
+
+/#
+Xyz.set_x = fn(x: integer) 
+  @x = x
+;
+#/
+
+# println xyz
+
+if xyz != null
+  if xyz 
+    println "hello";
+;
+
+for i in [1 .. 10] do
+  println "i: ${i}";
