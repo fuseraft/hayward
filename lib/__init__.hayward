@@ -2,7 +2,7 @@
 @summary The __init__ file contains global definitions.
 #/
 
-const HAYWARD_STDLIB_VERSION = "1.0.1"
+const HAYWARD_STDLIB_VERSION = "1.1.0"
 
 /#
 @summary Easy access to the date type.
