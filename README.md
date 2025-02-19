@@ -4,7 +4,7 @@ A dynamically-typed object-oriented scripting language that runs on .NET.
 
 ## Getting Started
 
-Read the [documentation](docs/README.md). 
+You should visit the [docs](docs/README.md) to learn the fundamentals of the language.
 
 Clone the repository:
 ```bash
@@ -25,7 +25,9 @@ Run the test suite:
 
 For syntax highlighting and code snippets in Visual Studio Code, install the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=fuseraft.kiwi-lang).
 
-## 
+## Sample Code
+
+Below is a simple markdown generator. You can find other examples in the [docs](docs/README.md) and in the [scripts](scripts/) directory. 
 
 ```hayward
 /#
