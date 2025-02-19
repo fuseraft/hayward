@@ -24,7 +24,8 @@
     "safemode": true,
     "debug": {
       "cli_args": [
-        "~/GitHub/hayward/scripts/debug",
+        "~/GitHub/hayward/scripts/cellular_automata/life",
+        "20",
         "--stdlib-path",
         "~/GitHub/hayward/lib"
       ]

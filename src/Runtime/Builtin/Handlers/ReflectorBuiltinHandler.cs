@@ -120,10 +120,10 @@ public class ReflectorBuiltinHandler
 
         if (callStack.Count == 0)
         {
-            return Value.Default();
+            return Value.Default;
         }
 
-        return callStack.Peek().ReturnValue ?? Value.Default();
+        return callStack.Peek().ReturnValue ?? Value.Default;
     }
 
     private static Value RList(Token token, List<Value> args, KContext ctx, Stack<StackFrame> callStack)
@@ -207,7 +207,7 @@ public class ReflectorBuiltinHandler
 
         if (callStack.Count == 0)
         {
-            return Value.EmptyString();
+            return Value.EmptyString;
         }
 
         var frame = callStack.Peek();
@@ -218,7 +218,7 @@ public class ReflectorBuiltinHandler
             return Value.CreateString(serializedObject);
         }
 
-        return Value.EmptyString();
+        return Value.EmptyString;
     }
 
     private static Value RStack(Token token, List<Value> args, Stack<string> funcStack)

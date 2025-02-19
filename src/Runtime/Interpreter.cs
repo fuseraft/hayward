@@ -27,7 +27,7 @@ public class Interpreter
     {
         if (node == null)
         {
-            return Value.Default();
+            return Value.Default;
         }
 
         bool sigCheck = RequiresSigCheck(node.Type);
@@ -58,6 +58,7 @@ public class Interpreter
             ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
             ASTNodeType.BinaryOperation => Visit((BinaryOperationNode)node),
             ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
+            ASTNodeType.Do => Visit((DoNode)node),
             ASTNodeType.If => Visit((IfNode)node),
             ASTNodeType.Case => Visit((CaseNode)node),
             ASTNodeType.CaseWhen => Visit((CaseWhenNode)node),
@@ -77,8 +78,8 @@ public class Interpreter
             ASTNodeType.Index => Visit((IndexingNode)node),
             ASTNodeType.Slice => Visit((SliceNode)node),
             ASTNodeType.Parse => Visit((ParseNode)node),
-            ASTNodeType.NoOp => Value.Default(),
-            ASTNodeType.Spawn => Value.Default(),
+            ASTNodeType.NoOp => Value.Default,
+            ASTNodeType.Spawn => Value.Default,
             _ => PrintNode(node),
         };
 
@@ -102,7 +103,7 @@ public class Interpreter
     private static Value PrintNode(ASTNode node)
     {
         node.Print();
-        return Value.Default();
+        return Value.Default;
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ public class Interpreter
             PushFrame(programFrame);
         }
 
-        var result = Value.Default();
+        var result = Value.Default;
 
         foreach (var stmt in node.Statements)
         {
@@ -136,7 +137,7 @@ public class Interpreter
             return result;
         }
 
-        return Value.CreateInteger(0L);
+        return Value.Default;
     }
 
     private Value Visit(SelfNode node)
@@ -156,7 +157,7 @@ public class Interpreter
 
             if (!obj.HasVariable(name))
             {
-                obj.InstanceVariables[name] = Value.Default();
+                obj.InstanceVariables[name] = Value.Default;
             }
 
             return obj.InstanceVariables[name];
@@ -211,7 +212,7 @@ public class Interpreter
         StructStack.Pop();
         Context.Methods.Clear();
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(PackageNode node)
@@ -219,7 +220,7 @@ public class Interpreter
         var packageName = Id(node.PackageName ?? throw new PackageUndefinedError(node.Token, string.Empty));
         Context.Packages[packageName] = new KPackage(node.Clone());
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(ExportNode node)
@@ -227,7 +228,7 @@ public class Interpreter
         var packageName = Interpret(node.PackageName);
         ImportPackage(node.Token, packageName);
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(ImportNode node)
@@ -235,7 +236,7 @@ public class Interpreter
         var packageName = Interpret(node.PackageName);
         ImportPackage(node.Token, packageName);
 
-        return Value.Default();
+        return Value.Default;
     }
 
     /// <summary>
@@ -251,7 +252,7 @@ public class Interpreter
             Environment.Exit(Convert.ToInt32(exitCode));
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(ThrowNode node)
@@ -291,7 +292,7 @@ public class Interpreter
             throw new HaywardError(node.Token, errorType, errorMessage);
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(AssignmentNode node)
@@ -309,7 +310,7 @@ public class Interpreter
 
             if (!BooleanOp.IsTruthy(eval))
             {
-                return Value.Default();
+                return Value.Default;
             }
         }
 
@@ -376,7 +377,7 @@ public class Interpreter
 
                 if (obj == null)
                 {
-                    return Value.Default();
+                    return Value.Default;
                 }
 
                 if (!obj.HasVariable(name))
@@ -428,7 +429,7 @@ public class Interpreter
 
         Context.Constants.Add(name, value);
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(IndexAssignmentNode node)
@@ -444,7 +445,7 @@ public class Interpreter
             if (sliceExpr.SlicedObject != null && sliceExpr.SlicedObject.Type == ASTNodeType.Identifier)
             {
                 var identifierName = Id(sliceExpr.SlicedObject);
-                var slicedObj = Value.Default();
+                var slicedObj = Value.CreateInteger(0L);
                 var objContext = frame.GetObjectContext();
 
                 // This is an instance variable.
@@ -479,7 +480,7 @@ public class Interpreter
             if (indexExpr.IndexedObject.Type == ASTNodeType.Identifier)
             {
                 var identifierName = Id(indexExpr.IndexedObject);
-                var indexedObj = Value.Default();
+                var indexedObj = Value.CreateInteger(0L);
                 var objContext = frame.GetObjectContext();
 
                 // This is an instance variable.
@@ -561,7 +562,7 @@ public class Interpreter
             }
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(MemberAssignmentNode node)
@@ -590,7 +591,7 @@ public class Interpreter
             }
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(PackAssignmentNode node)
@@ -643,7 +644,7 @@ public class Interpreter
             }
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(MemberAccessNode node)
@@ -664,7 +665,7 @@ public class Interpreter
             return memberValue;
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private static Value Visit(LiteralNode node) => node.Value;
@@ -789,7 +790,7 @@ public class Interpreter
             }
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(PrintXyNode node) => throw new NotImplementedException();
@@ -812,11 +813,11 @@ public class Interpreter
 
         if (node.Op == TokenName.Ops_And && !BooleanOp.IsTruthy(left))
         {
-            return Value.CreateBoolean(false);
+            return Value.False;
         }
         else if (node.Op == TokenName.Ops_Or && BooleanOp.IsTruthy(left))
         {
-            return Value.CreateBoolean(true);
+            return Value.True;
         }
 
         var right = Interpret(node.Right);
@@ -829,11 +830,32 @@ public class Interpreter
         return OpDispatch.DoUnary(node.Token, node.Op, ref right);
     }
 
+    private Value Visit(DoNode node)
+    {
+        var frame = CallStack.Peek();
+        var condition = node.Condition;
+        var result = Value.Default;
+
+        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+        {
+            foreach (var stmt in node.Body)
+            {
+                result = Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
     private Value Visit(IfNode node)
     {
         var conditionValue = Interpret(node.Condition);
         var frame = CallStack.Peek();
-        var result = Value.Default();
+        var result = Value.Default;
 
         if (BooleanOp.IsTruthy(conditionValue))
         {
@@ -897,9 +919,9 @@ public class Interpreter
 
     private Value Visit(CaseNode node)
     {
-        var testValue = Value.CreateBoolean(true);
+        var testValue = Value.True;
         var isSwitch = false;
-        var result = Value.Default();
+        var result = Value.Default;
 
         if (node.TestValue != null)
         {
@@ -917,7 +939,7 @@ public class Interpreter
         {
             var whenCondition = Interpret(whenNode);
 
-            if ((isSwitch && BooleanOp.IsTruthy(whenCondition)) 
+            if ((isSwitch && BooleanOp.IsTruthy(whenCondition))
                 || (!isSwitch && ComparisonOp.Equal(ref testValue, ref whenCondition)))
             {
                 var frame = CallStack.Peek();
@@ -971,7 +993,7 @@ public class Interpreter
 
     private Value Visit(WhileLoopNode node)
     {
-        var result = Value.Default();
+        var result = Value.Default;
         var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
 
@@ -1057,8 +1079,8 @@ public class Interpreter
 
         var count = countValue.GetInteger();
         var aliasName = string.Empty;
-        var result = Value.Default();
-        var aliasValue = Value.Default();
+        var result = Value.Default;
+        var aliasValue = Value.Default;
         bool hasAlias = false;
 
         if (node.Alias != null)
@@ -1156,7 +1178,7 @@ public class Interpreter
             frame.SetFlag(FrameFlags.Break);
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(NextNode node)
@@ -1168,12 +1190,12 @@ public class Interpreter
             frame.SetFlag(FrameFlags.Next);
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(TryNode node)
     {
-        var returnValue = Value.Default();
+        var returnValue = Value.Default;
         bool requireDrop = false;
         bool setReturnValue = false;
 
@@ -1299,7 +1321,7 @@ public class Interpreter
         foreach (var pair in node.Parameters)
         {
             var paramName = pair.Key;
-            var paramValue = Value.Default();
+            var paramValue = Value.Default;
 
             if (pair.Value != null)
             {
@@ -1348,7 +1370,7 @@ public class Interpreter
             Context.Functions[name] = CreateFunction(node, name);
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(VariableNode node)
@@ -1361,7 +1383,7 @@ public class Interpreter
         // for each declared variable
         foreach (var pair in node.Variables)
         {
-            var value = Value.Default(); // a variable value
+            var value = Value.Default; // a variable value
             var name = pair.Key;  // grab the name
                                   // a flag to determine if a variable has an initializer
             bool hasDefaultValue = pair.Value != null;
@@ -1431,14 +1453,14 @@ public class Interpreter
             frame.Variables[name] = value;
         }
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private Value Visit(LambdaCallNode node)
     {
         var nodeValue = Interpret(node.LambdaNode);
         var lambdaName = nodeValue.GetLambda().Identifier;
-        var result = Value.Default();
+        var result = Value.Default;
         bool requireDrop = false;
 
         try
@@ -1460,7 +1482,7 @@ public class Interpreter
 
     private Value Visit(FunctionCallNode node)
     {
-        var result = Value.Default();
+        var result = Value.Default;
         var callableType = GetCallable(node.Token, node.FunctionName);
         var requireDrop = false;
 
@@ -1529,7 +1551,7 @@ public class Interpreter
 
     private Value Visit(ReturnNode node)
     {
-        var returnValue = Value.Default();
+        var returnValue = Value.Default;
 
         if (node.Condition == null || BooleanOp.IsTruthy(Interpret(node.Condition)))
         {
@@ -1560,7 +1582,7 @@ public class Interpreter
         if (node.IndexExpression.Type == ASTNodeType.Index)
         {
             var indexExpr = (IndexingNode)node.IndexExpression;
-            return HandleNestedIndexing(indexExpr, obj, TokenName.Ops_Assign, Value.Default());
+            return HandleNestedIndexing(indexExpr, obj, TokenName.Ops_Assign, Value.CreateInteger(0L));
         }
         else
         {
@@ -1654,7 +1676,7 @@ public class Interpreter
 
         foreach (var pair in node.Parameters)
         {
-            var paramValue = Value.Default();
+            var paramValue = Value.Default;
             var paramName = pair.Key;
             ++paramCount;
 
@@ -1840,9 +1862,9 @@ public class Interpreter
     private SliceIndex GetSlice(SliceNode node, Value obj)
     {
         var isSlice = true;
-        var indexOrStart = Value.Default();
-        var stopIndex = Value.Default();
-        var stepValue = Value.Default();
+        var indexOrStart = Value.CreateInteger(0L);
+        var stopIndex = Value.CreateInteger(0L);
+        var stepValue = Value.CreateInteger(0L);
 
         if (obj.IsList())
         {
@@ -2083,7 +2105,7 @@ public class Interpreter
         var returnTypeHint = func.ReturnTypeHint;
         var defaultParameters = func.DefaultParameters;
         var functionFrame = CreateFrame(functionName);
-        var result = Value.Default();
+        var result = Value.Default;
 
         PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
 
@@ -2116,7 +2138,7 @@ public class Interpreter
         var typeHints = function.TypeHints;
         var returnTypeHint = function.ReturnTypeHint;
 
-        var result = Value.Default();
+        var result = Value.Default;
         bool requireDrop = false;
 
         try
@@ -2124,7 +2146,7 @@ public class Interpreter
             for (int i = 0; i < function.Parameters.Count; ++i)
             {
                 var param = function.Parameters[i];
-                var argValue = Value.Default();
+                var argValue = Value.Default;
 
                 if (i < args.Count)
                 {
@@ -2168,7 +2190,7 @@ public class Interpreter
     {
         var lambdaFrame = CreateFrame(lambdaName);
         var targetLambda = lambdaName;
-        var result = Value.Default();
+        var result = Value.Default;
 
         if (!Context.HasLambda(targetLambda))
         {
@@ -2264,7 +2286,7 @@ public class Interpreter
         for (int i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
-            var argValue = Value.Default();
+            var argValue = Value.Default;
 
             if (i < nodeArguments.Count)
             {
@@ -2320,7 +2342,7 @@ public class Interpreter
         for (int i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
-            var argValue = Value.Default();
+            var argValue = Value.Default;
             if (i < args.Count)
             {
                 argValue = Interpret(args[i]);
@@ -2344,7 +2366,7 @@ public class Interpreter
         for (int i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
-            var argValue = Value.Default();
+            var argValue = Value.Default;
 
             if (i < args.Count)
             {
@@ -2395,7 +2417,7 @@ public class Interpreter
 
     private Value ExecuteFunctionBody(KFunction function)
     {
-        var result = Value.Default();
+        var result = Value.Default;
         var decl = function.Decl;
 
         foreach (var stmt in decl.Body)
@@ -2453,7 +2475,7 @@ public class Interpreter
         var func = strucMethods[functionName];
         var defaultParameters = func.DefaultParameters;
         var functionFrame = CreateFrame(functionName);
-        var result = Value.Default();
+        var result = Value.Default;
 
         var typeHints = func.TypeHints;
         var returnTypeHint = func.ReturnTypeHint;
@@ -2600,12 +2622,10 @@ public class Interpreter
         var variables = frame.Variables;
         frame.SetFlag(FrameFlags.InLoop);
 
-        var result = Value.Default();
-        var valueIteratorName = string.Empty;
+        var result = Value.Default;
+        var valueIteratorName = Id(node.ValueIterator);
         var indexIteratorName = string.Empty;
-        bool hasIndexIterator = false;
-
-        valueIteratorName = Id(node.ValueIterator);
+        var hasIndexIterator = false;
 
         if (node.IndexIterator != null)
         {
@@ -2613,9 +2633,9 @@ public class Interpreter
             hasIndexIterator = true;
         }
 
-        bool fallOut = false;
-        var iteratorValue = Value.Default();
-        var iteratorIndex = Value.Default();
+        var fallOut = false;
+        var iteratorValue = Value.CreateInteger(0L);
+        var iteratorIndex = Value.CreateInteger(0L);
 
         for (int i = 0; i < list.Count; ++i)
         {
@@ -2711,7 +2731,7 @@ public class Interpreter
         }
 
         bool fallOut = false;
-        var result = Value.Default();
+        var result = Value.Default;
 
         foreach (var key in hash.Keys)
         {
@@ -2832,7 +2852,7 @@ public class Interpreter
 
             var lambda = Context.Lambdas[lambdaRef.Identifier];
             var isReturnSet = CallStack.Peek().IsFlagSet(FrameFlags.Return);
-            var result = Value.Default();
+            var result = Value.Default;
 
             switch (op)
             {
@@ -2982,7 +3002,7 @@ public class Interpreter
 
         if (lambda.Parameters.Count == 0)
         {
-            return Value.Default();
+            return Value.Default;
         }
 
         for (var i = 0; i < lambda.Parameters.Count; ++i)
@@ -2991,18 +3011,18 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Variables[valueVariable] = Value.Default();
+                frame.Variables[valueVariable] = Value.Default;
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Variables[indexVariable] = Value.Default();
+                frame.Variables[indexVariable] = Value.Default;
             }
         }
 
-        var result = Value.Default();
-        var indexValue = Value.Default();
+        var result = Value.Default;
+        var indexValue = Value.Default;
         var decl = lambda.Decl;
 
         for (var i = 0; i < list.Count; ++i)
@@ -3033,7 +3053,7 @@ public class Interpreter
     private Value LambdaNone(KLambda lambda, List<Value> list)
     {
         var selected = LambdaSelect(lambda, list);
-        var noneFound = Value.CreateBoolean(false);
+        var noneFound = Value.False;
 
         if (selected.IsList())
         {
@@ -3062,13 +3082,13 @@ public class Interpreter
             if (i == 0)
             {
                 mapVariable = param.Key;
-                frame.Variables[mapVariable] = Value.Default();
+                frame.Variables[mapVariable] = Value.Default;
             }
         }
 
         var decl = lambda.Decl;
         List<Value> resultList = [];
-        Value result = Value.Default();
+        Value result = Value.Default;
 
         for (var i = 0; i < list.Count; ++i)
         {
@@ -3114,7 +3134,7 @@ public class Interpreter
             else if (i == 1)
             {
                 valueVariable = param.Key;
-                frame.Variables[valueVariable] = Value.Default();
+                frame.Variables[valueVariable] = Value.Default;
             }
         }
 
@@ -3157,18 +3177,18 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Variables[valueVariable] = Value.Default();
+                frame.Variables[valueVariable] = Value.Default;
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Variables[indexVariable] = Value.Default();
+                frame.Variables[indexVariable] = Value.Default;
             }
         }
 
-        var result = Value.Default();
-        var indexValue = Value.Default();
+        var result = Value.Default;
+        var indexValue = Value.Default;
         var decl = lambda.Decl;
 
         for (var i = 0; i < list.Count; ++i)
@@ -3216,18 +3236,18 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Variables[valueVariable] = Value.Default();
+                frame.Variables[valueVariable] = Value.Default;
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Variables[indexVariable] = Value.Default();
+                frame.Variables[indexVariable] = Value.Default;
             }
         }
 
-        var result = Value.Default();
-        var indexValue = Value.Default();
+        var result = Value.Default;
+        var indexValue = Value.Default;
         var decl = lambda.Decl;
         List<Value> resultList = [];
 

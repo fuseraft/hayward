@@ -94,7 +94,7 @@ public struct BitwiseOp
 
         if (b >= MaxShift)
         {
-            return Value.Default();
+            return Value.CreateInteger(0L);
         }
 
         var res = (int)a >>> (int)b;

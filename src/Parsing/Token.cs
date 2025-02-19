@@ -112,7 +112,7 @@ public struct Token(TokenType type, TokenName name, TokenSpan span, string text,
 
     public static Token CreateEof()
     {
-        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default());
+        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default);
     }
 }
 

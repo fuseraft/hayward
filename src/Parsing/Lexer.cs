@@ -535,7 +535,7 @@ public class Lexer : IDisposable
 
         if (string.IsNullOrEmpty(binaryLiteral))
         {
-            return CreateLiteralToken(span, binaryLiteral, Value.Default());
+            return CreateLiteralToken(span, binaryLiteral, Value.Default);
         }
 
         var result = int.Parse(binaryLiteral, System.Globalization.NumberStyles.BinaryNumber, System.Globalization.CultureInfo.InvariantCulture);
@@ -556,7 +556,7 @@ public class Lexer : IDisposable
 
         if (string.IsNullOrEmpty(octalLiteral))
         {
-            return CreateLiteralToken(span, octalLiteral, Value.Default());
+            return CreateLiteralToken(span, octalLiteral, Value.Default);
         }
 
         var result = Convert.ToInt32(octalLiteral, 8);
@@ -921,7 +921,7 @@ public class Lexer : IDisposable
 
     private static Token CreateLiteralToken(TokenSpan span, string text, Value value, TokenName name = TokenName.Default) => new(TokenType.Literal, name, span, text, value);
 
-    private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text, Value.Default());
+    private static Token CreateToken(TokenType type, TokenSpan span, string text, TokenName name = TokenName.Default) => new(type, name, span, text, Value.Default);
 
     private TokenSpan CreateSpan() => new(File, LineNumber, Position);
 }

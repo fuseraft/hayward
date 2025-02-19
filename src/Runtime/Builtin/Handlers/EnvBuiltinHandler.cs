@@ -59,7 +59,7 @@ public static class EnvBuiltinHandler
             }
         }
 
-        return Value.EmptyString();
+        return Value.EmptyString;
     }
 
     private static Value OS(Token token, List<Value> args)
@@ -153,6 +153,6 @@ public static class EnvBuiltinHandler
         }
 
         Environment.SetEnvironmentVariable(args[0].GetString(), args[1].GetString());
-        return Value.Default();
+        return Value.Default;
     }
 }

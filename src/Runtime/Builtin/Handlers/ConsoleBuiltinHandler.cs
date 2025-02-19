@@ -28,7 +28,7 @@ public static class ConsoleBuiltinHandler
 
         Console.Clear();
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private static Value Reset(Token token, List<Value> args)
@@ -40,7 +40,7 @@ public static class ConsoleBuiltinHandler
 
         Console.ResetColor();
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private static Value Input(Token token, List<Value> args)
@@ -78,7 +78,7 @@ public static class ConsoleBuiltinHandler
 
         Console.ForegroundColor = (ConsoleColor)args[0].GetInteger();
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private static Value Background(Token token, List<Value> args)
@@ -95,6 +95,6 @@ public static class ConsoleBuiltinHandler
 
         Console.BackgroundColor = (ConsoleColor)args[0].GetInteger();
 
-        return Value.Default();
+        return Value.Default;
     }
 }

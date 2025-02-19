@@ -38,11 +38,11 @@ public struct LogicalOp
         }
         else if (right.IsNull())
         {
-            return Value.CreateBoolean(true);
+            return Value.True;
         }
         else if (right.IsInteger())
         {
-            return Value.CreateBoolean(right.GetInteger() == 0 ? true : false);
+            return Value.CreateBoolean(right.GetInteger() == 0);
         }
         else if (right.IsFloat())
         {
@@ -66,7 +66,7 @@ public struct LogicalOp
         }
         else
         {
-            return Value.CreateBoolean(false);  // Object, Lambda, etc.
+            return Value.False;  // Object, Lambda, etc.
         }
     }
 }

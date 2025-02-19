@@ -62,8 +62,10 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
         };
     }
 
-    public static Value EmptyString() { return CreateString(string.Empty); }
-    public static Value Default() => new(0L, ValueType.Integer);
+    public static readonly Value EmptyString = CreateString(string.Empty);
+    public static readonly Value Default = new(0L, ValueType.Integer);
+    public static readonly Value True = CreateBoolean(true);
+    public static readonly Value False = CreateBoolean(false);
     public static Value CreateDate(DateTime value) => new(value, ValueType.Date);
     public static Value CreateDate(object value) => new(value, ValueType.Date);
     public static Value CreateInteger(long value) => new(value, ValueType.Integer);

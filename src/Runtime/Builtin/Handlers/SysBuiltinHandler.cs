@@ -40,7 +40,7 @@ public static class SysBuiltinHandler
 
         process.Start();
 
-        return Value.Default();
+        return Value.Default;
     }
 
     private static Value Exec(Token token, List<Value> args)

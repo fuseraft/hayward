@@ -28,6 +28,9 @@ public partial class Parser
             case TokenName.KW_Const:
                 return ParseConstAssignment();
 
+            case TokenName.KW_Do:
+                return ParseDo();
+
             case TokenName.KW_PrintLn:
             case TokenName.KW_Print:
             case TokenName.KW_EPrintLn:
@@ -101,6 +104,54 @@ public partial class Parser
             default:
                 throw new SyntaxError(GetErrorToken(), $"Unexpected keyword '{token.Text}'.");
         }
+    }
+
+    private DoNode? ParseDo()
+    {
+        MatchName(TokenName.KW_Do);  // Consume 'do'
+
+        /*
+        do 
+          [ statements ]
+        [ when when_condition ];
+        */
+
+        List<ASTNode?> body = [];
+        ASTNode? condition = null;
+        while (GetTokenName() != TokenName.KW_End)
+        {
+            // if we find `when`, grab the condition and check for block separator.
+            if (MatchName(TokenName.KW_When))
+            {
+                if (!HasValue())
+                {
+                    throw new SyntaxError(GetErrorToken(), "Expected condition after 'when'.");
+                }
+
+                condition = ParseExpression();
+
+                if (GetTokenName() != TokenName.KW_End)
+                {
+                    throw new SyntaxError(GetErrorToken(), "Expected block separator at end of 'do'.");
+                }
+
+                continue;
+            }
+
+            var stmt = ParseStatement();
+            if (stmt != null)
+            {
+                body.Add(stmt);
+            }
+        }
+
+        Next();  // Consume 'end'
+
+        return new DoNode
+        {
+            Condition = condition,
+            Body = body
+        };
     }
 
     private ASTNode? ParseStatement()

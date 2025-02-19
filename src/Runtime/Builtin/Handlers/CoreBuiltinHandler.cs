@@ -280,7 +280,7 @@ public static class CoreBuiltinHandler
             Typing.ValueType.Object => Value.CreateBoolean(typeName.Equals("Object") || typeName.Equals("object")),
             Typing.ValueType.Lambda => Value.CreateBoolean(typeName.Equals("Lambda") || typeName.Equals("lambda")),
             Typing.ValueType.None => Value.CreateBoolean(typeName.Equals("None") || typeName.Equals("none")),
-            _ => Value.CreateBoolean(false),
+            _ => Value.False,
         };
     }
 
@@ -1664,7 +1664,7 @@ public static class CoreBuiltinHandler
 
         if (string.IsNullOrEmpty(input))
         {
-            value = Value.EmptyString();
+            value = Value.EmptyString;
         }
         else if (input.EndsWith("\r\n"))
         {
