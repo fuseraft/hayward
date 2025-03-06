@@ -20,8 +20,8 @@ public class MemberAccessNode : ASTNode
         Object?.Print(1 + depth);
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new MemberAccessNode(Object?.Clone(), MemberName)
     {
-        return new MemberAccessNode(Object?.Clone(), MemberName);
-    }
+        Token = Token
+    };
 }

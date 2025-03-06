@@ -12,5 +12,8 @@ public class LiteralNode(Value value) : ASTNode(ASTNodeType.Literal)
         Console.WriteLine($"Literal: {Serializer.Serialize(Value, true)}");
     }
 
-    public override ASTNode Clone() => new LiteralNode(Value);
+    public override ASTNode Clone() => new LiteralNode(Value)
+    {
+        Token = Token
+    };
 };

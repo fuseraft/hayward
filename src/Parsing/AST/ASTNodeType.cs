@@ -13,6 +13,8 @@ public enum ASTNodeType
     Export,
     ForLoop,
     Spawn,
+    Yield,
+    Resume,
     FunctionCall,
     Function,
     HashLiteral,

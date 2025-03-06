@@ -1,6 +1,6 @@
 namespace hayward.Parsing.AST;
 
-public class SpawnNode(ASTNode expression) : ASTNode(ASTNodeType.Spawn)
+public class ResumeNode(ASTNode expression) : ASTNode(ASTNodeType.Resume)
 {
     public ASTNode Expression { get; } = expression;
 
@@ -11,8 +11,11 @@ public class SpawnNode(ASTNode expression) : ASTNode(ASTNodeType.Spawn)
         Expression?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new SpawnNode(Expression.Clone())
+    public override ASTNode Clone()
     {
-        Token = Token
-    };
+        return new ResumeNode(Expression.Clone())
+        {
+            Token = Token
+        };
+    }
 }

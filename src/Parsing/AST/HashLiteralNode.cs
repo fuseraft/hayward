@@ -32,6 +32,9 @@ public class HashLiteralNode(Dictionary<ASTNode, ASTNode?> elements, List<string
             clonedElements.Add(key.Clone(), value?.Clone());
         }
 
-        return new HashLiteralNode(clonedElements, Keys);
+        return new HashLiteralNode(clonedElements, Keys)
+        {
+            Token = Token
+        };
     }
 }

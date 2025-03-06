@@ -18,5 +18,8 @@ public class ImportNode : ASTNode
         PackageName?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new ImportNode(PackageName?.Clone());
+    public override ASTNode Clone() => new ImportNode(PackageName?.Clone())
+    {
+        Token = Token
+    };
 }

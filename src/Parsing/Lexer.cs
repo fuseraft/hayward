@@ -882,6 +882,8 @@ public class Lexer : IDisposable
             "finally" => TokenName.KW_Finally,
             "for" => TokenName.KW_For,
             "spawn" => TokenName.KW_Spawn,
+            "yield" => TokenName.KW_Yield,
+            "resume" => TokenName.KW_Resume,
             "import" => TokenName.KW_Import,
             "in" => TokenName.KW_In,
             "interface" => TokenName.KW_Interface,

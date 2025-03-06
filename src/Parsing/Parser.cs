@@ -43,6 +43,12 @@ public partial class Parser
             case TokenName.KW_Spawn:
                 return ParseSpawn();
 
+            case TokenName.KW_Yield:
+                return ParseYield();
+
+            case TokenName.KW_Resume:
+                return ParseResume();
+
             case TokenName.KW_For:
                 return ParseForLoop();
 
@@ -191,7 +197,7 @@ public partial class Parser
                 return null;
 
             default:
-                throw new TokenStreamError(GetErrorToken(), $"Unexpected token in statement: {Enum.GetName(typeof(TokenType), nodeToken.Type)}: `{nodeToken.Text}`");
+                throw new TokenStreamError(GetErrorToken(), $"Unexpected token in statement: {Enum.GetName(nodeToken.Type)}: `{nodeToken.Text}`");
         }
 
         if (node != null)
@@ -218,8 +224,27 @@ public partial class Parser
             throw new SyntaxError(GetErrorToken(), "Expected expression for spawn.");
         }
 
-        var spawned = ParseExpression();
+        var spawned = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected expression for spawn.");
         return new SpawnNode(spawned);
+    }
+
+    private YieldNode? ParseYield()
+    {
+        MatchName(TokenName.KW_Yield);
+        return new YieldNode();
+    }
+
+    private ResumeNode? ParseResume()
+    {
+        MatchName(TokenName.KW_Resume);
+
+        if (!HasValue())
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected expression for resume.");
+        }
+
+        var spawned = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected expression for resume.");
+        return new ResumeNode(spawned);
     }
 
     private StructNode? ParseStruct()
@@ -1125,8 +1150,7 @@ public partial class Parser
 
         Next();
 
-        return new FunctionCallNode(identifierName, type,
-                                                  arguments);
+        return new FunctionCallNode(identifierName, type, arguments);
     }
 
     private LambdaCallNode? ParseLambdaCall(

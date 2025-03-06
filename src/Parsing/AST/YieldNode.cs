@@ -1,8 +1,8 @@
 namespace hayward.Parsing.AST;
 
-public class NoOpNode : ASTNode
+public class YieldNode : ASTNode
 {
-    public NoOpNode() : base(ASTNodeType.NoOp) { }
+    public YieldNode() : base(ASTNodeType.Yield) { }
 
     public override void Print(int depth)
     {
@@ -12,7 +12,7 @@ public class NoOpNode : ASTNode
 
     public override ASTNode Clone()
     {
-        return new NoOpNode()
+        return new YieldNode()
         {
             Token = Token
         };

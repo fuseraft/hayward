@@ -288,6 +288,8 @@ public enum TokenName
   KW_Finally,
   KW_For,
   KW_Spawn,
+  KW_Yield,
+  KW_Resume,
   KW_If,
   KW_Import,
   KW_In,

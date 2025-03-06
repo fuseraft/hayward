@@ -86,7 +86,8 @@ public class TryNode : ASTNode
             CatchBody = clonedCatchBody,
             FinallyBody = clonedFinallyBody,
             ErrorType = ErrorType?.Clone(),
-            ErrorMessage = ErrorMessage?.Clone()
+            ErrorMessage = ErrorMessage?.Clone(),
+            Token = Token,
         };
     }
 }

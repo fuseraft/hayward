@@ -18,5 +18,8 @@ public class ExportNode : ASTNode
         PackageName?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new ExportNode(PackageName?.Clone());
+    public override ASTNode Clone() => new ExportNode(PackageName?.Clone())
+    {
+        Token = Token
+    };
 }

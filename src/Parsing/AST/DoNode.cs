@@ -30,7 +30,8 @@ public class DoNode : ASTNode
         return new DoNode
         {
             Condition = Condition?.Clone(),
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token
         };
     }
 }

@@ -13,5 +13,8 @@ public class RangeLiteralNode(ASTNode? rangeStart, ASTNode? rangeEnd) : ASTNode(
         RangeEnd?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new RangeLiteralNode(RangeStart?.Clone(), RangeEnd?.Clone());
+    public override ASTNode Clone() => new RangeLiteralNode(RangeStart?.Clone(), RangeEnd?.Clone())
+    {
+        Token = Token
+    };
 }

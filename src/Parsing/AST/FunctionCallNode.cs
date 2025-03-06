@@ -36,6 +36,9 @@ public class FunctionCallNode : ASTNode
             clonedArguments.Add(arg?.Clone());
         }
 
-        return new FunctionCallNode(FunctionName, Op, clonedArguments);
+        return new FunctionCallNode(FunctionName, Op, clonedArguments)
+        {
+            Token = Token
+        };
     }
 }

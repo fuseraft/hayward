@@ -18,5 +18,8 @@ public class ParseNode : ASTNode
         ParseValue?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new ParseNode(ParseValue?.Clone());
+    public override ASTNode Clone() => new ParseNode(ParseValue?.Clone())
+    {
+        Token = Token
+    };
 }

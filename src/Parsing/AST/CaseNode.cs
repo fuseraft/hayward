@@ -65,7 +65,8 @@ public class CaseNode : ASTNode
             TestValue = TestValue?.Clone(),
             TestValueAlias = TestValueAlias?.Clone(),
             ElseBody = clonedElseBody,
-            WhenNodes = clonedWhenNodes
+            WhenNodes = clonedWhenNodes,
+            Token = Token
         };
     }
 }

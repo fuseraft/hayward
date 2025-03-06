@@ -49,6 +49,9 @@ public class PackAssignmentNode : ASTNode
             clonedRight.Add(rhs?.Clone());
         }
 
-        return new PackAssignmentNode(clonedLeft, clonedRight, Op);
+        return new PackAssignmentNode(clonedLeft, clonedRight, Op)
+        {
+            Token = Token
+        };
     }
 }

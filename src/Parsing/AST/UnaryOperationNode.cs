@@ -22,5 +22,5 @@ public class UnaryOperationNode : ASTNode
         Operand?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new UnaryOperationNode(Op, Operand?.Clone());
+    public override ASTNode Clone() => new UnaryOperationNode(Op, Operand?.Clone()) { Token = Token };
 }

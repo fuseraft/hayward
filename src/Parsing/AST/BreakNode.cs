@@ -25,8 +25,8 @@ public class BreakNode : ASTNode
         }
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new BreakNode(Condition?.Clone())
     {
-        return new BreakNode(Condition?.Clone());
-    }
+        Token = Token
+    };
 }

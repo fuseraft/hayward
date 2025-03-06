@@ -61,6 +61,9 @@ public class StructNode : ASTNode
             clonedMethods.Add(method?.Clone());
         }
 
-        return new StructNode(Name, BaseStruct, Interfaces, clonedMethods);
+        return new StructNode(Name, BaseStruct, Interfaces, clonedMethods)
+        {
+            Token = Token
+        };
     }
 }

@@ -25,8 +25,8 @@ public class ConstAssignmentNode : ASTNode
         Initializer?.Print(2 + depth);
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new ConstAssignmentNode(Name, Op, Initializer?.Clone())
     {
-        return new ConstAssignmentNode(Name, Op, Initializer?.Clone());
-    }
+        Token = Token
+    };
 }

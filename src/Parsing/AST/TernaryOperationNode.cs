@@ -31,5 +31,5 @@ public class TernaryOperationNode : ASTNode
         FalseExpression?.Print(2 + depth);
     }
 
-    public override ASTNode Clone() => new TernaryOperationNode(EvalExpression?.Clone(), TrueExpression?.Clone(), FalseExpression?.Clone());
+    public override ASTNode Clone() => new TernaryOperationNode(EvalExpression?.Clone(), TrueExpression?.Clone(), FalseExpression?.Clone()) { Token = Token };
 }

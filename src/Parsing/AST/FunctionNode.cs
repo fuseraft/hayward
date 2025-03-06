@@ -86,7 +86,8 @@ public class FunctionNode : ASTNode
             IsStatic = IsStatic,
             IsPrivate = IsPrivate,
             TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint
+            ReturnTypeHint = ReturnTypeHint,
+            Token = Token
         };
     }
 }

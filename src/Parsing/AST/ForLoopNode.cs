@@ -47,7 +47,8 @@ public class ForLoopNode(ASTNode valueIterator) : ASTNode(ASTNodeType.ForLoop)
         {
             DataSet = DataSet?.Clone(),
             IndexIterator = IndexIterator?.Clone(),
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token
         };
     }
 }

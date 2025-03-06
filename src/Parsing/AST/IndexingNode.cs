@@ -25,5 +25,8 @@ public class IndexingNode(ASTNode? indexedObject, ASTNode indexExpression) : AST
         IndexExpression?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new IndexingNode(IndexedObject?.Clone(), IndexExpression.Clone());
+    public override ASTNode Clone() => new IndexingNode(IndexedObject?.Clone(), IndexExpression.Clone())
+    {
+        Token = Token
+    };
 }

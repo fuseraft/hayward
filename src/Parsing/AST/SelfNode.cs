@@ -20,8 +20,8 @@ public class SelfNode : ASTNode
         }
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new SelfNode(Name)
     {
-        return new SelfNode(Name);
-    }
+        Token = Token
+    };
 }

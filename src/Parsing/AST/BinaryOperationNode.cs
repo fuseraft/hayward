@@ -25,5 +25,8 @@ public class BinaryOperationNode : ASTNode
         Right?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new BinaryOperationNode(Left?.Clone(), Op, Right?.Clone());
+    public override ASTNode Clone() => new BinaryOperationNode(Left?.Clone(), Op, Right?.Clone())
+    {
+        Token = Token
+    };
 }

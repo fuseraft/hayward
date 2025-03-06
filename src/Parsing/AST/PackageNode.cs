@@ -36,7 +36,8 @@ public class PackageNode : ASTNode
 
         return new PackageNode(PackageName?.Clone())
         {
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token
         };
     }
 }

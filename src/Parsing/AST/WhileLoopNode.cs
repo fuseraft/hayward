@@ -36,7 +36,8 @@ public class WhileLoopNode : ASTNode
         return new WhileLoopNode
         {
             Condition = Condition?.Clone(),
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token,
         };
     }
 }

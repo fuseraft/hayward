@@ -66,7 +66,8 @@ public class IfNode : ASTNode
             Condition = Condition?.Clone(),
             Body = clonedBody,
             ElseBody = clonedElseBody,
-            ElsifNodes = clonedElsifNodes
+            ElsifNodes = clonedElsifNodes,
+            Token = Token
         };
     }
 }

@@ -34,6 +34,9 @@ public class LambdaCallNode : ASTNode
             clonedArguments.Add(arg?.Clone());
         }
 
-        return new LambdaCallNode(LambdaNode?.Clone(), clonedArguments);
+        return new LambdaCallNode(LambdaNode?.Clone(), clonedArguments)
+        {
+            Token = Token
+        };
     }
 }

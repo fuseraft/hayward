@@ -25,7 +25,7 @@ public static class ErrorHandler
         [
             $"Timestamp: {DateTime.Now:yyyy-MM-dd hh:mm:ss tt}", 
             $"{type}: {message}", 
-            $"Near token: `{token.Type}`", 
+            $"Near token: [Type=`{token.Type}`, Text=`{token.Text}`]", 
             $"{filePath}:{span.Line}:{span.Pos}"
         ];
 

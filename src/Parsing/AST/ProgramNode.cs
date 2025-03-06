@@ -49,6 +49,9 @@ public class ProgramNode : ASTNode
             clonedStatements.Add(statement.Clone());
         }
 
-        return new ProgramNode(clonedStatements);
+        return new ProgramNode(clonedStatements)
+        {
+            Token = Token
+        };
     }
 }

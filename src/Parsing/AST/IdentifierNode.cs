@@ -18,11 +18,9 @@ public class IdentifierNode : ASTNode
         Console.WriteLine($"Identifier: `{ASTTracer.Unmangle(Name)}`");
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new IdentifierNode(Name)
     {
-        return new IdentifierNode(Name)
-        {
-            Package = Package
-        };
-    }
+        Package = Package,
+        Token = Token
+    };
 }

@@ -25,8 +25,8 @@ public class IndexAssignmentNode : ASTNode
         Initializer?.Print(2 + depth);
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new IndexAssignmentNode(Object?.Clone(), Op, Initializer?.Clone())
     {
-        return new IndexAssignmentNode(Object?.Clone(), Op, Initializer?.Clone());
-    }
+        Token = Token
+    };
 }

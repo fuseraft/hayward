@@ -17,11 +17,9 @@ public class AssignmentNode(ASTNode? left, string name, TokenName op, ASTNode? i
         Initializer?.Print(2 + depth);
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new AssignmentNode(Left?.Clone(), Name, Op, Initializer?.Clone())
     {
-        return new AssignmentNode(Left?.Clone(), Name, Op, Initializer?.Clone())
-        {
-            Condition = Condition?.Clone()
-        };
-    }
+        Condition = Condition?.Clone(),
+        Token = Token
+    };
 }

@@ -31,6 +31,9 @@ public class ThrowNode : ASTNode
 
     public override ASTNode Clone()
     {
-        return new ThrowNode(ErrorValue?.Clone(), Condition?.Clone());
+        return new ThrowNode(ErrorValue?.Clone(), Condition?.Clone())
+        {
+            Token = Token
+        };
     }
 }

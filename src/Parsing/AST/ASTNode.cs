@@ -37,7 +37,7 @@ public class ASTNode(ASTNodeType type)
     /// </summary>
     public void PrintASTNodeType()
     {
-        Console.WriteLine($"{Enum.GetName(typeof(ASTNodeType), Type)}:");
+        Console.WriteLine($"{Enum.GetName(Type)}:");
     }
 
     /// <summary>

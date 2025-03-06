@@ -72,7 +72,8 @@ public class LambdaNode : ASTNode
             Parameters = clonedParameters,
             Body = clonedBody,
             TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint
+            ReturnTypeHint = ReturnTypeHint,
+            Token = Token
         };
     }
 }

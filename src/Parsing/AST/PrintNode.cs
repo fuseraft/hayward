@@ -30,7 +30,10 @@ public class PrintNode : ASTNode
         Expression?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new PrintNode(Expression?.Clone(), PrintNewline, PrintStdError);
+    public override ASTNode Clone() => new PrintNode(Expression?.Clone(), PrintNewline, PrintStdError)
+    {
+        Token = Token
+    };
 }
 
 public class PrintXyNode : ASTNode
@@ -57,5 +60,8 @@ public class PrintXyNode : ASTNode
         Y?.Print(1 + depth);
     }
 
-    public override ASTNode Clone() => new PrintXyNode(Expression?.Clone(), X?.Clone(), Y?.Clone());
+    public override ASTNode Clone() => new PrintXyNode(Expression?.Clone(), X?.Clone(), Y?.Clone())
+    {
+        Token = Token
+    };
 }

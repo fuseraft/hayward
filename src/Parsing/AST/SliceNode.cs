@@ -39,5 +39,8 @@ public class SliceNode(ASTNode? slicedObject = null, ASTNode? startExpression = 
         }
     }
 
-    public override ASTNode Clone() => new SliceNode(SlicedObject?.Clone(), StartExpression?.Clone(), StopExpression?.Clone(), StepExpression?.Clone());
+    public override ASTNode Clone() => new SliceNode(SlicedObject?.Clone(), StartExpression?.Clone(), StopExpression?.Clone(), StepExpression?.Clone())
+    {
+        Token = Token
+    };
 }

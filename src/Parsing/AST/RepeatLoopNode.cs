@@ -45,7 +45,8 @@ public class RepeatLoopNode : ASTNode
         {
             Count = Count?.Clone(),
             Alias = Alias?.Clone(),
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token
         };
     }
 }

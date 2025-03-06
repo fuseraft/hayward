@@ -29,8 +29,8 @@ public class ExitNode : ASTNode
         }
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new ExitNode(ExitValue?.Clone(), Condition?.Clone())
     {
-        return new ExitNode(ExitValue?.Clone(), Condition?.Clone());
-    }
+        Token = Token
+    };
 }

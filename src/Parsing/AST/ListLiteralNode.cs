@@ -24,6 +24,9 @@ public class ListLiteralNode(List<ASTNode> elements) : ASTNode(ASTNodeType.ListL
             clonedElements.Add(element.Clone());
         }
 
-        return new ListLiteralNode(clonedElements);
+        return new ListLiteralNode(clonedElements)
+        {
+            Token = Token
+        };
     }
 }

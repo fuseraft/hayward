@@ -27,6 +27,9 @@ public class NextNode : ASTNode
 
     public override ASTNode Clone()
     {
-        return new NextNode(Condition?.Clone());
+        return new NextNode(Condition?.Clone())
+        {
+            Token = Token
+        };
     }
 }

@@ -36,7 +36,8 @@ public class CaseWhenNode : ASTNode
         return new CaseWhenNode
         {
             Condition = Condition?.Clone(),
-            Body = clonedBody
+            Body = clonedBody,
+            Token = Token
         };
     }
 }

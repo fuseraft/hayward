@@ -39,6 +39,9 @@ public class MethodCallNode : ASTNode
             clonedArguments.Add(arg?.Clone());
         }
 
-        return new MethodCallNode(Object?.Clone(), MethodName, Op, clonedArguments);
+        return new MethodCallNode(Object?.Clone(), MethodName, Op, clonedArguments)
+        {
+            Token = Token
+        };
     }
 }

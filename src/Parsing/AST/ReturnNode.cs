@@ -29,8 +29,8 @@ public class ReturnNode : ASTNode
         }
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new ReturnNode(ReturnValue?.Clone(), Condition?.Clone())
     {
-        return new ReturnNode(ReturnValue?.Clone(), Condition?.Clone());
-    }
+        Token = Token
+    };
 }

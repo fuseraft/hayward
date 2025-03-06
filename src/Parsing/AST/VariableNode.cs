@@ -55,7 +55,8 @@ public class VariableNode : ASTNode
         return new VariableNode
         {
             Variables = clonedVariables,
-            TypeHints = TypeHints
+            TypeHints = TypeHints,
+            Token = Token
         };
     }
 }

@@ -30,9 +30,8 @@ public class MemberAssignmentNode : ASTNode
         Initializer?.Print(2 + depth);
     }
 
-    public override ASTNode Clone()
+    public override ASTNode Clone() => new MemberAssignmentNode(Object?.Clone(), MemberName, Op, Initializer?.Clone())
     {
-        return new MemberAssignmentNode(Object?.Clone(), MemberName,
-                                                      Op, Initializer?.Clone());
-    }
+        Token = Token
+    };
 }
