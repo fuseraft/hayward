@@ -1,35 +1,28 @@
 /#
-This simple markdown generator reads all `.hayward` files found within the current 
-directory and its subdirectories, and generates a markdown file called `output.md` 
-containing the contents of each file.
+Green jewels glisten,
+tart and sweet in every bite,
+summer’s gift to taste.
 #/
 
-fn generate_markdown(output_name: string = "output.md", ext: string = ".cs", lang: string = "csharp")
-  try
-    var (output_path: string = fio::abspath("./${output_name}"),
-         markdown:    list   = [])
-    
-    fio::remove(output_path)
+fn respond(message: string, ok: boolean = true)
+  var (response: hashmap = {})
 
-    for path in fio::glob("./", ["./**/*${ext}"]) do
-      var (filename:  string = fio::filename(path),
-           content:   string = fio::read(path))
+  response.ok = ok
+  response.bad = !response.ok
+  response.message = message
 
-      markdown.push([
-        "## ${filename}", 
-        "```${lang}", 
-        content, 
-        "```"
-      ]);
+  return response
+end
 
-    fio::writeln(output_path, markdown.flatten())
+fn main()
+  r = respond("hello")
+  
+  if !r.ok
+    eprintln "An error occurred: ${r.message}"
+    return
+  end
 
-    throw "could not generate ${output_path}" 
-      when !fio::exists(output_path)
-    
-    println "generated ${output_path}"
-  catch (err)
-    println "an error occurred: ${err}";
-;
+  println "Response: ${r.message}"
+end
 
-generate_markdown("hayward-files.md", ".hayward", "hayward")
+main()
