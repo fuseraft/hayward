@@ -262,9 +262,14 @@ public static class FileIOBuiltinHandler
 
     private static Value ReadLines(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
+        if (args.Count != 1)
         {
             throw new ParameterCountMismatchError(token, FileIOBuiltin.ReadLines);
+        }
+
+        if (!args[0].IsString())
+        {
+            throw new ParameterTypeMismatchError(token, FileIOBuiltin.ReadLines, 0, Typing.ValueType.String, args[0].Type);
         }
 
         var path = args[0].GetString();
@@ -273,9 +278,19 @@ public static class FileIOBuiltinHandler
 
     private static Value MoveFile(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
+        if (args.Count != 2)
         {
             throw new ParameterCountMismatchError(token, FileIOBuiltin.MoveFile);
+        }
+
+        if (!args[0].IsString())
+        {
+            throw new ParameterTypeMismatchError(token, FileIOBuiltin.MoveFile, 0, Typing.ValueType.String, args[0].Type);
+        }
+
+        if (!args[1].IsString())
+        {
+            throw new ParameterTypeMismatchError(token, FileIOBuiltin.MoveFile, 1, Typing.ValueType.String, args[1].Type);
         }
 
         var src = args[0].GetString();

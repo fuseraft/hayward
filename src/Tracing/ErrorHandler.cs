@@ -24,9 +24,13 @@ public static class ErrorHandler
         List<string> lines = 
         [
             $"Timestamp: {DateTime.Now:yyyy-MM-dd hh:mm:ss tt}", 
-            $"[{type}]: {message}", 
-            $"{filePath}:{span.Line}:{span.Pos}"
+            $"[{type}]: {message}"
         ];
+
+        if (token.Type != TokenType.Default && token.Name != TokenName.Default)
+        {
+            lines.Add($"{filePath}:{span.Line}:{span.Pos}");
+        }
 
         foreach (var line in lines.Skip(1))
         {
@@ -48,7 +52,20 @@ public static class ErrorHandler
         var lines = FileRegistry.Instance.GetFileLines(span.File);
         if (lines.Count > span.Line && span.Line != 0)
         {
-            Console.WriteLine(lines[span.Line - 1]);
+            var line = lines[span.Line - 1];
+            Console.Error.WriteLine(line);
+            for (int i = 0; i < line.Length; ++i)
+            {
+                if (i < span.Pos - 1)
+                {
+                    Console.Error.Write(' ');
+                }
+                else
+                {
+                    Console.Error.Write('^');
+                }
+            }
+            Console.Error.WriteLine();
         }
     }
 

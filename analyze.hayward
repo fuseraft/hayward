@@ -1,0 +1,24 @@
+# just a line counter
+
+cwd = fio::cwd()
+cwd_size = cwd.size()
+files = []
+
+for file in fio::glob(".", ["./**/*.cs"]) do
+    files.push({
+        "name": file[cwd_size:],
+        "path": file,
+        "lines": fio::readlines(file).size()
+    })
+end
+
+loc = files.reduce(0, with (acc, f) do 
+    acc += f.lines
+end)
+
+
+for file in files do
+    println "${file.name} ${file.lines} line(s)"
+end
+
+println "${files.size()} file(s): ${loc} line(s)"

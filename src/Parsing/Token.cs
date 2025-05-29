@@ -127,6 +127,7 @@ public readonly struct TokenSpan(int file, int line, int pos)
 
 public enum TokenType
 {
+    Default,
     Identifier,
     Comment,
     Comma,
