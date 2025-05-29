@@ -24,8 +24,7 @@ public static class ErrorHandler
         List<string> lines = 
         [
             $"Timestamp: {DateTime.Now:yyyy-MM-dd hh:mm:ss tt}", 
-            $"{type}: {message}", 
-            $"Near token: [Type=`{token.Type}`, Text=`{token.Text}`]", 
+            $"[{type}]: {message}", 
             $"{filePath}:{span.Line}:{span.Pos}"
         ];
 
@@ -34,10 +33,23 @@ public static class ErrorHandler
             Console.Error.WriteLine(line);
         }
 
+        if (File.Exists(filePath))
+        {
+            PrintErrorLine(span);   
+        }
 
         lines.Add(string.Empty);
 
         File.AppendAllLines(Hayward.Settings.CrashDumpPath, lines);
+    }
+
+    private static void PrintErrorLine(TokenSpan span)
+    {
+        var lines = FileRegistry.Instance.GetFileLines(span.File);
+        if (lines.Count > span.Line && span.Line != 0)
+        {
+            Console.WriteLine(lines[span.Line - 1]);
+        }
     }
 
     public static void DumpCrashLog(Exception? e)

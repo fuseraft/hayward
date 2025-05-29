@@ -2158,7 +2158,7 @@ public class Interpreter
                 }
                 else
                 {
-                    throw new ParameterCountMismatchError(token, functionName);
+                    throw new ParameterCountMismatchError(token, functionName, function.Parameters.Count, args.Count);
                 }
 
                 PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, functionFrame);
@@ -2299,7 +2299,7 @@ public class Interpreter
             }
             else
             {
-                throw new ParameterCountMismatchError(node.Token, node.FunctionName);
+                throw new ParameterCountMismatchError(node.Token, node.FunctionName, parms.Count, nodeArguments.Count);
             }
 
             if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
@@ -2353,7 +2353,7 @@ public class Interpreter
             }
             else
             {
-                throw new ParameterCountMismatchError(token, targetLambda);
+                throw new ParameterCountMismatchError(token, targetLambda, parms.Count, args.Count);
             }
 
             PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, lambdaFrame);
@@ -2378,7 +2378,7 @@ public class Interpreter
             }
             else
             {
-                throw new ParameterCountMismatchError(token, targetLambda);
+                throw new ParameterCountMismatchError(token, targetLambda, parms.Count, args.Count);
             }
 
             if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))

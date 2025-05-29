@@ -8,13 +8,11 @@ public sealed class FileRegistry
 
     private int _nextId;
     private readonly Dictionary<int, string> _registry;
-    private readonly Dictionary<int, List<string>> _linesRegistry;
 
     private FileRegistry()
     {
         _nextId = 0;
         _registry = [];
-        _linesRegistry = [];
     }
 
     public int RegisterFile(string filePath)
@@ -26,10 +24,8 @@ public sealed class FileRegistry
             return fileId;
         }
 
-        var lines = File.ReadAllLines(filePath).ToList();
         int id = _nextId++;
         _registry[id] = Path.GetFullPath(filePath);
-        _linesRegistry[id] = lines;
 
         return id;
     }
@@ -59,11 +55,7 @@ public sealed class FileRegistry
 
     public List<string> GetFileLines(int id)
     {
-        if (_linesRegistry.TryGetValue(id, out var lines))
-        {
-            return lines;
-        }
-
-        return [];
+        var filePath = GetFilePath(id);
+        return [.. File.ReadAllLines(filePath)];
     }
 }

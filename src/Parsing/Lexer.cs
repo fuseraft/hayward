@@ -467,6 +467,7 @@ public class Lexer : IDisposable
         {
             if (ch == '\n')
             {
+                ++LineNumber;
                 break;
             }
 

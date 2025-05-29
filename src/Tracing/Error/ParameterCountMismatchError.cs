@@ -1,9 +1,21 @@
 ﻿using hayward.Parsing;
-using System.Xml.Linq;
 
 namespace hayward.Tracing.Error;
 
-public class ParameterCountMismatchError(Token t, string name)
-    : HaywardError(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.")
+public class ParameterCountMismatchError : HaywardError
 {
+    public ParameterCountMismatchError(Token t, string name)
+        : base(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.")
+    {
+    }
+
+    public ParameterCountMismatchError(Token t, string name, int expectedCount)
+        : base(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.{Environment.NewLine}Expected {expectedCount}.")
+    {
+    }
+
+    public ParameterCountMismatchError(Token t, string name, int expectedCount, int actualCount)
+        : base(t, "ParameterCountMismatchError", $"The parameter count for function `{name}` does not match parameters passed.{Environment.NewLine}Expected {expectedCount} but received {actualCount}.")
+    {
+    }
 }
