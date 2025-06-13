@@ -828,5 +828,6 @@ public enum ValueType
     Struct = 9,
     Pointer = 10,
     Date = 11,
-    Unset = 20
+    Unset = 20,
+    Number = 21
 };

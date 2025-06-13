@@ -27,10 +27,7 @@ public static class EnvBuiltinHandler
 
     private static Value GetArgv(Token token, List<Value> args, Dictionary<string, string> cliArgs)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.GetArgv);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.GetArgv, 0, args.Count);
 
         Dictionary<Value, Value> argv = [];
 
@@ -44,12 +41,11 @@ public static class EnvBuiltinHandler
 
     private static Value GetXarg(Token token, List<Value> args, Dictionary<string, string> cliArgs)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.GetXarg);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.GetXarg, 1, args.Count);
 
-        var xargName = ConversionOp.GetString(token, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, EnvBuiltin.GetXarg, 0, args[0]);
+
+        var xargName = args[0].GetString();
 
         foreach (var pair in cliArgs)
         {
@@ -64,40 +60,28 @@ public static class EnvBuiltinHandler
 
     private static Value OS(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.OS);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.OS, 0, args.Count);
 
         return Value.CreateString(System.Runtime.InteropServices.RuntimeInformation.OSDescription);
     }
 
     private static Value User(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.User);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.User, 0, args.Count);
 
         return Value.CreateString(Environment.UserName);
     }
 
     private static Value UserDomain(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.UserDomain);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.UserDomain, 0, args.Count);
 
         return Value.CreateString(Environment.UserDomainName);
     }
 
     private static Value GetAll(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.GetAll);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.GetAll, 0, args.Count);
 
         var envVars = Environment.GetEnvironmentVariables()
             .Cast<System.Collections.DictionaryEntry>()
@@ -110,10 +94,7 @@ public static class EnvBuiltinHandler
 
     private static Value GetBinPath(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.Hayward);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.Hayward, 0, args.Count);
 
         var exePath = Environment.ProcessPath ?? throw new FileSystemError(token, "Could not get executable path.");
         return Value.CreateString(exePath);
@@ -121,15 +102,9 @@ public static class EnvBuiltinHandler
 
     private static Value GetEnvironmentVariable(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.GetEnvironmentVariable);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.GetEnvironmentVariable, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, EnvBuiltin.GetEnvironmentVariable, 0, args[0]);
 
         var env = Environment.GetEnvironmentVariable(args[0].GetString()) ?? string.Empty;
         return Value.CreateString(env);
@@ -137,20 +112,10 @@ public static class EnvBuiltinHandler
 
     private static Value SetEnvironmentVariable(Token token, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, EnvBuiltin.SetEnvironmentVariable);
-        }
+        ParameterCountMismatchError.Check(token, EnvBuiltin.SetEnvironmentVariable, 2, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
-
-        if (!args[1].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, EnvBuiltin.SetEnvironmentVariable, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, EnvBuiltin.SetEnvironmentVariable, 1, args[1]);
 
         Environment.SetEnvironmentVariable(args[0].GetString(), args[1].GetString());
         return Value.Default;

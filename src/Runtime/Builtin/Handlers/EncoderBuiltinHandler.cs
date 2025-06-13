@@ -21,15 +21,9 @@ public static class EncoderBuiltinHandler
 
     private static Value Base64Decode(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EncoderBuiltin.Base64Decode);
-        }
+        ParameterCountMismatchError.Check(token, EncoderBuiltin.Base64Decode, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, EncoderBuiltin.Base64Decode, 0, args[0]);
 
         var base64 = args[0].GetString();
 
@@ -44,15 +38,9 @@ public static class EncoderBuiltinHandler
 
     private static Value Base64Encode(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EncoderBuiltin.Base64Encode);
-        }
+        ParameterCountMismatchError.Check(token, EncoderBuiltin.Base64Encode, 1, args.Count);
 
-        if (!args[0].IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        ParameterTypeMismatchError.ExpectList(token, EncoderBuiltin.Base64Encode, 0, args[0]);
 
         List<byte> resultBytes = [];
 
@@ -72,15 +60,9 @@ public static class EncoderBuiltinHandler
 
     private static Value UrlDecode(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EncoderBuiltin.UrlDecode);
-        }
+        ParameterCountMismatchError.Check(token, EncoderBuiltin.UrlDecode, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, EncoderBuiltin.UrlDecode, 0, args[0]);
 
         var res = System.Web.HttpUtility.UrlDecode(args[0].GetString()) ?? string.Empty;
         return Value.CreateString(res);
@@ -88,15 +70,9 @@ public static class EncoderBuiltinHandler
 
     private static Value UrlEncode(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, EncoderBuiltin.UrlEncode);
-        }
+        ParameterCountMismatchError.Check(token, EncoderBuiltin.UrlEncode, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, EncoderBuiltin.UrlEncode, 0, args[0]);
 
         var res = System.Web.HttpUtility.UrlEncode(args[0].GetString()) ?? string.Empty;
         return Value.CreateString(res);

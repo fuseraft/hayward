@@ -20,15 +20,9 @@ public static class SysBuiltinHandler
 
     private static Value Open(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, SysBuiltin.Exec);
-        }
+        ParameterCountMismatchError.Check(token, SysBuiltin.Open, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, SysBuiltin.Open, 0, args[0]);
 
         var process = new System.Diagnostics.Process
         {
@@ -45,15 +39,9 @@ public static class SysBuiltinHandler
 
     private static Value Exec(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, SysBuiltin.Exec);
-        }
+        ParameterCountMismatchError.Check(token, SysBuiltin.Exec, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, SysBuiltin.Exec, 0, args[0]);
 
         var startInfo = GetStartInfo(args[0].GetString());
         startInfo.CreateNoWindow = true;
@@ -71,15 +59,9 @@ public static class SysBuiltinHandler
 
     private static Value ExecOut(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, SysBuiltin.ExecOut);
-        }
+        ParameterCountMismatchError.Check(token, SysBuiltin.ExecOut, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, SysBuiltin.ExecOut, 0, args[0]);
 
         var startInfo = GetStartInfo(args[0].GetString());
         startInfo.RedirectStandardOutput = true;

@@ -115,7 +115,7 @@ public class ReflectorBuiltinHandler
     {
         if (args.Count != 0)
         {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RRetVal);
+            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RRetVal, 0, args.Count);
         }
 
         if (callStack.Count == 0)
@@ -128,10 +128,7 @@ public class ReflectorBuiltinHandler
 
     private static Value RList(Token token, List<Value> args, KContext ctx, Stack<StackFrame> callStack)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RList);
-        }
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RList, 0, args.Count);
 
         Dictionary<Value, Value> rlist = [];
         List<Value> rlistPackages = [];
@@ -200,10 +197,7 @@ public class ReflectorBuiltinHandler
 
     private static Value RObject(Token token, List<Value> args, Stack<StackFrame> callStack)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RObject);
-        }
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RObject, 0, args.Count);
 
         if (callStack.Count == 0)
         {
@@ -223,10 +217,7 @@ public class ReflectorBuiltinHandler
 
     private static Value RStack(Token token, List<Value> args, Stack<string> funcStack)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RStack);
-        }
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RStack, 0, args.Count);
 
         Stack<string> tempStack = new ([.. funcStack]);
         List<Value> stackNames = [];

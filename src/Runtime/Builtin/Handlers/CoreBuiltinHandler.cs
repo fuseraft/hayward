@@ -93,17 +93,12 @@ public static class CoreBuiltinHandler
 
     private static Value Between(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Between);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Between, 2, args.Count);
 
         if (value.IsNumber())
         {
-            if (!(args[0].IsNumber() && args[1].IsNumber()))
-            {
-                throw new InvalidOperationError(token, "Expected numbers for both parameters.");
-            }
+            ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Between, 0, args[0]);
+            ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Between, 1, args[1]);
 
             List<double> range = [args[0].GetNumber(), args[1].GetNumber()];
             var test = value.GetNumber();
@@ -112,10 +107,8 @@ public static class CoreBuiltinHandler
         }
         else if (value.IsString())
         {
-            if (!(args[0].IsString() && args[1].IsString()))
-            {
-                throw new InvalidOperationError(token, "Expected strings for both parameters.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Between, 0, args[0]);
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Between, 1, args[1]);
 
             List<string> range = [args[0].GetString(), args[1].GetString()];
             var test = value.GetString();
@@ -124,10 +117,8 @@ public static class CoreBuiltinHandler
         }
         else if (value.IsDate())
         {
-            if (!(args[0].IsDate() && args[1].IsDate()))
-            {
-                throw new InvalidOperationError(token, "Expected dates for both parameters.");
-            }
+            ParameterTypeMismatchError.ExpectDate(token, CoreBuiltin.Between, 0, args[0]);
+            ParameterTypeMismatchError.ExpectDate(token, CoreBuiltin.Between, 1, args[1]);
 
             List<DateTime> range = [args[0].GetDate(), args[1].GetDate()];
             var test = value.GetDate();
@@ -140,115 +131,70 @@ public static class CoreBuiltinHandler
 
     private static Value Hour(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Hour);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Hour, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Hour);
     }
 
     private static Value Minute(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Minute);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Minute, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Minute);
     }
 
     private static Value Second(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Second);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Second, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Second);
     }
 
     private static Value Millisecond(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Millisecond);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Millisecond, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Millisecond);
     }
 
     private static Value Day(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Day);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Day, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Day);
     }
 
     private static Value Month(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Month);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Month, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Month);
     }
 
     private static Value Year(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Year);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Year, 0, args.Count);
 
-        if (!value.IsDate())
-        {
-            throw new InvalidOperationError(token, "Expected a date.");
-        }
+        TypeError.ExpectDate(token, value);
 
         return Value.CreateInteger(value.GetDate().Year);
     }
 
     private static Value Pretty(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Pretty);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Pretty, 0, args.Count);
 
         var pretty = Serializer.PrettySerialize(value);
         return Value.CreateString(pretty);
@@ -256,15 +202,9 @@ public static class CoreBuiltinHandler
 
     private static Value IsA(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.IsA);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.IsA, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.IsA, 0, args[0]);
         
         var typeName = args[0].GetString();
 
@@ -286,10 +226,7 @@ public static class CoreBuiltinHandler
 
     private static Value ToBytes(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.ToBytes);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.ToBytes, 0, args.Count);
 
         if (value.IsString())
         {
@@ -347,10 +284,7 @@ public static class CoreBuiltinHandler
         }
 
         // if not an integer, we expect a list of integers (bytes)
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list value for byte-to-hex conversion.");
-        }
+        TypeError.ExpectList(token, value);
 
         var elements = value.GetList();
         if (elements.Count == 0)
@@ -362,12 +296,9 @@ public static class CoreBuiltinHandler
 
         if (args.Count == 1)
         {
-            if (!args[0].IsInteger())
-            {
-                throw new ConversionError(token, "Expected an integer as the width argument.");
-            }
+            ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.ToI, 0, args[0]);
 
-            width = (int)args[0].GetInteger();
+            width = (int)args[0].GetNumber();
             if (width < 2)
             {
                 throw new InvalidOperationError(token, "Width must be >= 2.");
@@ -393,10 +324,7 @@ public static class CoreBuiltinHandler
 
     private static Value ToFloat(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.ToF);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.ToF, 0, args.Count);
 
         if (value.IsString())
         {
@@ -435,12 +363,9 @@ public static class CoreBuiltinHandler
         // validate base if detected
         if (args.Count == 1)
         {
-            if (!args[0].IsInteger())
-            {
-                throw new ConversionError(token, "Expected an integer as the base argument.");
-            }
+            ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.ToI, 0, args[0]);
 
-            numberBase = (int)args[0].GetInteger();
+            numberBase = (int)args[0].GetNumber();
             if (numberBase < 2 || numberBase > 36)
             {
                 throw new InvalidOperationError(token, "Base must be between 2 and 36, inclusive.");
@@ -614,10 +539,7 @@ public static class CoreBuiltinHandler
         }
 
         // format argument must be a string
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.ToS, 0, args[0]);
 
         var format = args[0].GetString().Trim();
 
@@ -733,18 +655,14 @@ public static class CoreBuiltinHandler
 
     private static Value Swap(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsInteger() && !args[1].IsInteger())
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Swap);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Swap, 2, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
+        ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Swap, 0, args[0]);
+        ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Swap, 1, args[1]);
 
-        var firstIndex = (int)args[0].GetInteger();
-        var secondIndex = (int)args[1].GetInteger();
+        var firstIndex = (int)args[0].GetNumber();
+        var secondIndex = (int)args[1].GetNumber();
         var lst = value.GetList();
 
         if (firstIndex < 0 || firstIndex >= lst.Count)
@@ -766,15 +684,10 @@ public static class CoreBuiltinHandler
 
     private static Value Rotate(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1 || !args[0].IsInteger())
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Rotate);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Rotate, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
+        ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Rotate, 0, args[0]);
 
         var elements = value.GetList();
         var rotation = (int)args[0].GetInteger();
@@ -809,19 +722,15 @@ public static class CoreBuiltinHandler
 
     private static Value Slice(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Slice);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Slice, 2, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
+        ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Slice, 0, args[0]);
+        ParameterTypeMismatchError.ExpectNumber(token, CoreBuiltin.Slice, 1, args[1]);
 
         var elements = value.GetList();
-        var start = (int)args[0].GetInteger();
-        var end = (int)args[1].GetInteger();
+        var start = (int)args[0].GetNumber();
+        var end = (int)args[1].GetNumber();
 
         if (start < 0 || end < 0 || start > end || end > elements.Count)
         {
@@ -836,20 +745,10 @@ public static class CoreBuiltinHandler
 
     private static Value Merge(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Merge);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Merge, 1, args.Count);
 
-        if (!value.IsHashmap())
-        {
-            throw new InvalidOperationError(token, "Expected a hashmap.");
-        }
-
-        if (!args[0].IsHashmap())
-        {
-            throw new InvalidOperationError(token, "Expected a hashmap.");
-        }
+        TypeError.ExpectHashmap(token, value);
+        ParameterTypeMismatchError.ExpectHashmap(token, CoreBuiltin.Merge, 0, args[0]);
 
         var targetMap = value.GetHashmap();
         var sourceMap = args[0].GetHashmap();
@@ -864,15 +763,10 @@ public static class CoreBuiltinHandler
 
     private static Value Zip(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1 || !args[0].IsList())
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Zip);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Zip, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
+        ParameterTypeMismatchError.ExpectList(token, CoreBuiltin.Zip, 0, args[0]);
 
         var elements1 = value.GetList();
         var elements2 = args[0].GetList();
@@ -891,15 +785,9 @@ public static class CoreBuiltinHandler
 
     private static Value Flatten(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Flatten);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Flatten, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var originalList = value.GetList();
         var flattened = FlattenListRecursive(originalList);
@@ -930,15 +818,9 @@ public static class CoreBuiltinHandler
 
     private static Value Insert(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Insert);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Insert, 2, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
         var index = 0;
@@ -962,10 +844,7 @@ public static class CoreBuiltinHandler
 
     private static Value Keys(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Keys);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Keys, 0, args.Count);
 
         if (!value.IsHashmap())
         {
@@ -978,10 +857,7 @@ public static class CoreBuiltinHandler
 
     private static Value Values(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Values);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Values, 0, args.Count);
 
         if (!value.IsHashmap())
         {
@@ -994,15 +870,9 @@ public static class CoreBuiltinHandler
 
     private static Value Enqueue(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Enqueue);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Enqueue, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         value.GetList().Add(args[0].Clone());
         return value;
@@ -1010,15 +880,9 @@ public static class CoreBuiltinHandler
 
     private static Value Dequeue(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Dequeue);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Dequeue, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
 
@@ -1034,15 +898,9 @@ public static class CoreBuiltinHandler
 
     private static Value Shift(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Shift);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Shift, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
 
@@ -1058,15 +916,9 @@ public static class CoreBuiltinHandler
 
     private static Value Unshift(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Unshift);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Unshift, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         value.GetList().Insert(0, args[0].Clone());
         return value;
@@ -1115,15 +967,9 @@ public static class CoreBuiltinHandler
 
     private static Value Unique(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Unique);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Unique, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var originalList = value.GetList();
         var uniqueList = new List<Value>();
@@ -1141,17 +987,11 @@ public static class CoreBuiltinHandler
 
     private static Value Count(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Count);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Count, 1, args.Count);
 
         if (value.IsString())
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string to match against.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Count, 0, args[0]);
 
             var s = value.GetString();
             var target = args[0].GetString();
@@ -1199,10 +1039,7 @@ public static class CoreBuiltinHandler
             throw new ParameterCountMismatchError(token, CoreBuiltin.Substring);
         }
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         var s = value.GetString();
         var index = (int)args[0].GetInteger();
@@ -1210,10 +1047,7 @@ public static class CoreBuiltinHandler
 
         if (args.Count == 2)
         {
-            if (!args[1].IsInteger())
-            {
-                throw new InvalidOperationError(token, "Expected an integer.");
-            }
+            ParameterTypeMismatchError.ExpectInteger(token, CoreBuiltin.Substring, 1, args[1]);
 
             size = (int)args[1].GetInteger();
         }
@@ -1223,10 +1057,7 @@ public static class CoreBuiltinHandler
 
     private static Value Reverse(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Reverse);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Reverse, 0, args.Count);
 
         if (value.IsString())
         {
@@ -1243,17 +1074,11 @@ public static class CoreBuiltinHandler
 
     private static Value IndexOf(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.IndexOf);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.IndexOf, 1, args.Count);
 
         if (value.IsString())
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.IndexOf, 0, args[0]);
 
             return Value.CreateInteger(value.GetString().IndexOf(args[0].GetString()));
         }
@@ -1267,17 +1092,11 @@ public static class CoreBuiltinHandler
 
     private static Value LastIndexOf(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.LastIndexOf);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.LastIndexOf, 1, args.Count);
 
         if (value.IsString())
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.LastIndexOf, 0, args[0]);
 
             return Value.CreateInteger(value.GetString().LastIndexOf(args[0].GetString()));
         }
@@ -1291,40 +1110,25 @@ public static class CoreBuiltinHandler
 
     private static Value Clone(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Clone);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Clone, 0, args.Count);
 
         return value.Clone();
     }
 
     private static Value Lines(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Lines);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Lines, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateList(value.GetString().Split(Environment.NewLine, StringSplitOptions.None).Select(x => Value.CreateString(x)).ToList());
     }
 
     private static Value Split(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Split);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Split, 1, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         var s = value.GetString();
 
@@ -1333,10 +1137,7 @@ public static class CoreBuiltinHandler
             return Value.CreateList([]);
         }
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Split, 0, args[0]);
 
         var delim = args[0].GetString();
 
@@ -1354,27 +1155,18 @@ public static class CoreBuiltinHandler
 
     private static Value Truthy(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Truthy);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Truthy, 0, args.Count);
 
         return Value.CreateBoolean(BooleanOp.IsTruthy(value));
     }
 
     private static Value Get(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Get);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Get, 1, args.Count);
 
         if (value.IsList())
         {
-            if (!args[0].IsInteger())
-            {
-                throw new IndexError(token);
-            }
+            ParameterTypeMismatchError.ExpectInteger(token, CoreBuiltin.Get, 0, args[0]);
 
             var index = (int)args[0].GetInteger();
 
@@ -1402,17 +1194,11 @@ public static class CoreBuiltinHandler
 
     private static Value Set(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Set);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Set, 2, args.Count);
 
         if (value.IsList())
         {
-            if (!args[0].IsInteger())
-            {
-                throw new IndexError(token);
-            }
+            ParameterTypeMismatchError.ExpectInteger(token, CoreBuiltin.Set, 0, args[0]);
 
             var index = (int)args[0].GetInteger();
 
@@ -1435,10 +1221,7 @@ public static class CoreBuiltinHandler
 
     private static Value Remove(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Remove);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Remove, 1, args.Count);
 
         if (value.IsList())
         {
@@ -1456,20 +1239,10 @@ public static class CoreBuiltinHandler
 
     private static Value RemoveAt(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.RemoveAt);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.RemoveAt, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
-
-        if (!args[0].IsInteger())
-        {
-            throw new InvalidOperationError(token, "Expected an integer.");
-        }
+        TypeError.ExpectList(token, value);
+        ParameterTypeMismatchError.ExpectInteger(token, CoreBuiltin.RemoveAt, 0, args[0]);
 
         value.GetList().RemoveAt((int)args[0].GetInteger());
         return value;
@@ -1477,10 +1250,7 @@ public static class CoreBuiltinHandler
 
     private static Value Replace(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Replace);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Replace, 2, args.Count);
 
         var find = args[0];
         var replace = args[1];
@@ -1518,10 +1288,7 @@ public static class CoreBuiltinHandler
 
     private static Value Clear(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Clear);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Clear, 0, args.Count);
 
         if (value.IsString())
         {
@@ -1544,15 +1311,9 @@ public static class CoreBuiltinHandler
 
     private static Value First(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.First);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.First, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
 
@@ -1566,15 +1327,9 @@ public static class CoreBuiltinHandler
 
     private static Value Last(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Last);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Last, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
 
@@ -1588,15 +1343,9 @@ public static class CoreBuiltinHandler
 
     private static Value Push(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Push);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Push, 1, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         value.GetList().Add(args[0].Clone());
         return value;
@@ -1604,15 +1353,9 @@ public static class CoreBuiltinHandler
 
     private static Value Pop(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Pop);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Pop, 0, args.Count);
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        TypeError.ExpectList(token, value);
 
         var lst = value.GetList();
         if (lst.Count == 0)
@@ -1632,10 +1375,7 @@ public static class CoreBuiltinHandler
             throw new ParameterCountMismatchError(token, CoreBuiltin.Chars);
         }
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string to split.");
-        }
+        TypeError.ExpectString(token, value);
 
         var s = value.GetString();
 
@@ -1650,15 +1390,9 @@ public static class CoreBuiltinHandler
 
     private static Value Chomp(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Chomp);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Chomp, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         var input = value.GetString();
 
@@ -1680,15 +1414,9 @@ public static class CoreBuiltinHandler
 
     private static Value HasKey(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.HasKey);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.HasKey, 1, args.Count);
 
-        if (!value.IsHashmap())
-        {
-            throw new InvalidOperationError(token, "Expected a hashmap.");
-        }
+        TypeError.ExpectHashmap(token, value);
 
         return Value.CreateBoolean(value.GetHashmap().ContainsKey(args[0]));
     }
@@ -1700,19 +1428,13 @@ public static class CoreBuiltinHandler
             throw new ParameterCountMismatchError(token, CoreBuiltin.Join);
         }
 
-        if (!value.IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list to join.");
-        }
+        TypeError.ExpectList(token, value);
 
         var joiner = string.Empty;
 
         if (args.Count == 1)
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string for the joiner.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Join, 0, args[0]);
 
             joiner = args[0].GetString();
         }
@@ -1738,10 +1460,7 @@ public static class CoreBuiltinHandler
 
     private static Value Size(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Size);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Size, 0, args.Count);
 
         if (value.IsString())
         {
@@ -1815,122 +1534,73 @@ public static class CoreBuiltinHandler
 
     private static Value Lowercase(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Lowercase);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Lowercase, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateString(value.GetString().ToLower());
     }
 
     private static Value Uppercase(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Uppercase);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Uppercase, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateString(value.GetString().ToUpper());
     }
 
     private static Value LeftTrim(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.LeftTrim);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.LeftTrim, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateString(value.GetString().TrimStart());
     }
 
     private static Value RightTrim(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.RightTrim);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.RightTrim, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateString(value.GetString().TrimEnd());
     }
 
     private static Value Trim(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Trim);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Trim, 0, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
 
         return Value.CreateString(value.GetString().Trim());
     }
 
     private static Value Type(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Type);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Type, 0, args.Count);
 
         return Value.CreateString(Serializer.GetTypenameString(value));
     }
 
     private static Value BeginsWith(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.BeginsWith);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.BeginsWith, 1, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
-
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
+        ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.BeginsWith, 0, args[0]);
 
         return Value.CreateBoolean(value.GetString().StartsWith(args[0].GetString()));
     }
 
     private static Value Contains(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.Contains);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Contains, 1, args.Count);
 
         if (value.IsString())
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string.");
-            }
+            ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.Contains, 0, args[0]);
 
             return Value.CreateBoolean(value.GetString().Contains(args[0].GetString()));
         }
@@ -1944,20 +1614,10 @@ public static class CoreBuiltinHandler
 
     private static Value EndsWith(Token token, Value value, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, CoreBuiltin.EndsWith);
-        }
+        ParameterCountMismatchError.Check(token, CoreBuiltin.EndsWith, 1, args.Count);
 
-        if (!value.IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
-
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        TypeError.ExpectString(token, value);
+        ParameterTypeMismatchError.ExpectString(token, CoreBuiltin.EndsWith, 0, args[0]);
 
         return Value.CreateBoolean(value.GetString().EndsWith(args[0].GetString()));
     }

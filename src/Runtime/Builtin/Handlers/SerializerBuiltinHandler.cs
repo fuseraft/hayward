@@ -19,15 +19,9 @@ public class SerializerBuiltinHandler
 
     private static Value Deserialize(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, SerializerBuiltin.Deserialize);
-        }
+        ParameterCountMismatchError.Check(token, SerializerBuiltin.Deserialize, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, SerializerBuiltin.Deserialize, 0, args[0]);
 
         var input = args[0].GetString();
         Parser parser = new (true);
@@ -41,10 +35,7 @@ public class SerializerBuiltinHandler
 
     private static Value Serialize(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, SerializerBuiltin.Deserialize);
-        }
+        ParameterCountMismatchError.Check(token, SerializerBuiltin.Deserialize, 1, args.Count);
 
         return Value.CreateString(Serializer.Serialize(args[0]));
     }

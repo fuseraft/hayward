@@ -6,16 +6,6 @@ namespace hayward.Runtime.Builtin.Operation;
 
 public struct ConversionOp
 {
-    public static string GetString(Token t, Value v, string message = "Expected a string value.")
-    {
-        if (!v.IsString())
-        {
-            throw new ConversionError(t, message);
-        }
-
-        return v.GetString();
-    }
-
     public static long GetInteger(Token t, Value v, string message = "Expected an integer value.")
     {
         if (v.IsFloat())

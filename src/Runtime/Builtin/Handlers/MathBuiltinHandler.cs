@@ -21,15 +21,9 @@ public static class MathBuiltinHandler
 
     private static Value Abs(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, MathBuiltin.Abs);
-        }
+        ParameterCountMismatchError.Check(token, MathBuiltin.Abs, 1, args.Count);
 
-        if (!args[0].IsNumber())
-        {
-            throw new InvalidOperationError(token, "Expected a number.");
-        }
+        ParameterTypeMismatchError.ExpectNumber(token, MathBuiltin.Abs, 0, args[0]);
 
         if (args[0].IsInteger())
         {
@@ -43,30 +37,18 @@ public static class MathBuiltinHandler
 
     private static Value Ceil(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, MathBuiltin.Ceil);
-        }
+        ParameterCountMismatchError.Check(token, MathBuiltin.Ceil, 1, args.Count);
 
-        if (!args[0].IsFloat())
-        {
-            throw new InvalidOperationError(token, "Expected a number.");
-        }
+        ParameterTypeMismatchError.ExpectFloat(token, MathBuiltin.Ceil, 0, args[0]);
 
         return Value.CreateFloat(Math.Ceiling(args[0].GetFloat()));
     }
 
     private static Value Floor(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, MathBuiltin.Floor);
-        }
+        ParameterCountMismatchError.Check(token, MathBuiltin.Floor, 1, args.Count);
 
-        if (!args[0].IsFloat())
-        {
-            throw new InvalidOperationError(token, "Expected a number.");
-        }
+        ParameterTypeMismatchError.ExpectFloat(token, MathBuiltin.Floor, 0, args[0]);
 
         return Value.CreateFloat(Math.Floor(args[0].GetFloat()));
     }

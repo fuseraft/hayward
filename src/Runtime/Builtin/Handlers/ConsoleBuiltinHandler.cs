@@ -21,10 +21,7 @@ public static class ConsoleBuiltinHandler
 
     private static Value Clear(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ConsoleBuiltin.Clear);
-        }
+        ParameterCountMismatchError.Check(token, ConsoleBuiltin.Clear, 0, args.Count);
 
         Console.Clear();
 
@@ -33,10 +30,7 @@ public static class ConsoleBuiltinHandler
 
     private static Value Reset(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ConsoleBuiltin.Clear);
-        }
+        ParameterCountMismatchError.Check(token, ConsoleBuiltin.Clear, 0, args.Count);
 
         Console.ResetColor();
 
@@ -52,11 +46,8 @@ public static class ConsoleBuiltinHandler
 
         if (args.Count == 1)
         {
-            if (!args[0].IsString())
-            {
-                throw new InvalidOperationError(token, "Expected a string.");
-            }
-            
+            ParameterTypeMismatchError.ExpectString(token, ConsoleBuiltin.Input, 0, args[0]);
+
             Console.Write(args[0].GetString());
         }
 
@@ -66,15 +57,9 @@ public static class ConsoleBuiltinHandler
 
     private static Value Foreground(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, ConsoleBuiltin.Foreground);
-        }
-
-        if (!args[0].IsInteger())
-        {
-            throw new InvalidOperationError(token, "Expected an integer.");
-        }
+        ParameterCountMismatchError.Check(token, ConsoleBuiltin.Foreground, 1, args.Count);
+        
+        ParameterTypeMismatchError.ExpectInteger(token, ConsoleBuiltin.Foreground, 0, args[0]);
 
         Console.ForegroundColor = (ConsoleColor)args[0].GetInteger();
 
@@ -83,15 +68,9 @@ public static class ConsoleBuiltinHandler
 
     private static Value Background(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, ConsoleBuiltin.Background);
-        }
+        ParameterCountMismatchError.Check(token, ConsoleBuiltin.Background, 1, args.Count);
 
-        if (!args[0].IsInteger())
-        {
-            throw new InvalidOperationError(token, "Expected an integer.");
-        }
+        ParameterTypeMismatchError.ExpectInteger(token, ConsoleBuiltin.Background, 0, args[0]);
 
         Console.BackgroundColor = (ConsoleColor)args[0].GetInteger();
 

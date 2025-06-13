@@ -47,15 +47,8 @@ public static class FileIOBuiltinHandler
 
     private static Value Combine(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.Combine);
-        }
-
-        if (!args[0].IsList())
-        {
-            throw new InvalidOperationError(token, "Expected a list.");
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.Combine, 1, args.Count);
+        ParameterTypeMismatchError.ExpectList(token, FileIOBuiltin.Combine, 0, args[0]);
 
         List<string> paths = [];
 
@@ -75,15 +68,8 @@ public static class FileIOBuiltinHandler
 
     private static Value GetFileSize(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.FileSize);
-        }
-
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.FileSize, 1, args.Count);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.FileSize, 0, args[0]);
 
         var path = args[0].GetString();
 
@@ -97,21 +83,14 @@ public static class FileIOBuiltinHandler
             throw new ParameterCountMismatchError(token, FileIOBuiltin.ListDirectory);
         }
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ListDirectory, 0, args[0]);
 
         var path = args[0].GetString();
         var recursive = false;
 
         if (args.Count == 2)
         {
-            if (!args[1].IsBoolean())
-            {
-                throw new InvalidOperationError(token, "Expected a boolean.");
-            }
-
+            ParameterTypeMismatchError.ExpectBoolean(token, FileIOBuiltin.ListDirectory, 1, args[1]);
             recursive = args[1].GetBoolean();
         }
 
@@ -126,19 +105,16 @@ public static class FileIOBuiltinHandler
             throw new ParameterCountMismatchError(token, FileIOBuiltin.Glob);
         }
 
-        if (!args[0].IsString())
-        {
-            throw new InvalidOperationError(token, "Expected a string.");
-        }
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.Glob, 0, args[0]);
 
         if (!args[1].IsList() || args[1].GetList().Count == 0)
         {
-            throw new InvalidOperationError(token, "Expected a non-empty list.");
+            throw new TypeError(token, "Expected a non-empty list.");
         }
 
-        if (args.Count == 3 && !args[2].IsList())
+        if (args.Count == 3)
         {
-            throw new InvalidOperationError(token, "Expected a list.");
+            ParameterTypeMismatchError.ExpectList(token, FileIOBuiltin.Glob, 2, args[2]);
         }
 
         List<string> includePatterns = [];
@@ -149,7 +125,7 @@ public static class FileIOBuiltinHandler
         {
             if (!item.IsString())
             {
-                throw new InvalidOperationError(token, "Expected a list of strings.");
+                throw new TypeError(token, "Expected a list of strings.");
             }
 
             includePatterns.Add(item.GetString());
@@ -161,7 +137,7 @@ public static class FileIOBuiltinHandler
             {
                 if (!item.IsString())
                 {
-                    throw new InvalidOperationError(token, "Expected a list of strings.");
+                    throw new TypeError(token, "Expected a list of strings.");
                 }
 
                 excludePatterns.Add(item.GetString());
@@ -174,10 +150,9 @@ public static class FileIOBuiltinHandler
 
     private static Value AppendText(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.AppendText);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.AppendText, 2, args.Count);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.AppendText, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.AppendText, 1, args[1]);
 
         var path = args[0].GetString();
         var text = args[1].GetString();
@@ -187,10 +162,10 @@ public static class FileIOBuiltinHandler
 
     private static Value WriteBytes(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsList())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.WriteBytes);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.WriteBytes, 2, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.WriteBytes, 0, args[0]);
+        ParameterTypeMismatchError.ExpectList(token, FileIOBuiltin.WriteBytes, 1, args[1]);
 
         var path = args[0].GetString();
         var bytes = args[1].GetList();
@@ -200,10 +175,10 @@ public static class FileIOBuiltinHandler
 
     private static Value WriteText(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.WriteText);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.WriteText, 2, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.WriteText, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.WriteText, 1, args[1]);
 
         var path = args[0].GetString();
         var text = args[1].GetString();
@@ -213,10 +188,9 @@ public static class FileIOBuiltinHandler
 
     private static Value WriteLine(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.WriteLine);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.WriteLine, 2, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.WriteLine, 0, args[0]);
 
         var path = args[0].GetString();
 
@@ -240,37 +214,31 @@ public static class FileIOBuiltinHandler
 
     private static Value ReadBytes(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.ReadBytes);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.ReadBytes, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ReadBytes, 0, args[0]);
 
         var path = args[0].GetString();
+
         return Value.CreateList(FileUtil.ReadBytes(token, path));
     }
 
     private static Value ReadFile(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.ReadFile);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.ReadFile, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ReadFile, 0, args[0]);
 
         var path = args[0].GetString();
+
         return Value.CreateString(FileUtil.ReadFile(token, path));
     }
 
     private static Value ReadLines(Token token, List<Value> args)
     {
-        if (args.Count != 1)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.ReadLines);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.ReadLines, 1, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new ParameterTypeMismatchError(token, FileIOBuiltin.ReadLines, 0, Typing.ValueType.String, args[0].Type);
-        }
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ReadLines, 0, args[0]);
 
         var path = args[0].GetString();
         return Value.CreateList(FileUtil.ReadLines(token, path));
@@ -278,20 +246,10 @@ public static class FileIOBuiltinHandler
 
     private static Value MoveFile(Token token, List<Value> args)
     {
-        if (args.Count != 2)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.MoveFile);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.MoveFile, 2, args.Count);
 
-        if (!args[0].IsString())
-        {
-            throw new ParameterTypeMismatchError(token, FileIOBuiltin.MoveFile, 0, Typing.ValueType.String, args[0].Type);
-        }
-
-        if (!args[1].IsString())
-        {
-            throw new ParameterTypeMismatchError(token, FileIOBuiltin.MoveFile, 1, Typing.ValueType.String, args[1].Type);
-        }
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.MoveFile, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.MoveFile, 1, args[1]);
 
         var src = args[0].GetString();
         var dst = args[1].GetString();
@@ -301,10 +259,10 @@ public static class FileIOBuiltinHandler
 
     private static Value CopyFile(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.CopyFile);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.CopyFile, 2, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.CopyFile, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.CopyFile, 1, args[1]);
 
         var src = args[0].GetString();
         var dst = args[1].GetString();
@@ -314,10 +272,10 @@ public static class FileIOBuiltinHandler
 
     private static Value CopyR(Token token, List<Value> args)
     {
-        if (args.Count != 2 && !args[0].IsString() && !args[1].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.CopyR);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.CopyR, 2, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.CopyR, 0, args[0]);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.CopyR, 1, args[1]);
 
         var src = args[0].GetString();
         var dst = args[1].GetString();
@@ -327,64 +285,56 @@ public static class FileIOBuiltinHandler
 
     private static Value ChangeDirectory(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.ChangeDirectory);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.ChangeDirectory, 1, args.Count);
 
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ChangeDirectory, 0, args[0]);
+        
         var path = args[0].GetString();
         return Value.CreateBoolean(FileUtil.ChangeDirectory(token, path));
     }
 
     private static Value GetTempDirectory(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.TempDir);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.TempDir, 0, args.Count);
 
         return Value.CreateString(FileUtil.GetTempDirectory());
     }
 
     private static Value MakeDirectory(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.MakeDirectory);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.MakeDirectory, 1, args.Count);
 
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.MakeDirectory, 0, args[0]);
+        
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.MakeDirectory(token, fileName));
     }
 
     private static Value MakeDirectoryP(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.MakeDirectoryP);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.MakeDirectoryP, 1, args.Count);
 
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.MakeDirectoryP, 0, args[0]);
+        
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.MakeDirectory(token, fileName));
     }
 
     private static Value RemovePath(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.RemoveDirectory);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.RemoveDirectory, 1, args.Count);
 
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.RemoveDirectory, 0, args[0]);
+        
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.RemovePath(token, fileName));
     }
 
     private static Value RemovePathF(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.RemoveDirectoryF);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.RemoveDirectoryF, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.RemoveDirectoryF, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateInteger(FileUtil.RemovePathRecursive(token, fileName));
@@ -392,10 +342,9 @@ public static class FileIOBuiltinHandler
 
     private static Value GetFileExtension(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.GetFileExtension);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.GetFileExtension, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.GetFileExtension, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateString(FileUtil.GetFileExtension(token, fileName));
@@ -403,20 +352,16 @@ public static class FileIOBuiltinHandler
 
     private static Value GetCurrentDirectory(Token token, List<Value> args)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.CreateFile);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.CreateFile, 0, args.Count);
 
         return Value.CreateString(FileUtil.GetCurrentDirectory());
     }
 
     private static Value GetFileName(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.FileName);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.FileName, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.FileName, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateString(FileUtil.GetFileName(token, fileName));
@@ -424,10 +369,9 @@ public static class FileIOBuiltinHandler
 
     private static Value GetFilePath(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.GetFilePath);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.GetFilePath, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.GetFilePath, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateString(FileUtil.GetParentPath(token, fileName));
@@ -435,10 +379,9 @@ public static class FileIOBuiltinHandler
 
     private static Value GetFileAbsolutePath(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.GetFileAbsolutePath);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.GetFileAbsolutePath, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.GetFileAbsolutePath, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateString(FileUtil.GetAbsolutePath(token, fileName));
@@ -446,10 +389,9 @@ public static class FileIOBuiltinHandler
 
     private static Value CreateFile(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.CreateFile);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.CreateFile, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.CreateFile, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.CreateFile(token, fileName));
@@ -457,10 +399,9 @@ public static class FileIOBuiltinHandler
 
     private static Value FileExists(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.FileExists);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.FileExists, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.FileExists, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.FileExists(token, fileName));
@@ -468,10 +409,9 @@ public static class FileIOBuiltinHandler
 
     private static Value IsDirectory(Token token, List<Value> args)
     {
-        if (args.Count != 1 && !args[0].IsString())
-        {
-            throw new ParameterCountMismatchError(token, FileIOBuiltin.IsDirectory);
-        }
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.IsDirectory, 1, args.Count);
+
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.IsDirectory, 0, args[0]);
 
         var fileName = args[0].GetString();
         return Value.CreateBoolean(FileUtil.DirectoryExists(token, fileName));
