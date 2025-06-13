@@ -2,18 +2,18 @@
 
 set -Eeuo pipefail
 
-# Hayward runs on .NET 8
+# Hayward runs on .NET 9
 if ! command -v dotnet &> /dev/null; then
-  echo "The ``dotnet`` CLI could not be found. Please install the .NET 8 SDK and try again."
+  echo "The ``dotnet`` CLI could not be found. Please install the .NET 9 SDK and try again."
   exit 1
 fi
 
-# Expect .NET 8
+# Expect .NET 9
 DOTNET_VERSION="$(dotnet --version || true)"
 DOTNET_VERSION_MAJOR="${DOTNET_VERSION%%.*}"
 
-if [[ "$DOTNET_VERSION_MAJOR" -lt 8 ]]; then
-  echo "Hayward requires .NET 8 or higher. Found: $DOTNET_VERSION"
+if [[ "$DOTNET_VERSION_MAJOR" -lt 9 ]]; then
+  echo "Hayward requires .NET 9 or higher. Found: $DOTNET_VERSION"
   exit 1
 fi
 
