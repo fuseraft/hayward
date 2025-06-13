@@ -30,7 +30,7 @@ public class Interpreter
             return Value.Default;
         }
 
-        bool sigCheck = RequiresSigCheck(node.Type);
+        var sigCheck = RequiresSigCheck(node.Type);
 
         var result = node.Type switch
         {
@@ -870,7 +870,7 @@ public class Interpreter
         }
         else
         {
-            bool executed = false;
+            var executed = false;
             foreach (var elsifNode in node.ElsifNodes)
             {
                 var elsifCondition = Interpret(elsifNode?.Condition);
@@ -1090,7 +1090,7 @@ public class Interpreter
         var aliasName = string.Empty;
         var result = Value.Default;
         var aliasValue = Value.Default;
-        bool hasAlias = false;
+        var hasAlias = false;
 
         if (node.Alias != null)
         {
@@ -1104,7 +1104,7 @@ public class Interpreter
         var variables = frame.Variables;
 
         var fallOut = false;
-        for (int i = 1; i <= count; ++i)
+        for (var i = 1; i <= count; ++i)
         {
             if (fallOut)
             {
@@ -1214,8 +1214,8 @@ public class Interpreter
     private Value Visit(TryNode node)
     {
         var returnValue = Value.Default;
-        bool requireDrop = false;
-        bool setReturnValue = false;
+        var requireDrop = false;
+        var setReturnValue = false;
 
         try
         {
@@ -1404,7 +1404,7 @@ public class Interpreter
             var value = Value.Default; // a variable value
             var name = pair.Key;  // grab the name
                                   // a flag to determine if a variable has an initializer
-            bool hasDefaultValue = pair.Value != null;
+            var hasDefaultValue = pair.Value != null;
 
             // if there is a default value, grab it
             if (!hasDefaultValue)
@@ -1479,7 +1479,7 @@ public class Interpreter
         var nodeValue = Interpret(node.LambdaNode);
         var lambdaName = nodeValue.GetLambda().Identifier;
         var result = Value.Default;
-        bool requireDrop = false;
+        var requireDrop = false;
 
         try
         {
@@ -2006,11 +2006,10 @@ public class Interpreter
             return CallObjectBaseMethod(node, obj, baseStruct, methodName);
         }
 
-        bool isCtor = methodName == "new";
-
+        var isCtor = methodName == "new";
         var frame = CallStack.Peek();
         var oldObjContext = frame.GetObjectContext();
-        bool contextSwitch = false;
+        var contextSwitch = false;
 
         if (frame.InObjectContext())
         {
@@ -2157,11 +2156,11 @@ public class Interpreter
         var returnTypeHint = function.ReturnTypeHint;
 
         var result = Value.Default;
-        bool requireDrop = false;
+        var requireDrop = false;
 
         try
         {
-            for (int i = 0; i < function.Parameters.Count; ++i)
+            for (var i = 0; i < function.Parameters.Count; ++i)
             {
                 var param = function.Parameters[i];
                 var argValue = Value.Default;
@@ -2253,11 +2252,11 @@ public class Interpreter
     {
         var struc = Context.Structs[baseStruct];
         var function = struc.Methods[methodName];
-        bool isCtor = methodName == "new";
+        var isCtor = methodName == "new";
 
         var frame = CallStack.Peek();
         var objContext = obj;
-        bool contextSwitch = false;
+        var contextSwitch = false;
 
         if (frame.InObjectContext())
         {
@@ -2301,7 +2300,7 @@ public class Interpreter
         var parms = func.Parameters;
         var nodeArguments = node.Arguments;
 
-        for (int i = 0; i < parms.Count; ++i)
+        for (var i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
             var argValue = Value.Default;
@@ -2357,7 +2356,7 @@ public class Interpreter
     private void PrepareLambdaCall(KLambda func, List<ASTNode?> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
     {
         var parms = func.Parameters;
-        for (int i = 0; i < parms.Count; ++i)
+        for (var i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
             var argValue = Value.Default;
@@ -2381,7 +2380,7 @@ public class Interpreter
     private void PrepareLambdaCall(KLambda func, List<Value> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
     {
         var parms = func.Parameters;
-        for (int i = 0; i < parms.Count; ++i)
+        for (var i = 0; i < parms.Count; ++i)
         {
             var param = parms[i];
             var argValue = Value.Default;
@@ -2655,7 +2654,7 @@ public class Interpreter
         var iteratorValue = Value.CreateInteger(0L);
         var iteratorIndex = Value.CreateInteger(0L);
 
-        for (int i = 0; i < list.Count; ++i)
+        for (var i = 0; i < list.Count; ++i)
         {
             if (fallOut)
             {
@@ -2747,7 +2746,7 @@ public class Interpreter
         var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
         var indexIteratorName = string.Empty;
-        bool hasIndexIterator = false;
+        var hasIndexIterator = false;
 
         string? valueIteratorName = Id(node.ValueIterator);
 
@@ -2757,7 +2756,7 @@ public class Interpreter
             hasIndexIterator = true;
         }
 
-        bool fallOut = false;
+        var fallOut = false;
         var result = Value.Default;
 
         foreach (var key in hash.Keys)
