@@ -61,7 +61,8 @@ fn generate_markdown(output_name: string = "output.md",
         "```${lang}", 
         content, 
         "```"
-      ]);
+      ])
+    end
 
     # write the markdown content to the output file
     fio::writeln(output_path, markdown.flatten())
@@ -72,8 +73,9 @@ fn generate_markdown(output_name: string = "output.md",
     
     println "generated ${output_path}"
   catch (err)
-    println "an error occurred: ${err}";
-;
+    println "an error occurred: ${err}"
+  end
+end
 
 generate_markdown("hayward-files.md", ".hayward", "hayward")
 ```
