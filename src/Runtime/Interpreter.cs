@@ -1012,8 +1012,15 @@ public class Interpreter
                 }
             }
 
+            var skip = false;
+
             foreach (var stmt in node.Body)
             {
+                if (skip)
+                {
+                    break;
+                }
+
                 if (stmt != null && stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
                 {
                     result = Interpret(stmt);
@@ -1028,6 +1035,7 @@ public class Interpreter
                     if (frame.IsFlagSet(FrameFlags.Next))
                     {
                         frame.ClearFlag(FrameFlags.Next);
+                        skip = true;
                         break;
                     }
                 }
@@ -1043,6 +1051,7 @@ public class Interpreter
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
                     {
+                        skip = true;
                         break;
                     }
                 }
@@ -1108,8 +1117,15 @@ public class Interpreter
                 variables[aliasName] = aliasValue;
             }
 
+            var skip = false;
+
             foreach (var stmt in node.Body)
             {
+                if (skip)
+                {
+                    break;
+                }
+
                 if (stmt == null)
                 {
                     continue;
@@ -1130,6 +1146,7 @@ public class Interpreter
                     if (frame.IsFlagSet(FrameFlags.Next))
                     {
                         frame.ClearFlag(FrameFlags.Next);
+                        skip = true;
                         break;
                     }
                 }
@@ -1144,6 +1161,7 @@ public class Interpreter
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
                     {
+                        skip = true;
                         break;
                     }
                 }
@@ -2653,8 +2671,15 @@ public class Interpreter
                 variables[indexIteratorName] = iteratorIndex;
             }
 
+            var skip = false;
+
             foreach (var stmt in node.Body)
             {
+                if (skip)
+                {
+                    break;
+                }
+
                 if (stmt == null)
                 {
                     continue;
@@ -2675,6 +2700,7 @@ public class Interpreter
                     if (frame.IsFlagSet(FrameFlags.Next))
                     {
                         frame.ClearFlag(FrameFlags.Next);
+                        skip = true;
                         break;
                     }
                 }
@@ -2689,6 +2715,7 @@ public class Interpreter
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
                     {
+                        skip = true;
                         break;
                     }
                 }
@@ -2747,8 +2774,15 @@ public class Interpreter
                 frame.Variables[indexIteratorName] = hash[key];
             }
 
+            var skip = false;
+
             foreach (var stmt in node.Body)
             {
+                if (skip)
+                {
+                    break;
+                }
+
                 if (stmt == null)
                 {
                     continue;
@@ -2768,6 +2802,7 @@ public class Interpreter
                     if (frame.IsFlagSet(FrameFlags.Next))
                     {
                         frame.ClearFlag(FrameFlags.Next);
+                        skip = true;
                         break;
                     }
                 }
@@ -2782,6 +2817,7 @@ public class Interpreter
                     var condition = ((NextNode)stmt).Condition;
                     if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
                     {
+                        skip = true;
                         break;
                     }
                 }
