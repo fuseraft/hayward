@@ -26,7 +26,7 @@ for line, i in csv_data do
 end
 
 csv_data.shift() # remove the first element
-println csv_data.pretty()
+#println csv_data.pretty()
 
 /#
 scs@kiwi:~/GitHub/hayward$ ./bin/hayward foobar
@@ -47,4 +47,15 @@ scs@kiwi:~/GitHub/hayward$ ./bin/hayward foobar
     "gender": "Female"
   }
 ]
+#/
+
+for item in csv_data do
+  println "${item.last_name}-${item.first_name}-${item.gender.chars().first()}"
+end
+
+/#
+scs@kiwi:~/GitHub/hayward$ ./bin/hayward foobar
+Hill-Bobby-M
+Hill-Peggy-F
+Hill-Hank-F
 #/
