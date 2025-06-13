@@ -65,7 +65,7 @@ In Hayward, builtins are accessed using dot-notation and can be used to query or
   - [`remove_at(index)`](#remove_atindex)
   - [`reverse()`](#reverse)
   - [`rotate(n)`](#rotaten)
-  - [`select(lambda)`](#selectlambda)
+  - [`filter(lambda)`](#filterlambda)
   - [`shift()`](#shift)
   - [`size()`](#size)
   - [`slice(start, end)`](#slicestart-end)
@@ -654,13 +654,13 @@ println("abcd".chars().rotate(0))  # prints: ["a", "b", "c", "d"]
 println("abcd".chars().rotate(-1)) # prints: ["b", "c", "d", "a"]
 ```
 
-### `select(lambda)`
+### `filter(lambda)`
 
 Filter a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.select(with (item) do return item.contains("s");))
+println(list.filter(with (item) do return item.contains("s");))
 # prints: ["kiwi"]
 ```
 

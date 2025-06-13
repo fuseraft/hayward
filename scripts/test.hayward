@@ -267,7 +267,7 @@ tester::register_test("lists", with do
   tester::assert(range_list.size() == 5 and range_list.sum() == 15, "A17")
 
   a = [1..10]
-  b = a.select(with (i) do i % 2 == 0;)
+  b = a.filter(with (i) do i % 2 == 0;)
   c = a - b
   d = []
   d += b
@@ -593,8 +593,8 @@ tester::register_test("lambdas", with do
   fn use_lambda(print_func, message) return print_func(message);
   tester::assert(use_lambda(puts, "Hello, Hayward!") == "Hello, Hayward!", "A2")
 
-  tester::assert(new_list.select(with (item) do return item["id"] % 2 == 0;).map(with (item) do item["id"];).sum() == 20, "A3")
-  tester::assert(new_list.select(odd_item_id).map(with (item) do item["id"];).sum() == 25, "A4")
+  tester::assert(new_list.filter(with (item) do return item["id"] % 2 == 0;).map(with (item) do item["id"];).sum() == 20, "A3")
+  tester::assert(new_list.filter(odd_item_id).map(with (item) do item["id"];).sum() == 25, "A4")
 
   # List.reduce
   numbers = [1, 2, 3, 4, 5]

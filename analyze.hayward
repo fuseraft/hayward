@@ -1,24 +1,34 @@
-# just a line counter
+/#
+# recursively search for csharp files in the current directory
+#/
+fn get_files(path: string): list
+  path_offset = path.size()
+  cs_files = []
 
-cwd = fio::cwd()
-cwd_size = cwd.size()
-files = []
-
-for file in fio::glob(".", ["./**/*.cs"]) do
-    files.push({
-        "name": file[cwd_size:],
-        "path": file,
-        "lines": fio::readlines(file).size()
+  for file in fio::glob(path, ["./**/*.cs"]) do
+    lines = fio::readlines(file).filter(with (l) do not l.trim().empty() end)
+    
+    cs_files.push({
+      "name": file[path_offset:],
+      "path": file,
+      "lines": lines
     })
+  end
+
+  return cs_files
 end
 
-loc = files.reduce(0, with (acc, f) do 
-    acc += f.lines
-end)
+/#
+# print a report
+#/
+fn print_report(cs_files: list)
+  total_loc = cs_files.reduce(0, with (acc, f) do 
+    println "File: ${f.name} => ${f.lines.size()} line(s)"
+    acc += f.lines.size()
+  end)
 
-
-for file in files do
-    println "${file.name} ${file.lines} line(s)"
+  println "Found ${total_loc} line(s) in ${cs_files.size()} file(s)"
 end
 
-println "${files.size()} file(s): ${loc} line(s)"
+cs_files = get_files(fio::cwd())
+print_report(cs_files)

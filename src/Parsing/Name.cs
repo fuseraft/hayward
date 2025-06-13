@@ -140,7 +140,7 @@ public enum TokenName
   Builtin_List_Min,
   Builtin_List_None,
   Builtin_List_Reduce,
-  Builtin_List_Select,
+  Builtin_List_Filter,
   Builtin_List_Sort,
   Builtin_List_Sum,
   Builtin_List_ToH,

@@ -2868,8 +2868,8 @@ public class Interpreter
                     result = LambdaNone(lambda, list);
                     break;
 
-                case TokenName.Builtin_List_Select:
-                    result = LambdaSelect(lambda, list);
+                case TokenName.Builtin_List_Filter:
+                    result = LambdaFilter(lambda, list);
                     break;
 
                 case TokenName.Builtin_List_All:
@@ -3052,12 +3052,12 @@ public class Interpreter
 
     private Value LambdaNone(KLambda lambda, List<Value> list)
     {
-        var selected = LambdaSelect(lambda, list);
+        var filtered = LambdaFilter(lambda, list);
         var noneFound = Value.False;
 
-        if (selected.IsList())
+        if (filtered.IsList())
         {
-            var isEmpty = selected.GetList().Count == 0;
+            var isEmpty = filtered.GetList().Count == 0;
             noneFound.SetValue(isEmpty);
         }
 
@@ -3221,7 +3221,7 @@ public class Interpreter
         return Value.CreateBoolean(newListSize == listSize);
     }
 
-    private Value LambdaSelect(KLambda lambda, List<Value> list)
+    private Value LambdaFilter(KLambda lambda, List<Value> list)
     {
         var defaultParameters = lambda.DefaultParameters;
         var frame = CallStack.Peek();

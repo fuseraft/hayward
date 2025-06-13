@@ -7,7 +7,7 @@ public static class ListBuiltin
     public const string Map_   = "map";
     public const string None   = "none";
     public const string Reduce = "reduce";
-    public const string Select = "select";
+    public const string Filter = "filter";
     public const string Sort   = "sort";
     public const string Sum    = "sum";
     public const string Min    = "min";
@@ -22,7 +22,7 @@ public static class ListBuiltin
             { Map_,   TokenName.Builtin_List_Map },
             { None,   TokenName.Builtin_List_None },
             { Reduce, TokenName.Builtin_List_Reduce },
-            { Select, TokenName.Builtin_List_Select },
+            { Filter, TokenName.Builtin_List_Filter },
             { Sort,   TokenName.Builtin_List_Sort },
             { Sum,    TokenName.Builtin_List_Sum },
             { Min,    TokenName.Builtin_List_Min },

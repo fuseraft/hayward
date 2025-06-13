@@ -66,11 +66,11 @@ println(list) # prints: ["a", "b", "c", "e", "f"]
 
 ### Filtering a List
 
-You can use the `.select(lambda)` builtin to filter a list based on a condition.
+You can use the `.filter(lambda)` builtin to filter a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.select(with (item) do return item.contains("i");))
+println(list.filter(with (item) do return item.contains("i");))
 # prints: ["kiwi"]
 ```
 

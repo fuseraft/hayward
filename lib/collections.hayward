@@ -98,7 +98,7 @@ struct Set
     @data = new_data.flatten().unique();
 
   fn remove(item: any)
-    new_data = to_list().select(with (n) do return n != item;)
+    new_data = to_list().filter(with (n) do return n != item;)
     @data = new_data;
 
   fn contains(item: any): boolean
@@ -113,7 +113,7 @@ struct Set
   fn difference(data: any)
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return Set.new(new_data.select(with (n: any) do return !input_data.contains(n);));
+    return Set.new(new_data.filter(with (n: any) do return !input_data.contains(n);));
 
   fn disjoint(data: any)
     return !intersect(data);
@@ -121,7 +121,7 @@ struct Set
   fn intersect(data: any)
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return !new_data.select(with (n: any) do return input_data.contains(n);).empty();
+    return !new_data.filter(with (n: any) do return input_data.contains(n);).empty();
 
   fn merge(data: any)
     var (input_data: any = get_input_data(data))
@@ -138,12 +138,12 @@ struct Set
   fn subset(data: any): boolean
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return input_data.select(with (n) do return new_data.contains(n);).size() == new_data.size();
+    return input_data.filter(with (n) do return new_data.contains(n);).size() == new_data.size();
 
   fn superset(data: any): boolean
     var (input_data: any = get_input_data(data))
     var (new_data: list = to_list())
-    return input_data.select(with (n) do return new_data.contains(n);).size() == input_data.size();
+    return input_data.filter(with (n) do return new_data.contains(n);).size() == input_data.size();
 
   fn to_list(): list
     return ((@data).clone());
