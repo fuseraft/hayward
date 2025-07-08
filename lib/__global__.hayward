@@ -2,7 +2,7 @@
 @summary The __global__ file contains global definitions.
 #/
 
-const HAYWARD_STDLIB_VERSION = "1.1.0"
+const HAYWARD_STDLIB_VERSION = "1.1.1"
 
 /#
 @summary Easy access to the date type.
