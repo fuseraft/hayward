@@ -22,7 +22,7 @@ public static class FileIOBuiltin
     public const string FileSize = "__fio_filesize__";
     public const string GetFilePath = "__fio_filepath__";
     public const string GetFileAbsolutePath = "__fio_fileabspath__";
-    public const string GetFileAttributes = "__fio_fileattrs__";
+    public const string GetFileInfo = "__fio_fileinfo__";
     public const string Glob = "__fio_glob__";
 
     // Directory operations
@@ -58,7 +58,7 @@ public static class FileIOBuiltin
             { FileSize,            TokenName.Builtin_FileIO_FileSize },
             { GetFilePath,         TokenName.Builtin_FileIO_GetFilePath },
             { GetFileAbsolutePath, TokenName.Builtin_FileIO_GetFileAbsolutePath },
-            { GetFileAttributes,   TokenName.Builtin_FileIO_GetFileAttributes },
+            { GetFileInfo,         TokenName.Builtin_FileIO_GetFileInfo },
             { Glob,                TokenName.Builtin_FileIO_Glob },
             { ListDirectory,       TokenName.Builtin_FileIO_ListDirectory },
             { MakeDirectory,       TokenName.Builtin_FileIO_MakeDirectory },

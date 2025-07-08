@@ -102,6 +102,9 @@ package fio
   fn glob(_path: string, _include_patterns: list, _exclude_patterns: list = []): list
     return __fio_glob__(_path, _include_patterns, _exclude_patterns);
 
+  fn fileinfo(_path: string): hashmap
+    return __fio_fileinfo__(_path);
+
   /#
   @summary Check if a path exists.
   @param _path The path to a directory.

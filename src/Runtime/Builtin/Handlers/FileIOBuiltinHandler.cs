@@ -41,8 +41,17 @@ public static class FileIOBuiltinHandler
             TokenName.Builtin_FileIO_ListDirectory => ListDirectory(token, args),
             TokenName.Builtin_FileIO_FileSize => GetFileSize(token, args),
             TokenName.Builtin_FileIO_Combine => Combine(token, args),
+            TokenName.Builtin_FileIO_GetFileInfo => GetFileInfo(token, args),
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value GetFileInfo(Token token, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.GetFileInfo, 1, args.Count);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.GetFileInfo, 0, args[0]);
+
+        return FileUtil.GetFileInfo(token, args[0].GetString());
     }
 
     private static Value Combine(Token token, List<Value> args)

@@ -35,7 +35,7 @@ public enum TokenName
   Builtin_FileIO_FileSize,
   Builtin_FileIO_GetCurrentDirectory,
   Builtin_FileIO_GetFileAbsolutePath,
-  Builtin_FileIO_GetFileAttributes,
+  Builtin_FileIO_GetFileInfo,
   Builtin_FileIO_GetFileExtension,
   Builtin_FileIO_GetFilePath,
   Builtin_FileIO_Glob,

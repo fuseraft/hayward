@@ -54,6 +54,42 @@ public struct FileUtil
         }
     }
 
+    public static Value GetFileInfo(Token token, string path)
+    {
+        try
+        {
+            Dictionary<Value, Value> metaData = [];
+            FileSystemInfo fsi = Directory.Exists(path) ? new DirectoryInfo(path) : File.Exists(path) ? new FileInfo(path) : throw new FileSystemError(token);
+
+            metaData.Add(Value.CreateString("creation_time"), Value.CreateDate(fsi.CreationTime));
+            metaData.Add(Value.CreateString("name"), Value.CreateString(fsi.Name));
+            metaData.Add(Value.CreateString("extension"), Value.CreateString(fsi.Extension));
+            metaData.Add(Value.CreateString("full_name"), Value.CreateString(fsi.FullName));
+            metaData.Add(Value.CreateString("last_access_time"), Value.CreateDate(fsi.LastAccessTime));
+            metaData.Add(Value.CreateString("last_write_time"), Value.CreateDate(fsi.LastWriteTime));
+
+            Dictionary<Value, Value> attributes = [];
+            foreach (var attr in Enum.GetValues<FileAttributes>())
+            {
+                if (attr == 0)
+                {
+                    continue;
+                }
+
+                var isSet = (fsi.Attributes & attr) == attr;
+                attributes[Value.CreateString(attr.ToString())] = Value.CreateBoolean(isSet);
+            }
+
+            metaData.Add(Value.CreateString("attributes"), Value.CreateHashmap(attributes));
+
+            return Value.CreateHashmap(metaData);
+        }
+        catch (Exception)
+        {
+            throw new FileSystemError(token, $"Could not list path metadata: {path}");
+        }
+    }
+
     public static List<Value> ListDirectory(Token token, string path, bool recursive = false)
     {
         try
@@ -147,7 +183,7 @@ public struct FileUtil
     {
         try
         {
-            return File.Exists(path) && Directory.Exists(path);
+            return Directory.Exists(path);
         }
         catch (Exception)
         {
