@@ -1298,8 +1298,8 @@ public partial class Parser
         var printNode = new PrintNode();
         var name = GetTokenName();
 
-        MatchType(
-            TokenType.Keyword);  // Consume 'print', 'println', 'eprint', 'eprintln'
+        // Consume 'print', 'println', 'eprint', 'eprintln'
+        MatchType(TokenType.Keyword);
 
         var printNewLine = name is TokenName.KW_PrintLn or TokenName.KW_EPrintLn;
         var printStdError = name is TokenName.KW_EPrint or TokenName.KW_EPrintLn;

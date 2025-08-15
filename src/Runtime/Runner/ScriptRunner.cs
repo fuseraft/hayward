@@ -1,12 +1,11 @@
 
 using hayward.Parsing;
-using hayward.Runtime;
 using hayward.Runtime.Builtin;
 using hayward.Settings;
 using hayward.Tracing;
 using hayward.Tracing.Error;
 
-namespace hayward.Runner;
+namespace hayward.Runtime.Runner;
 public class ScriptRunner(Interpreter interpreter) : IRunner
 {
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿
 using hayward.Settings;
 using hayward.Tracing;
-using hayward.Runner;
+using hayward.Runtime.Runner;
 using hayward.Tracing.Error;
 
 namespace hayward;
@@ -52,6 +52,10 @@ public class Program
         else if (config.PrintTokens)
         {
             return new TokenPrinter();
+        }
+        else if (config.UseREPL)
+        {
+            return new REPLRunner(new());
         }
 
         return runner;

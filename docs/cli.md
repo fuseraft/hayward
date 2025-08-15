@@ -8,16 +8,15 @@ The Hayward CLI provides an interface for working with Hayward files.
 hayward [--flags] <script|args>
 ```
 
-If no arguments are supplied, Hayward enters an interactive Read-Evaluate-Print Loop (REPL) where you can type and execute Hayward code directly in the terminal. To learn more about the REPL, please see [REPL](repl.md).
-
 ### Table of Contents
 - [Options](#options)
   - [`-h`, `--help`](#-h---help)
   - [`-v`, `--version`](#-v---version)
   - [`-s`, `--settings`](#-s---settings)
+  - [`-n`, `--new <file_path>`](#-n---new-file_path)
+  - [`-i`, `--interactive`](#-i---interactive)
   - [`-a`, `--ast <input_file_path>`](#-a---ast-input_file_path)
   - [`-t`, `--tokenize <input_file_path>`](#-t---tokenize-input_file_path)
-  - [`-n`, `--new <file_path>`](#-n---new-file_path)
   - [`-ns`, `--no-stdlib`](#-ns---no-stdlib)
   - [`-sm`, `--safemode`](#-sm---safemode)
   - [`-<key>=<value>`](#-keyvalue)
@@ -46,6 +45,17 @@ Prints the interpreter settings (for debugging).
 
 ```
 hayward -s
+```
+
+### `-i`, `--interactive`
+
+Starts an interactive Read-Evaluate-Print Loop (REPL) where you can type and execute Hayward code directly in the terminal. 
+
+To learn more about the REPL, please see [REPL](repl.md).
+
+
+```
+hayward -i
 ```
 
 ### `-a`, `--ast <input_file_path>`

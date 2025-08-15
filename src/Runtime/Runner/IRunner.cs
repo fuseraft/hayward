@@ -1,4 +1,4 @@
-namespace hayward.Runner;
+namespace hayward.Runtime.Runner;
 
 public interface IRunner
 {

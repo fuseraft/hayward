@@ -1,6 +1,6 @@
 using hayward.Parsing;
 
-namespace hayward.Runner;
+namespace hayward.Runtime.Runner;
 public class TokenPrinter : IRunner
 {
     /// <summary>

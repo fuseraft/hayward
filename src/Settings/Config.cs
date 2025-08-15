@@ -7,6 +7,7 @@ public class Config
 {
     public bool PrintTokens { get; set; } = false;
     public bool PrintAST { get; set; } = false;
+    public bool UseREPL { get; set; } = false;
     public List<string> Args { get; set; } = [];
     public List<string> Scripts { get; set; } = [];
 
@@ -17,10 +18,28 @@ public class Config
         var iter = cliArgs.GetEnumerator();
         while (iter.MoveNext())
         {
+            if (config.UseREPL)
+            {
+                break;
+            }
+
             var current = iter.Current;
 
             switch (current.ToLower())
             {
+                case "-i":
+                case "--interactive":
+                    if (config.Scripts.Count == 0)
+                    {
+                        config.UseREPL = true;
+                        config.Scripts.Add(string.Empty);
+                    }
+                    else
+                    {
+                        config.Args.Add(current);
+                    }
+                    break;
+
                 case "-s":
                 case "--settings":
                     if (config.Scripts.Count == 0)
@@ -227,12 +246,13 @@ public class Config
             ("-h, --help", "print this message"),
             ("-v, --version", "print current version"),
             ("-s, --settings", $"print {Hayward.Settings.Name} settings"),
+            ("-n, --new <filename>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
+            ("-i, --interactive", "run in interactive mode"),
             ("-a, --ast <input_path>", $"print syntax tree of `{Hayward.Settings.Extensions.Primary}` file (for debugging)"),
             ("-t, --tokenize <input_path>", $"print token stream of `{Hayward.Settings.Extensions.Primary}` file (for debugging)"),
-            ("-n, --new <filename>", $"create a `{Hayward.Settings.Extensions.Primary}` file"),
             ("-ns, --no-stdlib", "run without standard library"),
             ("-sm, --safemode", "run in safemode"),
-            ("-p, --stdlib-path", "run in safemode"),
+            ("-p, --stdlib-path", "specify an alternative standard library path"),
             ("-<key>=<value>", "pass an argument to a program as a key-value pair")
         ];
 
