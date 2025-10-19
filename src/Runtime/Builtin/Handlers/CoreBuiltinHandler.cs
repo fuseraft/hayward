@@ -973,10 +973,11 @@ public static class CoreBuiltinHandler
 
         var originalList = value.GetList();
         var uniqueList = new List<Value>();
+        var seen = new HashSet<Value>();
 
         foreach (var item in originalList)
         {
-            if (!uniqueList.Contains(item))
+            if (seen.Add(item))
             {
                 uniqueList.Add(item);
             }
@@ -1030,7 +1031,6 @@ public static class CoreBuiltinHandler
 
         throw new InvalidOperationError(token, "Expected a string or list.");
     }
-
 
     private static Value Substring(Token token, Value value, List<Value> args)
     {
