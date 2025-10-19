@@ -66,6 +66,20 @@ package time
     return __time_now__();
 
   /#
+  @summary Returns the first day of the year
+  @returns The first day of the year
+  #/
+  fn first_day(): date
+    return d(__time_year__(), 1, 1);
+
+  /#
+  @summary Returns the end of the year
+  @returns The last day of the year
+  #/
+  fn last_day(): date
+    return d(time::year(), 12, 31);
+
+  /#
   @summary Get hours since midnight (0 to 23).
   @returns Integer
   #/
