@@ -57,13 +57,13 @@ struct MD5
       message.push(0x00);
     
     # Append the length in bits at the end of the buffer.
-    for i in [0..7] do
+    for i in [0 to 7] do
       message.push(original_bitlength >> (i * 8));
     
     chunk_size = 64  # 64 bytes = 512 bits
     num_chunks = message.size() / chunk_size
     
-    for chunk_index in [0..num_chunks - 1] do
+    for chunk_index in [0 to num_chunks - 1] do
       # Extract the current chunk:
       start_index = chunk_index * chunk_size
       stop_index = start_index + chunk_size
@@ -71,7 +71,7 @@ struct MD5
     
       # Break chunk into sixteen 32-bit words M[j], 0 ≤ j ≤ 15
       M = [0] * 16
-      for j in [0..15] do
+      for j in [0 to 15] do
         start_chunk_index = j * 4
         stop_chunk_index = start_chunk_index + 4
         # Convert each 4-byte segment into an integer
@@ -85,7 +85,7 @@ struct MD5
       D = d0
     
       # Main loop:
-      for i in [0..63] do
+      for i in [0 to 63] do
         F = 0
         g = 0
         

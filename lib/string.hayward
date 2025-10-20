@@ -118,7 +118,7 @@ package string
   fn interweave(_input1, _input2)
     _output = ""
     _length = [("${_input1}").size(), ("${_input2}").size()].max()
-    for i in [0 .. _length - 1] do
+    for i in [0 to _length - 1] do
       _output = _output + ("${_input1}")[i] when i < ("${_input1}").size()
       _output = _output + ("${_input2}")[i] when i < ("${_input2}").size();
     return _output;

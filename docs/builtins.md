@@ -455,12 +455,14 @@ Iterate a list, performing some action for each item in the list.
 #/
 
 # Iterate a range.
-[1..3].each(with (v, i) do println("${i}: ${v}");)
+[1 to 5].each(with (v, i) do println("${i}: ${v}");)
 
 /# Prints:
 0: 1
 1: 2
 2: 3
+3: 4
+4: 5
 #/
 
 # Iterate a list.

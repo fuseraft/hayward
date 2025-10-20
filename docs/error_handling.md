@@ -63,7 +63,7 @@ Hayward also supports nested `try-catch` blocks, allowing for more granular erro
 fn nested_error_handling_example()
   a = 0, b = 0, c = 0
 
-  for i in [0 .. 1] do
+  for i in [0, 1] do
     try
       a += 1
       println "${i / 0}"  # This will throw a division by zero error

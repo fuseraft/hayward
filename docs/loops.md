@@ -140,11 +140,13 @@ fruits = ["kiwi", "mango", "lime"]
 
 # Iterate the values in the list.
 for fruit in fruits do
-  println(fruit);
+  println(fruit)
+end
 
 # Iterate the values in the list, with an index.
 for fruit, index in fruits do
-  println("Fruit ${index}: ${item}");
+  println("Fruit ${index}: ${item}")
+end
 ```
 
 ##### Iterating a range
@@ -152,8 +154,9 @@ for fruit, index in fruits do
 Use the `for` keyword to iterate a range.
 
 ```hayward
-for i in [1..10] do
-  println("${i}");
+for i in [1 to 10] do
+  println("${i}")
+end
 ```
 
 To learn more about collections, see [Hashmaps](hashmaps.md), [Lists](lists.md), and [Ranges](ranges.md).

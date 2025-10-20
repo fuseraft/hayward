@@ -22,7 +22,7 @@ struct CSVParser
     if header_row
       cols.concat(csv_list.first())
     else
-      for i in [0..csv_list.size()] do
+      for i in [0 to csv_list.size()] do
         cols.push(i);
     ;
 

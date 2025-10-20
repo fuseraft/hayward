@@ -904,6 +904,7 @@ public class Lexer : IDisposable
             "static" => TokenName.KW_Static,
             "struct" => TokenName.KW_Struct,
             "throw" => TokenName.KW_Throw,
+            "to" => TokenName.KW_To,
             "try" => TokenName.KW_Try,
             "var" => TokenName.KW_Var,
             "when" => TokenName.KW_When,

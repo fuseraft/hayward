@@ -312,6 +312,7 @@ public enum TokenName
   KW_Struct,
   KW_This,
   KW_Throw,
+  KW_To,
   KW_True,
   KW_Try,
   KW_Var,

@@ -30,7 +30,7 @@ You can define a list using a range.
 
 ```hayward
 # This is equivalent to: numbers = [1, 2, 3, 4, 5]
-numbers = [1..5] 
+numbers = [1 to 5] 
 ```
 
 ### Accessing List Elements
@@ -93,8 +93,9 @@ for item, index in myList do
 ```hayward
 fn sieve_of_eratosthenes(limit)
   isPrime = []
-  for i in [0..limit] do
-     isPrime.push(true);
+  for i in [0 to limit] do
+     isPrime.push(true)
+  end
 
   isPrime[0] = false
   isPrime[1] = false
@@ -108,20 +109,25 @@ fn sieve_of_eratosthenes(limit)
       multiple = p * 2
       while multiple <= limit do
         isPrime[multiple] = false
-        multiple += p;
-    ;
+        multiple += p
+      end
+    end
 
-    p += 1;
+    p += 1
+  end
 
   # Collect all prime numbers
   primes = []
-  for i in [0..limit] do
+  for i in [0 to limit] do
     if isPrime[i]
-      primes.push(i);
-  ;
+      primes.push(i)
+    end
+  end
 
-  return primes;
+  return primes
+end
 
 for prime, index in sieve_of_eratosthenes(30) do
-  println("${index}:\t${prime}");
+  println("${index}:\t${prime}")
+end
 ```

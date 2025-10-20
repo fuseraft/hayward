@@ -13,8 +13,9 @@ fn main(args: list)
   
   while true do
     display(grid, rows, cols)
-    grid = update(grid, rows, cols);
-;
+    grid = update(grid, rows, cols)
+  end
+end
 
 fn get_grid_size(args: list)
   var (grid_size = null)
@@ -23,23 +24,27 @@ fn get_grid_size(args: list)
     grid_size = args.get(0).to_integer()  
 
     if grid_size < global.min_grid_size
-      grid_size = null;
-  ;
+      grid_size = null
+    end
+  end
   
-  return grid_size;
+  return grid_size
+end
 
 fn print_help()
-  println "usage: hayward brain <int_grid_size>";
+  println "usage: hayward brain <int_grid_size>"
+end
 
 /#
 Initializes cells to either 0 (off), 1 (on), or 2 (dying)
 #/
 fn initialize(grid: list, rows: integer, cols: integer)
-  for x in [0 .. rows - 1] do
-    for y in [0 .. cols - 1] do
-      grid[x][y] = math::random(0, 2);
-  ;
-;
+  for x in [0 to rows - 1] do
+    for y in [0 to cols - 1] do
+      grid[x][y] = math::random(0, 2)
+    end
+  end
+end
 
 fn display(grid: list, rows: integer, cols: integer)
   console::clear()
@@ -57,20 +62,23 @@ fn display(grid: list, rows: integer, cols: integer)
         changed = true
       else
         row.set(j, "*")
-        changed = true;
-    ;
+        changed = true
+      end
+    end
 
-    println row.join(" ");
+    println row.join(" ")
+  end
 
   if !changed
     # initialize(grid, rows, cols)
-    exit;
-;
+    exit
+  end
+end
 
 fn update(grid: list, rows: integer, cols: integer): list
   var (new_grid: list = grid.clone(),
-       x_range: list = [0 .. rows - 1],
-       y_range: list = [0 .. cols - 1])
+       x_range: list = [0 to rows - 1],
+       y_range: list = [0 to cols - 1])
   
   for x in x_range do
     for y in y_range do
@@ -82,11 +90,13 @@ fn update(grid: list, rows: integer, cols: integer): list
       elsif current_state == 1
         new_grid[x][y] = 2  # on to dying
       else
-        new_grid[x][y] = 0; # dying to off
-    ;
-  ;
+        new_grid[x][y] = 0 # dying to off
+      end
+    end
+  end
 
-  return new_grid;
+  return new_grid
+end
 
 fn count_on_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: integer): integer
   var (directions: list = [
@@ -107,10 +117,12 @@ fn count_on_neighbors(grid: list, rows: integer, cols: integer, x: integer, y: i
     nx = direction[0], ny = direction[1]
     if (nx >= 0 && nx < rows && ny >= 0 && ny < cols)
       if grid[nx][ny] == 1
-        res += 1;
-    ;
-  ;
+        res += 1
+      end
+    end
+  end
 
-  return res;
+  return res
+end
 
 main(env::argv().keys())

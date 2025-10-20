@@ -1435,7 +1435,7 @@ public partial class Parser
             {
                 Next();  // Consume ','
             }
-            else if (!isRange && GetTokenType() == TokenType.Range)
+            else if (!isRange && (GetTokenType() == TokenType.Range || GetTokenName() == TokenName.KW_To))
             {
                 isRange = true;
                 Next();  // Consume '..'

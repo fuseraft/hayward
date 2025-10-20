@@ -42,7 +42,7 @@ println(myHashmap.key2)  # Outputs: [1, 2, 3, 4]
 
 ```hayward
 myHashmap = {}
-myHashmap["key1"] = [1..3]
+myHashmap["key1"] = [1, 2, 3]
 myHashmap.key2 = { "nested": "hashmap" }
 
 # myHashmap now contains {"key1": [1, 2, 3]}

@@ -23,7 +23,7 @@ package std
 
   fn range(x, y)
     throw Error.InvalidRange() when ![x, y].all(with (n) do std::is_int(n);)
-    return [x..y - 1];
+    return [x to y - 1];
 ;
 
 package std::error
