@@ -76,12 +76,12 @@ hayward -t filename         # Prints tokens by line from the file
 
 ### `-n`, `--new <file_path>`
 
-Creates a new file with the `.hayward` extension. If you don't include the extension in `<file_path>`, it will be appended automatically.
+Creates a new file with the `.kiwi` extension. If you don't include the extension in `<file_path>`, it will be appended automatically.
 
 ```
-hayward -n filename         # Creates ./filename.hayward
-hayward -n ../app           # Creates ../app.hayward in the parent directory
-hayward -n ./somedir/app    # Creates ./somedir/app.hayward in the specified subdirectory
+hayward -n filename         # Creates ./filename.kiwi
+hayward -n ../app           # Creates ../app.kiwi in the parent directory
+hayward -n ./somedir/app    # Creates ./somedir/app.kiwi in the specified subdirectory
 ```
 
 Note: If a file with the same name already exists, the CLI will notify you to prevent accidental overwriting.<br><br>

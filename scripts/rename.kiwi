@@ -1,9 +1,9 @@
 /#
-the new file extension is `.hayward`
+the new file extension is `.kiwi`
 #/
 
-var (old_extension: string = ".kiwi",
-     new_extension: string = ".hayward")
+var (old_extension: string = ".hayward",
+     new_extension: string = ".kiwi")
 
 for path in fio::glob("./", ["./**/*${old_extension}"]) do
   var (filename:    string = fio::filename(path),

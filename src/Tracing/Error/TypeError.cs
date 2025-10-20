@@ -30,6 +30,14 @@ public class TypeError(Token t, string message = "Unexpected type.")
         }
     }
 
+    public static void ExpectInteger(Token token, Value value)
+    {
+        if (!value.IsInteger())
+        {
+            throw new TypeError(token, $"Expected an integer but instead received `{value.Type}`.");
+        }
+    }
+
     public static void ExpectList(Token token, Value value)
     {
         if (!value.IsList())

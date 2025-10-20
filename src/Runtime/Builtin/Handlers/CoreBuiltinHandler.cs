@@ -77,7 +77,6 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Core_Month => Month(token, value, args),
             TokenName.Builtin_Core_Year => Year(token, value, args),
             TokenName.Builtin_Core_Between => Between(token, value, args),
-            /*
             TokenName.Builtin_Core_RReplace => RReplace(token, value, args),
             TokenName.Builtin_Core_RSplit => RSplit(token, value, args),
             TokenName.Builtin_Core_Find => Find(token, value, args),
@@ -85,10 +84,127 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Core_Matches => Matches(token, value, args),
             TokenName.Builtin_Core_MatchesAll => MatchesAll(token, value, args),
             TokenName.Builtin_Core_Scan => Scan(token, value, args),
+            /*
             TokenName.Builtin_Core_Tokens => Tokens(token, value, args),
             */
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
+    }
+
+    private static Value Match(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Match, 1, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var stringValue = value.GetString();
+        var pattern = args[0].GetString();
+
+        return Value.CreateList(RegexUtil.Match(stringValue, pattern));
+    }
+
+    private static Value Matches(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Matches, 1, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var stringValue = value.GetString();
+        var pattern = args[0].GetString();
+
+        return Value.CreateBoolean(RegexUtil.Matches(stringValue, pattern));
+    }
+
+    private static Value MatchesAll(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.MatchesAll, 1, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var stringValue = value.GetString();
+        var pattern = args[0].GetString();
+
+        return Value.CreateBoolean(RegexUtil.MatchesAll(stringValue, pattern));
+    }
+
+    private static Value Find(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Find, 1, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var stringValue = value.GetString();
+        var pattern = args[0].GetString();
+
+        return Value.CreateString(RegexUtil.Find(stringValue, pattern));
+    }
+
+    private static Value Scan(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.Scan, 1, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var stringValue = value.GetString();
+        var pattern = args[0].GetString();
+
+        return Value.CreateList(RegexUtil.Scan(stringValue, pattern));
+    }
+
+    private static Value RSplit(Token token, Value value, List<Value> args)
+    {
+        if (args.Count != 1 && args.Count != 2)
+        {
+            throw new ParameterCountMismatchError(token, CoreBuiltin.RSplit);
+        }
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+
+        var input = value.GetString();
+        var delimiter = args[0].GetString();
+        List<Value> newList = [];
+        long limit = -1;
+
+        if (args.Count == 2)
+        {
+            TypeError.ExpectInteger(token, args[1]);
+            limit = args[1].GetInteger();
+        }
+
+        if (string.IsNullOrEmpty(delimiter))
+        {
+            foreach (var c in input)
+            {
+                newList.Add(Value.CreateString(c));
+            }
+        }
+        else
+        {
+            var tokens = RegexUtil.RSplit(input, delimiter, limit);
+            foreach (var t in tokens)
+            {
+                newList.Add(t);
+            }
+        }
+
+        return Value.CreateList(newList);
+    }
+
+    private static Value RReplace(Token token, Value value, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, CoreBuiltin.RReplace, 2, args.Count);
+
+        TypeError.ExpectString(token, value);
+        TypeError.ExpectString(token, args[0]);
+        TypeError.ExpectString(token, args[1]);
+
+        return Value.CreateString(RegexUtil.RReplace(value.GetString(), args[0].GetString(), args[1].GetString()));
     }
 
     private static Value Between(Token token, Value value, List<Value> args)

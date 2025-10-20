@@ -1,5 +1,5 @@
 /#
-This simple markdown generator reads all `.hayward` files found within the current 
+This simple markdown generator reads all `.kiwi` files found within the current 
 directory and its subdirectories, and generates a markdown file called `output.md` 
 containing the contents of each file.
 #/
@@ -32,4 +32,4 @@ fn generate_markdown(output_name: string = "output.md", ext: string = ".cs", lan
     println "an error occurred: ${err}";
 ;
 
-generate_markdown("hayward-files.md", ".hayward", "hayward")
+generate_markdown("kiwi-files.md", ".kiwi", "kiwi")

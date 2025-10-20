@@ -52,11 +52,11 @@ public class HaywardSettings
         return new HaywardSettings
         {
             Name = "hayward",
-            Version = "",
+            Version = "1.1.3",
             SafeMode = true,
             Extensions = new FileExtensions {
-                Primary = ".hayward",
-                Minified = ".min.hayward",
+                Primary = ".kiwi",
+                Minified = ".min.kiwi",
                 Recognized = [".hayward", ".kiwi"]
             },
             Debug = new DebugSettings {},

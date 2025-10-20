@@ -1,6 +1,8 @@
-# Hayward 🥝
+# Project Hayward 🥝
 
-A dynamically-typed object-oriented scripting language that runs on .NET.
+Hayward is a [Kiwi](https://github.com/fuseraft/kiwi) interpreter built to run on .NET.
+
+Kiwi is a dynamically-typed object-oriented scripting language with a simple and clean syntax.
 
 ## Getting Started
 
@@ -31,7 +33,7 @@ Below is a simple markdown generator. You can find other examples in the [docs](
 
 ```hayward
 /#
-This simple markdown generator reads all `.hayward` files found within the current 
+This simple markdown generator reads all `.kiwi` files found within the current 
 directory and its subdirectories, and generates a markdown file called `output.md` 
 containing the contents of each file.
 #/
@@ -43,25 +45,16 @@ fn generate_markdown(output_name: string = "output.md",
     # get the absolute path to the output file (in the current directory)
     var (output_path: string = fio::abspath("./${output_name}"))
     
-    # this list will contain the markdown content
-    var (markdown: list = [])
-    
     # remove the file if it exists
     fio::remove(output_path)
 
-    # loop through each file with a given extension
+    # loop through each file, and build some markdown with it.
+    var (markdown: list = [])
     for path in fio::glob("./", ["./**/*${ext}"]) do
-      # get the filename and read the text from the file
       var (filename:  string = fio::filename(path),
            content:   string = fio::read(path))
 
-      # create markdown content for the current file
-      markdown.push([
-        "## ${filename}", 
-        "```${lang}", 
-        content, 
-        "```"
-      ])
+      markdown.push(["## ${filename}", "```${lang}", content, "```"])
     end
 
     # write the markdown content to the output file
@@ -77,7 +70,7 @@ fn generate_markdown(output_name: string = "output.md",
   end
 end
 
-generate_markdown("hayward-files.md", ".hayward", "hayward")
+generate_markdown("hayward-files.md", ".kiwi", "kiwi")
 ```
 
 ## Contributing

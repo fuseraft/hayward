@@ -87,6 +87,10 @@ public class Lexer : IDisposable
         {
             return TokenizeString(span);
         }
+        else if (c == '\'')
+        {
+            return TokenizeRawString(span);
+        }
 
         return TokenizeSymbol(span, c);
     }
@@ -429,6 +433,28 @@ public class Lexer : IDisposable
         if (escape)
         {
             text += '\\';
+        }
+
+        return CreateStringLiteralToken(span, text, Value.CreateString(text));
+    }
+
+    private Token TokenizeRawString(TokenSpan span)
+    {
+        var text = string.Empty;
+        char? c;
+
+        while ((c = PeekChar()) != null)
+        {
+            if (c == '\'')
+            {
+                GetChar();  // Move past the closing quote
+                break;      // End of string
+            }
+            else
+            {
+                text += c;
+                GetChar();
+            }
         }
 
         return CreateStringLiteralToken(span, text, Value.CreateString(text));

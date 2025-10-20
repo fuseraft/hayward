@@ -2,13 +2,10 @@
     "name": "hayward",
     "version": "1.1.3",
     "file_extensions": {
-      "primary": ".hayward",
-      "minified": ".min.hayward",
+      "primary": ".kiwi",
+      "minified": ".min.kiwi",
       "recognized": [
-        ".min.hayward",
-        ".hayward",
-        ".min.hay",
-        ".hay",
+        ".min.kiwi",
         ".kiwi",
         ".min.🥝",
         ".🥝"
@@ -24,10 +21,10 @@
     "safemode": true,
     "debug": {
       "cli_args": [
-        "~/GitHub/hayward/scripts/cellular_automata/life",
+        "~/github/hayward/hello",
         "20",
         "--stdlib-path",
-        "~/GitHub/hayward/lib"
+        "~/github/hayward/lib"
       ]
     },
     "environment_variables": {

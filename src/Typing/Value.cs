@@ -76,6 +76,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
     public static Value CreateBoolean(object value) => new(value, ValueType.Boolean);
     public static Value CreateString(string value) => new(value, ValueType.String);
     public static Value CreateString(object value) => new(value, ValueType.String);
+    public static Value CreateString(char value) => new($"value", ValueType.String);
     public static Value CreateList(List<Value> value) => new(value, ValueType.List);
     public static Value CreateList(object value) => new(value, ValueType.List);
     public static Value CreateList() => new(new List<Value>(), ValueType.List);
