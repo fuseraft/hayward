@@ -2,7 +2,7 @@
 
 Hayward is a [Kiwi](https://github.com/fuseraft/kiwi) interpreter built to run on .NET.
 
-Kiwi is a dynamically-typed object-oriented scripting language with a simple and clean syntax.
+Kiwi is a high-level, dynamically-typed language designed for efficiency and expressiveness across a variety of tasks.
 
 ## Getting Started
 
