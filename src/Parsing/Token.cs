@@ -16,7 +16,7 @@ public class TokenStream(List<Token> tokens)
     {
         if (pos >= Size)
         {
-            return Token.CreateEof();
+            return Token.Eof;
         }
 
         return tokens[pos];
@@ -26,7 +26,7 @@ public class TokenStream(List<Token> tokens)
     {
         if (Position >= Size)
         {
-            return Token.CreateEof();
+            return Token.Eof;
         }
 
         return tokens[Position];
@@ -94,7 +94,7 @@ public class TokenStream(List<Token> tokens)
             return tokens[Position + 1];
         }
 
-        return Token.CreateEof();
+        return Token.Eof;
     }
 }
 
@@ -110,10 +110,7 @@ public struct Token(TokenType type, TokenName name, TokenSpan span, string text,
 
     public void SetSpan(TokenSpan span) { Span = span; }
 
-    public static Token CreateEof()
-    {
-        return new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default);
-    }
+    public static Token Eof => new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default);
 }
 
 public readonly struct TokenSpan(int file, int line, int pos)

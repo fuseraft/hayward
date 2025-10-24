@@ -11,7 +11,7 @@ namespace hayward.Parsing;
 public partial class Parser(bool rethrowErrors = false)
 {
     private readonly bool rethrow = rethrowErrors;
-    private Token token = Token.CreateEof();
+    private Token token = Token.Eof;
     private TokenStream stream = new([]);
     private Stack<Dictionary<string, string>> mangledNameStack = new();
     
