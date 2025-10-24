@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using hayward.Parsing.AST;
 using hayward.Parsing.Keyword;
 using hayward.Tracing;
 using hayward.Typing;
@@ -39,22 +40,17 @@ public class Lexer : IDisposable
         List<Token> tokens = [];
         stream.Seek(0, SeekOrigin.Begin);
 
-        while (stream.CanRead)
+        while (stream.CanRead && (tokens.Count == 0 || tokens.Last().Type != TokenType.Eof))
         {
             var token = GetToken();
 
-            if (token.Type == TokenType.String)
+            if(token.Type == TokenType.String && !token.Text.Contains("${"))
             {
                 TokenizeStringInterpolation(ref tokens, token);
             }
             else
             {
                 tokens.Add(token);
-            }
-
-            if (token.Type == TokenType.Eof)
-            {
-                break;
             }
         }
 
@@ -182,13 +178,6 @@ public class Lexer : IDisposable
         var span = token.Span;
         var text = token.Text;
         System.Text.StringBuilder sv = new();
-
-        if (!text.Contains("${"))
-        {
-            tokens.Add(token);
-            return;
-        }
-
         List<Token> interpTokens = [];
         var interpolate = false;
 
@@ -260,6 +249,7 @@ public class Lexer : IDisposable
                         interpTokens.Add(CreateToken(TokenType.LParen, span, "("));
                         foreach (var tmpToken in tmpTokens)
                         {
+                            // PH: How does one do this? Can this check be removed?
                             if (tmpToken.Type == TokenType.Eof)
                             {
                                 continue;
