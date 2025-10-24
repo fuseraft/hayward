@@ -8,13 +8,15 @@ Methods defined in a package can only be accessed using a fully qualified name.
 # Defining packages.
 package greeter
   fn greet(name)
-    println("Hello, ${name}.");
-;
+    println("Hello, ${name}.")
+  end
+end
 
 package excited_greeter
   fn greet(name)
-    println("Hello, ${name}!");
-;
+    println("Hello, ${name}!")
+  end
+end
 
 # Importing packages.
 export "greeter"

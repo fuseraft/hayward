@@ -12,11 +12,13 @@ Each concrete struct should define a constructor method, called `new`.
 struct MyStruct
   fn new(name)
     # Use the `@` symbol to declare an instance variable.
-    @name = name ;
+    @name = name
+  end
 
   fn say_hello()
-    println("Hello, ${name}!");
-;
+    println("Hello, ${name}!")
+  end
+end
 ```
 
 ### Creating Instances
@@ -35,8 +37,9 @@ Hayward supports single inheritance. Use the `<` symbol to specify the parent st
 ```hayward
 struct MySubStruct < MyStruct
   fn say_goodbye()
-    println("Goodbye, ${name}!");
-;
+    println("Goodbye, ${name}!")
+  end
+end
 ```
 
 ### Method Definition
@@ -47,8 +50,8 @@ Methods are defined using the `fn` keyword, followed by the method name and any 
 struct MyStruct
   fn my_method(param)
     # Method code here
-  ;
-;
+  end
+end
 ```
 
 ### Overriding `to_string()`
@@ -58,8 +61,9 @@ The `override` keyword is not required to override `to_string()`.
 ```hayward
 struct HaywardStruct
   fn to_string()
-    return "I am a Hayward struct";
-;
+    return "I am a Hayward struct"
+  end
+end
 
 instance = HaywardStruct.new()
 string_repr = instance.to_string()
@@ -74,8 +78,9 @@ Methods declared as static can be invoked directly through the struct and cannot
 ```hayward
 struct MyStruct
   static fn static_method()
-    println("I can be invoked without an instance!");
-;
+    println("I can be invoked without an instance!")
+  end
+end
 
 MyStruct.static_method() # prints: I can be invoked without an instance!
 ```
@@ -88,8 +93,8 @@ Hayward supports `private` methods that cannot be called outside the struct defi
 struct MyStruct
   private fn my_private_method()
     # Private method code here
-  ;
-;
+  end
+end
 ```
 
 All instance variables are private by default. You must explicitly implement accessors and modifiers to access them outside of the struct.
@@ -97,8 +102,9 @@ All instance variables are private by default. You must explicitly implement acc
 ```hayward
 struct MyStruct
   fn new(name)
-    @name = name;
-;
+    @name = name
+  end
+end
 
 inst = MyStruct.new("kiwi")
 ```

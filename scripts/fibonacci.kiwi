@@ -6,8 +6,10 @@ fn fibonacci(n)
     fib.push(nextTerm)
     t1 = t2
     t2 = nextTerm
-    nextTerm = t1 + t2;
+    nextTerm = t1 + t2
+  end
 
-  return fib;
+  return fib
+end
 
 println(fibonacci(100000))

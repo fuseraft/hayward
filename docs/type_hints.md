@@ -9,14 +9,15 @@ Type hints in Hayward are specified by adding a colon (`:`) followed by the expe
 ```hayward
 fn function_name(parameter: Type, ...): ReturnType
   # function body
-;
+end
 ```
 
 ### Example
 
 ```hayward
 fn add_numbers(a: Integer, b: Integer): Integer
-  return a + b;
+  return a + b
+end
 ```
 
 In this example, both `a` and `b` are expected to be of type `Integer`, and the function is expected to return an `Integer`.
@@ -44,7 +45,8 @@ To add type hints to function parameters, specify the parameter name followed by
 
 ```hayward
 fn concatenate_strings(prefix: String, suffix: String): String
-  return prefix + suffix;
+  return prefix + suffix
+end
 
 println concatenate_strings("Hello, ", "World!") # Output: Hello, World!
 ```
@@ -59,7 +61,8 @@ Type hints can be used with parameters that have default values.
 
 ```hayward
 fn greet(name: String, greeting: String = "Hello"): String
-  return greeting + ", " + name;
+  return greeting + ", " + name
+end
 
 println greet("Alice")           # Output: Hello, Alice
 println greet("Alice", "Hi")      # Output: Hi, Alice
@@ -73,7 +76,8 @@ The return type hint specifies the expected type of the function’s result.
 
 ```hayward
 fn is_even(number: Integer): Boolean
-  return number % 2 == 0;
+  return number % 2 == 0
+end
 ```
 
 In this example, the function `is_even` is expected to return a `Boolean` value.
@@ -86,7 +90,8 @@ Hayward performs runtime type checking for all parameters with type hints. If an
 
 ```hayward
 fn multiply(a: Integer, b: Integer): Integer
-  return a * b;
+  return a * b
+end
 
 multiply(5, "10")  # Error: Expected `Integer` for parameter 2 of `multiply`, but received `String`.
 ```

@@ -2,8 +2,9 @@ package csv
   fn parse_csv(csv_file_path: string, delimiter: string = ",", has_header_row: boolean = false): list
     var (p = CSVParser.new(csv_file_path, delimiter))
     var (csv_list: list = p.parse_csv())
-    return CSVParser.hashify(csv_list, has_header_row);
-;
+    return CSVParser.hashify(csv_list, has_header_row)
+  end
+end
 
 export "csv"
 
@@ -13,7 +14,8 @@ struct CSVParser
     @line_no = -1
     @lines = lines
     @max_lines = lines.size()
-    @delimiter = delimiter;
+    @delimiter = delimiter
+  end
 
   static fn hashify(csv_list: list = [], header_row: boolean = false): list
     return {} when csv_list.empty()
@@ -23,8 +25,9 @@ struct CSVParser
       cols.concat(csv_list.first())
     else
       for i in [0 to csv_list.size()] do
-        cols.push(i);
-    ;
+        cols.push(i)
+      end
+    end
 
     var (res: list = [])
 
@@ -35,11 +38,14 @@ struct CSVParser
       
       for item, col_index in row do
         key = cols[col_index]
-        res_row.set(key, item);
+        res_row.set(key, item)
+      end
 
-      res.push(res_row);
+      res.push(res_row)
+    end
 
-    return res;
+    return res
+  end
     
   # Parse the entire CSV stream into a 2D list of strings.
   fn parse_csv(): list
@@ -54,9 +60,11 @@ struct CSVParser
       break when !success
       
       var (row: list = parse_line(record))
-      data.push(row.clone());
+      data.push(row.clone())
+    end
 
-    return data;
+    return data
+  end
 
   private fn get_line(): string
     var (lines: list = @lines)
@@ -64,15 +72,18 @@ struct CSVParser
     if can_read()
       var (line: string = @lines.get(@line_no + 1))
       @line_no += 1
-      return line;
-  ;
+      return line
+    end
+  end
 
   private fn can_read(): boolean
-    return !@lines.empty() && @line_no + 1 < @max_lines;
+    return !@lines.empty() && @line_no + 1 < @max_lines
+  end
 
   private fn csv_error(msg: string = "An error occurred")
     msg += "\nLine: ${@line_no}"
-    return msg;
+    return msg
+  end
 
   # Reads enough lines to form a complete CSV record if multiline fields are present.
   # Returns false if no more complete records can be read.
@@ -102,7 +113,8 @@ struct CSVParser
       else
         # We're continuing a multiline field
         out_record += "\n"
-        out_record += buffer.clone();
+        out_record += buffer.clone()
+      end
 
       # Check if the current combined line is balanced in terms of quotes
       # We'll do a quick scan counting quotes that are not doubled.
@@ -112,9 +124,11 @@ struct CSVParser
       in_quotes = res.in_quotes
 
       # Once we have a line where in_quotes ends as false, we have a complete record
-      break when line_complete && !in_quotes;
+      break when line_complete && !in_quotes
+    end
 
-    return { "success": true, "record": out_record };
+    return { "success": true, "record": out_record }
+  end
 
     # Parses a single "complete" CSV line into fields.
   fn parse_line(line: string): list
@@ -137,10 +151,12 @@ struct CSVParser
             i += 1 # Skip next quote
           else
             # It's a closing quote
-            quotes -= 1;
+            quotes -= 1
+          end
         else
           # Regular character inside quotes
-          field += c;
+          field += c
+        end
       else
         # Outside quotes
         if c == @delimiter
@@ -152,10 +168,12 @@ struct CSVParser
           quotes += 1
         else
           # Regular character outside quotes
-          field += c;
-      ;
+          field += c
+        end
+      end
 
-      i += 1;
+      i += 1
+    end
 
     # Add the last field
     fields.push(field.clone())
@@ -166,7 +184,8 @@ struct CSVParser
     throw csv_error("Unterminated quoted field.")
       when quotes > 0
 
-    return fields;
+    return fields
+  end
 
   fn line_is_complete(line: string): hashmap
     var (in_quotes: boolean = false)
@@ -181,11 +200,15 @@ struct CSVParser
           if i + 1 < length && line[i + 1] == "\""
             i += 1
           else
-            in_quotes = false;
+            in_quotes = false
+          end
         else
-          in_quotes = true;
-      ;
-      i += 1;
+          in_quotes = true
+        end
+      end
+      i += 1
+    end
 
-    return { "complete": !in_quotes, "in_quotes": in_quotes };
-;
+    return { "complete": !in_quotes, "in_quotes": in_quotes }
+  end
+end

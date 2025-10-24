@@ -427,13 +427,13 @@ Returns true if all elements in a list match a given condition.
 # a list of even numbers (so far)
 list = [2, 4, 6]
 
-all_evens = list.all(with (n) do n % 2 == 0;)
+all_evens = list.all(with (n) do n % 2 == 0 end)
 println all_evens # prints: true
 
 # add 5 to the list, it is not divisible by 2
 list.push(5)
 
-all_evens = list.all(with (n) do n % 2 == 0;)
+all_evens = list.all(with (n) do n % 2 == 0 end)
 println all_evens # prints: false
 ```
 
@@ -445,7 +445,7 @@ Iterate a list, performing some action for each item in the list.
 # Convert "hello" to a list of unique values, and iterate each.
 "hello".chars().unique().each(with (v, i) do
   println("${i} = ${v}")
-;)
+end)
 
 /# Prints:
 0 = h
@@ -455,7 +455,7 @@ Iterate a list, performing some action for each item in the list.
 #/
 
 # Iterate a range.
-[1 to 5].each(with (v, i) do println("${i}: ${v}");)
+[1 to 5].each(with (v, i) do println("${i}: ${v}") end)
 
 /# Prints:
 0: 1
@@ -469,7 +469,7 @@ Iterate a list, performing some action for each item in the list.
 matrix = [[0] * 3] * 3
 matrix.each(with (row, row_index) do
   println("${row_index}: ${row}")
-;)
+end)
 
 /# Prints:
 0: [0, 0, 0]
@@ -552,7 +552,7 @@ Transform a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.map(with (item) do return { "fruit": item, "is_a_kiwi": item.lowercase() == "kiwi" };))
+println(list.map(with (item) do return { "fruit": item, "is_a_kiwi": item.lowercase() == "kiwi" } end))
 # prints: [{"fruit": "kiwi", "is_a_kiwi": true}, {"fruit": "mango", "is_a_kiwi": false}, {"fruit": "banana", "is_a_kiwi": false}]
 ```
 
@@ -602,7 +602,7 @@ numbers = [1, 2, 3, 4, 5]
 
 sum = numbers.reduce(0, with (accumulator, number) do
     return accumulator + number
-;)
+end)
 
 println(sum) # prints: 15
 ```
@@ -613,7 +613,7 @@ numbers = [1, 2, 3, 4, 5]
 hashmap = numbers.reduce({}, with (accumulator, number) do
     accumulator["key${number}"] = number
     return accumulator
-;)
+end)
 
 println(hashmap)
 # prints: {"key1": 1, "key2": 2, "key3": 3, "key4": 4, "key5": 5}
@@ -662,7 +662,7 @@ Filter a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.filter(with (item) do return item.contains("s");))
+println(list.filter(with (item) do return item.contains("s") end))
 # prints: ["kiwi"]
 ```
 
@@ -848,8 +848,9 @@ Converts an object instance or a JSON string into a hashmap.
 ```hayward
 struct SerializeMe
   fn new()
-    @name = "Hayward";
-;
+    @name = "Hayward"
+  end
+end
 
 inst = SerializeMe.new()
 
@@ -925,7 +926,7 @@ Valid types are: `Integer`, `Float`, `Boolean`, `String`, `List`, `Hashmap`, `Ob
 If the type is an object, `type()` will return the struct name of the instance.
 
 ```hayward
-struct MyStruct;
+struct MyStruct end
 
 instance = MyStruct.new()
 println(instance.type()) # prints: MyStruct

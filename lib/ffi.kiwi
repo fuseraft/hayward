@@ -9,7 +9,8 @@ package ffi
     - `ffi_return_type`: A string specifying the function's return type.
   #/
   fn attach(lib_alias: string, func_alias: string, ffi_name: string, ffi_parameter_types: list, ffi_return_type: string): boolean
-    return __ffi_attach__(lib_alias, func_alias, ffi_name, ffi_parameter_types, ffi_return_type);
+    return __ffi_attach__(lib_alias, func_alias, ffi_name, ffi_parameter_types, ffi_return_type)
+  end
 
   /#
   @summary: Invokes an attached external function with a list of parameters.
@@ -19,7 +20,8 @@ package ffi
   @return: Any value returned by the shared library function.
   #/
   fn invoke(func_alias: string, func_params: list = []): any
-    return __ffi_invoke__(func_alias, func_params);
+    return __ffi_invoke__(func_alias, func_params)
+  end
 
   /#
   @summary: Loads a shared library (.so) into the Hayward runtime and assigns it an alias for future references.
@@ -28,7 +30,8 @@ package ffi
     - `lib_path`: The path to the shared library file.
   #/
   fn load(lib_alias: string, lib_path: string)
-    __ffi_load__(lib_alias, lib_path);
+    __ffi_load__(lib_alias, lib_path)
+  end
 
   /#
   @summary: Unloads a previously loaded shared library from the Hayward runtime
@@ -36,7 +39,8 @@ package ffi
     - `lib_alias`: The alias of the library to unload.
   #/
   fn unload(lib_alias: string)
-    __ffi_unload__(lib_alias);
-;
+    __ffi_unload__(lib_alias)
+  end
+end
 
 export "ffi"

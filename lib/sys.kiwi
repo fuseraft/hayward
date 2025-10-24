@@ -15,14 +15,16 @@ package sys
 
     # Append each argument, making sure to properly escape/quote as needed.
     for arg in args do
-      cmd_text += " " + sys::escape_argument(arg);
+      cmd_text += " " + sys::escape_argument(arg)
+    end
 
     # Choose execution method based on capture_output flag.
     if capture_output
       return sys::execout(cmd_text)
     else
-      return sys::exec(cmd_text);
-  ;
+      return sys::exec(cmd_text)
+    end
+  end
 
   /#
   Summary: Run an external process or open a file.
@@ -31,7 +33,8 @@ package sys
   Returns: Integer containing exit code of external process.
   #/
   fn open(_command)
-    return __sys_open__(_command);
+    return __sys_open__(_command)
+  end
 
   /#
   Summary: Run an external process and capture its exit code.
@@ -40,7 +43,8 @@ package sys
   Returns: Integer containing exit code of external process.
   #/
   fn exec(_command)
-    return __sys_exec__(_command);
+    return __sys_exec__(_command)
+  end
 
   /#
   Summary: Run an external process and capture its standard output.
@@ -49,7 +53,8 @@ package sys
   Returns: String containing standard output from external process.
   #/
   fn execout(_command)
-    return __sys_execout__(_command);
+    return __sys_execout__(_command)
+  end
 
   /#
   Summary: Escapes an argument to prevent command injection and ensure safe passing.
@@ -59,9 +64,11 @@ package sys
   #/
   fn escape_argument(arg)
     if arg.contains(" ") || string::contains_any(arg, "!@#$%^&*()[]{}|;:<>,.?/~`")
-      return "\"" + arg + "\"";
+      return "\"" + arg + "\""
+    end
 
-    return arg;
-;
+    return arg
+  end
+end
 
 export "sys"

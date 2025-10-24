@@ -317,7 +317,6 @@ public class Lexer : IDisposable
             '#' => TokenizeComment(span),
             '?' => CreateToken(TokenType.Question, span, "?"),
             '/' when PeekChar() == '#' => TokenizeBlockComment(span),
-            ';' => CreateToken(TokenType.Keyword, span, ";", TokenName.KW_End),
             _ => TokenizeOperator(span, c),
         };
     }

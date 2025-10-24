@@ -33,4 +33,5 @@ fn d
     new_date:   date   = ("${date_part} ${time_part}").to_date()
   )
 
-  return new_date;
+  return new_date
+end

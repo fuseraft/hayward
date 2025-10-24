@@ -9,9 +9,11 @@ fn fizzbuzz(n)
     elsif i % 5 == 0
       println("Buzz")
     else
-      println("${i}");
+      println("${i}")
+    end
     
-    i += 1;
-;
+    i += 1
+  end
+end
 
 fizzbuzz(100)

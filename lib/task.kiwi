@@ -7,7 +7,8 @@ package task
   Returns: Boolean indicating business.
   #/
   fn busy()
-    return __task_busy__();
+    return __task_busy__()
+  end
 
   /#
   Summary: Spawn a new task.
@@ -18,16 +19,18 @@ package task
   fn create(callback)
     task_id = spawn (with() do
       callback()
-    ;)()
+    end)()
 
-    return task_id;
+    return task_id
+  end
 
   /#
   Summary: Returns a list of task identifiers.
   Returns: List of integers.
   #/
   fn list()
-    return __task_list__();
+    return __task_list__()
+  end
 
   /#
   Summary: Returns a result or a status hashmap.
@@ -36,7 +39,8 @@ package task
   Returns: Result of a task, or its status in a hashmap.
   #/
   fn result(task_identifier)
-    return __task_result__(task_identifier);
+    return __task_result__(task_identifier)
+  end
 
   /#
   Summary: Sleeps for a number of milliseconds.
@@ -44,7 +48,8 @@ package task
     - ms: An integer representing milliseconds to sleep.
   #/
   fn sleep(ms)
-    __task_sleep__(ms);
+    __task_sleep__(ms)
+  end
 
   /#
   Summary: Get a status hashmap for a given task.
@@ -53,7 +58,8 @@ package task
   Returns: Hashmap containing status.
   #/
   fn status(task_identifier)
-    return __task_status__(task_identifier);
+    return __task_status__(task_identifier)
+  end
 
   /#
   Summary: Schedule a task to run after a delay.
@@ -66,9 +72,10 @@ package task
     task_id = spawn (with() do
       task::sleep(ms)
       callback()
-    ;)()
+    end)()
 
-    return task_id;
+    return task_id
+  end
 
   /#
   Summary: Schedule a task to run on an interval.
@@ -84,19 +91,22 @@ package task
         callback_result = callback()
 
         if callback_result != null && callback_result != 0 && callback_result != true
-          break;
-      ;
-    ;)()
+          break
+        end
+      end
+    end)()
 
-    return task_id;
+    return task_id
+  end
 
   /#
   Summary: Waits for all tasks to complete.
   #/
   fn wait()
     while task::busy() do
-      task::sleep(100); # avoid busy waiting
-  ;
-;
+      task::sleep(100)
+    end # avoid busy waiting
+  end
+end
 
 export "task"

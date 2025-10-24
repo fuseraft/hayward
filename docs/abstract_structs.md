@@ -8,8 +8,9 @@ To define an abstract struct, use the `abstract struct` keywords followed by the
 
 ```hayward
 abstract struct Shape
-  abstract fn area()
-  abstract fn perimeter();
+  abstract fn area() end
+  abstract fn perimeter() end
+end
 ```
 
 ## Implementing Abstract Structs
@@ -21,14 +22,17 @@ Use the `override` keyword to override the abstract method with an implementatio
 ```hayward
 struct Circle < Shape
   fn new(radius)
-    @radius = radius;
+    @radius = radius
+  end
 
   override fn area()
-    return 3.14159 * @radius * @radius;
+    return 3.14159 * @radius * @radius
+  end
 
   override fn perimeter()
-    return 2 * 3.14159 * @radius;
-;
+    return 2 * 3.14159 * @radius
+  end
+end
 ```
 
 ## Instantiation

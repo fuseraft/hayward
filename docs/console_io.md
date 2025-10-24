@@ -25,7 +25,8 @@ You can also pass a string to print as a prompt.
 ```hayward
 choice = ""
 while !"ab".chars().contains(choice) do
-  choice = input("(a)ttack or (b)lock: ");
+  choice = input("(a)ttack or (b)lock: ")
+end
 ```
 
 ### `print`

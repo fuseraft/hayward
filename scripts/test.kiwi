@@ -375,8 +375,8 @@ end)
 
 tester::register_test("structs", with do
   struct Shape
-    fn area();
-    fn perimeter();
+    fn area() end
+    fn perimeter() end
   end
 
   struct Circle < Shape

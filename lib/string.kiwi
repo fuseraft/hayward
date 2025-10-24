@@ -15,10 +15,12 @@ package string
 
     for m in matches do
       if str.contains(m)
-        return true;
-    ;
+        return true
+      end
+    end
 
-    return false;
+    return false
+  end
 
   /#
   @summary Encodes a string as a base64 string.
@@ -26,7 +28,8 @@ package string
   @return  String           : The base64 encoded string.
   #/
   fn base64encode(_input)
-    return __base64encode__("${_input}");
+    return __base64encode__("${_input}")
+  end
 
   /#
   @summary Decodes a base64 string to plaintext.
@@ -34,7 +37,8 @@ package string
   @return  String           : The plaintext string.
   #/
   fn base64decode(_input)
-    return __base64decode__("${_input}");
+    return __base64decode__("${_input}")
+  end
 
   /#
   @summary Encodes a string as a URL encoded string.
@@ -42,7 +46,8 @@ package string
   @return  String           : The URL encoded string.
   #/
   fn urlencode(_input)
-    return __urlencode__("${_input}");
+    return __urlencode__("${_input}")
+  end
 
   /#
   @summary Decodes a URL encoded string to plaintext.
@@ -50,7 +55,8 @@ package string
   @return  String           : The plaintext string.
   #/
   fn urldecode(_input)
-    return __urldecode__("${_input}");
+    return __urldecode__("${_input}")
+  end
 
   /#
   @summary Pads the left side of a string.
@@ -64,7 +70,8 @@ package string
     _padding = " " when _padding.size() != 1
     _padding_size = _size - ("${_input}").size()
     _pad = _padding * _padding_size
-    return _pad + "${_input}";
+    return _pad + "${_input}"
+  end
 
   /#
   @summary Pads the right side of a string.
@@ -78,7 +85,8 @@ package string
     _padding = " " when _padding.size() != 1
     _padding_size = _size - ("${_input}").size()
     _pad = _padding * _padding_size
-    return "${_input}" + _pad;
+    return "${_input}" + _pad
+  end
 
   /#
   @summary Centers a string within a given width.
@@ -95,7 +103,8 @@ package string
     _right_padding_size = _total_padding - _left_padding_size
     _left_pad = _padding * _left_padding_size
     _right_pad = _padding * _right_padding_size
-    return _left_pad + ("${_input}") + _right_pad;
+    return _left_pad + ("${_input}") + _right_pad
+  end
 
   /#
   @summary Repeats each character in the string a specified number of times.
@@ -106,8 +115,10 @@ package string
   fn echo(_input, _count)
     _output = ""
     for char in ("${_input}").chars() do
-      _output = _output + (char * _count);
-    return _output;
+      _output = _output + (char * _count)
+    end
+    return _output
+  end
 
   /#
   @summary Interweaves characters from two strings.
@@ -120,8 +131,10 @@ package string
     _length = [("${_input1}").size(), ("${_input2}").size()].max()
     for i in [0 to _length - 1] do
       _output = _output + ("${_input1}")[i] when i < ("${_input1}").size()
-      _output = _output + ("${_input2}")[i] when i < ("${_input2}").size();
-    return _output;
+      _output = _output + ("${_input2}")[i] when i < ("${_input2}").size()
+    end
+    return _output
+  end
 
   /#
   @summary Creates a mirrored version of the input string.
@@ -130,7 +143,8 @@ package string
   @return  String            : The mirrored string.
   #/
   fn mirror(_input, _delimiter = "")
-    return ("${_input}") + _delimiter + ("${_input}").reverse();
+    return ("${_input}") + _delimiter + ("${_input}").reverse()
+  end
 
   /#
   @summary Randomly shuffles the characters in a string.
@@ -144,9 +158,11 @@ package string
     while _n > 1 do
       _n = _n - 1
       _k = __random__(0, _n)
-      _array.swap(_k, _n);
+      _array.swap(_k, _n)
+    end
 
-    return _array.join("");
+    return _array.join("")
+  end
 
   /#
   @summary Generates a URL-friendly slug from a string.
@@ -161,10 +177,12 @@ package string
 
     for char in _hyphenated.chars() do
       if char.is_a(Integer) || (char >= "a" && char <= "z") || char == "-"
-        _slug += char;
-    ;
+        _slug += char
+      end
+    end
 
-    return _slug;
+    return _slug
+  end
 
   /#
   @summary Checks if the string consists only of numeric characters.
@@ -177,10 +195,12 @@ package string
     for char in ("${_input}").chars() do
       if !(char >= "0" && char <= "9")
         _isnumeric = false
-        break;
-    ;
+        break
+      end
+    end
 
-    return _isnumeric;
+    return _isnumeric
+  end
 
   /#
   @summary Checks if the string consists only of alphabetic characters.
@@ -190,10 +210,12 @@ package string
   fn isalpha(_input)
     for char in ("${_input}").chars() do
       if !((char >= "a" && char <= "z") || (char >= "A" && char <= "Z"))
-        return false;
-    ;
+        return false
+      end
+    end
 
-    return true;
+    return true
+  end
 
   /#
   @summary Checks if the string consists only of alphanumeric characters.
@@ -203,10 +225,12 @@ package string
   fn isalphanumeric(_input)
     for char in ("${_input}").chars() do
       if !(char >= "0" && char <= "9" || (char >= "a" && char <= "z") || (char >= "A" && char <= "Z"))
-        return false;
-    ;
+        return false
+      end
+    end
 
-    return true;
+    return true
+  end
 
   /#
   @summary Checks if the string is entirely in uppercase.
@@ -217,9 +241,11 @@ package string
     for char in ("${_input}").chars() do
       # If any character is lowercase, return false
       if char >= "a" && char <= "z"
-        return false;
-    ;
-    return true;
+        return false
+      end
+    end
+    return true
+  end
 
   /#
   @summary Checks if the string is entirely in lowercase.
@@ -230,9 +256,11 @@ package string
     for char in ("${_input}").chars() do
       # If any character is uppercase, return false
       if char >= "A" && char <= "Z"
-        return false;
-    ;
-    return true;
+        return false
+      end
+    end
+    return true
+  end
 
   /#
   @summary Converts all characters in the string to uppercase.
@@ -240,7 +268,8 @@ package string
   @return  String           : The string converted to uppercase.
   #/
   fn toupper(_input)
-    return ("${_input}").uppercase();
+    return ("${_input}").uppercase()
+  end
 
   /#
   @summary Converts all characters in the string to lowercase.
@@ -248,94 +277,118 @@ package string
   @return  String           : The string converted to lowercase.
   #/
   fn tolower(_input)
-    return ("${_input}").lowercase();
-;
+    return ("${_input}").lowercase()
+  end
+
+  end
 
 struct StringIterator
   fn new(s)
     @chars = s.chars()
     @len = @chars.size()
-    @pos = 0;
+    @pos = 0
+  end
 
   fn consume()
-    @pos += 1;
+    @pos += 1
+  end
 
   fn skip(n)
     if @pos + n < @len
       @pos = @len
     else
-      @pos += n;
-  ;
+      @pos += n
+    end
+  end
 
   fn can_read()
-    return @pos + 1 < @len;
+    return @pos + 1 < @len
+  end
 
   fn current()
     if @pos < @len
-      return @chars.get(@pos);
-    return "";
+      return @chars.get(@pos)
+    end
+    return ""
+  end
 
   fn peek()
     if @pos + 1 < @len
-      return @chars.get(@pos + 1);
+      return @chars.get(@pos + 1)
+    end
 
-    return "";
+    return ""
+  end
 
   fn position()
-    return @pos;
+    return @pos
+  end
 
   fn length()
-    return @len;
+    return @len
+  end
 
   fn rewind(n)
-    @pos -= n;
+    @pos -= n
+  end
 
   fn grab(n)
     if n < @len && n >= 0
-      return @chars.get(n);
-    return "";
+      return @chars.get(n)
+    end
+    return ""
+  end
 
   fn reach(n)
     if @len + n < @len && @len + n >= 0
-      return @chars.get(@len + n);
-    return "";
+      return @chars.get(@len + n)
+    end
+    return ""
+  end
 
   fn look_ahead()
     return "" when !can_read()
     tmp_chars = []
 
     try
-      tmp_chars = (@chars)[@pos: :];
+      tmp_chars = (@chars)[@pos: :]
+    end
 
     c = tmp_chars.get(i)
     i = 0
 
     while c == " " && i + 1 < tmp_chars.size() do
       c = tmp_chars.get(i)
-      i += 1;
+      i += 1
+    end
 
-    return c;
+    return c
+  end
 
   fn count_ahead()
     return 0 when !can_read()
     tmp_chars = []
 
     try
-      tmp_chars = (@chars)[@pos: :];
+      tmp_chars = (@chars)[@pos: :]
+    end
 
     c = tmp_chars.get(i)
     i = 0
 
     while c == " " && i + 1 < tmp_chars.size() do
       c = tmp_chars.get(i)
-      i += 1;
+      i += 1
+    end
 
-    return i - 1;
+    return i - 1
+  end
 
   fn skip_whitespace()
     while can_read() && current() == " " do
-      consume();
-  ;
-;
+      consume()
+    end
+  end
+end
 
 export "string"

@@ -10,8 +10,10 @@ package json
     try
       # If it is an empty string, return an empty list.
       return [] when s.trim().empty()
-      parse_res = deserialize(s);
-    return parse_res;
+      parse_res = deserialize(s)
+    end
+    return parse_res
+  end
 
   /#
   Summary: Returns true if a given string value can be parsed as JSON. 
@@ -22,9 +24,11 @@ package json
   fn can_parse(s: String)
     parse_res = json::parse_json(s)
     if std::is_hashmap(parse_res) && parse_res.has_key("KIWI_JSON_PARSE_ERROR")
-      return false;
+      return false
+    end
     valid_types = [Hashmap, List, String, Integer, Float, Boolean, None]
-    return valid_types.contains(parse_res.type());
+    return valid_types.contains(parse_res.type())
+  end
 
   /#
   Summary: Serializes runtime objects to JSON string. Returns `null` when data is malformed.
@@ -35,8 +39,10 @@ package json
   fn stringify(data)
     json = null    
     try
-      json = serialize(data);
-    return json;
-;
+      json = serialize(data)
+    end
+    return json
+  end
+end
 
 export "json"

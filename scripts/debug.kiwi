@@ -12,14 +12,17 @@ package program
     for test in tests do
       results["isalpha"].push(string::padend("isalpha('${test}'): ", 25) + string::isalpha(test))
       results["isnumeric"].push(string::padend("isnumeric('${test}'): ", 25) + string::isnumeric(test))
-      results["isalphanumeric"].push(string::padend("isalphanumeric('${test}'): ", 25) + string::isalphanumeric(test));
+      results["isalphanumeric"].push(string::padend("isalphanumeric('${test}'): ", 25) + string::isalphanumeric(test))
+    end
 
     for _, res in results do
       for r in res do
-        println r;
+        println r
+      end
 
-      println "";
-  ;
+      println ""
+    end
+  end
 
   fn fun_case()
     dt = time::now()
@@ -35,9 +38,10 @@ package program
       when dt.hour() < 21
         println "good evening"
       else
-        println "good night";
+        println "good night"
+      end
     
-    # A `case` statement with a test and an alias for the test value (for better hallway vision).
+    # A `case` statement with a test and an alias for the test value.
     case dt.hour() as hour
       when hour < 12
         println "good morning"
@@ -46,17 +50,20 @@ package program
       when hour < 21
         println "good evening"
       else
-        println "good night, the time is: ${dt}, hour is ${hour}";
+        println "good night, the time is: ${dt}, hour is ${hour}"
+      end
     
     # Using a `case` statement to assign a value conditionally.
     x = case dt.hour() as hour
-            when hour < 12 "morning: ${hour}"
-            when hour < 17 "afternoon: ${hour}"
-            when hour < 21 "evening: ${hour}"
-            else "night: ${hour}";
+          when hour < 12 "morning: ${hour}"
+          when hour < 17 "afternoon: ${hour}"
+          when hour < 21 "evening: ${hour}"
+          else "night: ${hour}"
+        end
     
-    println "${x}\n";
-;
+    println "${x}\n"
+  end
+end
 
 export "program"
 

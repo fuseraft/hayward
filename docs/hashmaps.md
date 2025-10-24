@@ -65,9 +65,11 @@ Use the `for` keyword and the `.keys()` Hashmap-builtin to iterate a hashmap.
 ```hayward
 # Iterate the values in the list.
 for key in myHashmap.keys() do
-  println(myHashmap[key]);
+  println(myHashmap[key])
+end
 
 # Iterate the values in the list, with an index.
 for key, index in myHashmap.keys() do
-  println("Key ${index}: ${key}");
+  println("Key ${index}: ${key}")
+end
 ```

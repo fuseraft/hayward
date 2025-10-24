@@ -30,7 +30,7 @@ It is crafted using the following keywords:
 - `if`: keyword used to define the first conditional path. 
 - `elsif`: keyword used to define alternate conditional paths.
 - `else`: keyword used to define the default conditional path.
-- `end` or `;`: keyword for ending blocks.
+- `end`: keyword for ending blocks.
 
 #### Syntax: `if`
 
@@ -41,7 +41,7 @@ if condition
     [ elsif_statements ] ]
 [ else
     [ else_statements ] ]
-;
+end
 ```
 
 #### Example: `if`
@@ -53,7 +53,8 @@ if a < b
 elsif a > b
   println "${a} is greater than ${b}"
 else
-  println "${a} is equal to ${b}";
+  println "${a} is equal to ${b}"
+end
 ```
 
 ### `case`
@@ -74,7 +75,8 @@ case
   when dt.hour() < 21
     println "good evening"
   else
-    println "good night";
+    println "good night"
+  end
 
 # A `case` statement with a test and an alias for the test value (for better hallway vision).
 case dt.hour() as hour
@@ -85,14 +87,16 @@ case dt.hour() as hour
   when hour < 21
     println "good evening"
   else
-    println "good night, the time is: ${dt}";
+    println "good night, the time is: ${dt}"
+  end
 
 # Using a `case` statement to assign a value conditionally.
 x = case dt.hour() as hour
-        when hour < 12 "morning"
-        when hour < 17 "afternoon"
-        when hour < 21 "evening"
-        else "night";
+      when hour < 12 "morning"
+      when hour < 17 "afternoon"
+      when hour < 21 "evening"
+      else "night"
+    end
 ```
 
 ### `when`
@@ -117,7 +121,8 @@ control_structure [ expression ] when condition
 fn sum(numbers)
   throw "Cannot sum a non-List value." when !numbers.is_a(List)
   return 0 when numbers.empty()
-  return numbers.sum();
+  return numbers.sum()
+end
 
 println(sum([1, 2])) # prints: 3
 println(sum([]))     # prints: 0
@@ -135,7 +140,8 @@ condition ? true_expression : false_expression
 
 ```hayward
 fn min(a, b)
-  return a < b ? a : b;
+  return a < b ? a : b
+end
 
 println(min(5, 2))  # prints: 2
 println(min(1, 10)) # prints: 1

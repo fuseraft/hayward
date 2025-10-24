@@ -70,7 +70,7 @@ You can use the `.filter(lambda)` builtin to filter a list based on a condition.
 
 ```hayward
 list = ["kiwi", "mango", "banana"]
-println(list.filter(with (item) do return item.contains("i");))
+println(list.filter(with (item) do return item.contains("i") end))
 # prints: ["kiwi"]
 ```
 
@@ -81,11 +81,13 @@ Use the `for` keyword to iterate a list.
 ```hayward
 # Iterate the values in the list.
 for item in myList do
-  println("${item}");
+  println("${item}")
+end
 
 # Iterate the values in the list, with an index.
 for item, index in myList do
-  println("Item ${index}: ${item}");
+  println("Item ${index}: ${item}")
+end
 ```
 
 ### An Example
