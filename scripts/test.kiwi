@@ -3,7 +3,7 @@
  #/
 
 fn testsuite()
-  println "Running Hayward Test Suite  to .\n"
+  println "Running Hayward Test Suite...\n"
 
   var (results:   list    = tester::run_tests())
   var (succeeded: integer = 0)
