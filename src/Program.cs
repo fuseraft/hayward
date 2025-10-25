@@ -26,10 +26,13 @@ public class Program
 
             foreach (var script in config.Scripts)
             {
-                _ = runner.Run(script, config.Args);
-            }
+                var _ = runner.Run(script, config.Args);
 
-            exitCode = 0;
+                if (exitCode != 0 && exitCode != _)
+                {
+                    exitCode = _;
+                }
+            }
         }
         catch (CliError e)
         {

@@ -26,6 +26,7 @@ fn testsuite()
     println "All tests passed!"
   else
     println "${succeeded} tests passed, ${failed} tests failed."
+    exit 1
   end
 end
 
