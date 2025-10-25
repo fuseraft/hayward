@@ -44,7 +44,7 @@ public class Lexer : IDisposable
         {
             var token = GetToken();
 
-            if(token.Type == TokenType.String && !token.Text.Contains("${"))
+            if(token.Type == TokenType.String && token.Text.Contains("${"))
             {
                 TokenizeStringInterpolation(ref tokens, token);
             }
