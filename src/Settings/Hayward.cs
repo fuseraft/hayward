@@ -41,10 +41,9 @@ public class HaywardSettings
 
         if (File.Exists(settingsPath))
         {
-            return JsonSerializer.Deserialize<HaywardSettings>(File.ReadAllText(settingsPath), new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            })!;
+            string jsonString = File.ReadAllText(settingsPath);
+            return JsonSerializer.Deserialize(jsonString, HaywardJsonContext.Default.HaywardSettings)
+                ?? throw new InvalidOperationException("Failed to deserialize hayward-settings.json");
         }
 
         Console.WriteLine("Could not find hayward-settings.json. Run with --settings to view defaults.");
@@ -54,7 +53,8 @@ public class HaywardSettings
             Name = "hayward",
             Version = "1.1.3",
             SafeMode = true,
-            Extensions = new FileExtensions {
+            Extensions = new FileExtensions
+            {
                 Primary = ".kiwi",
                 Minified = ".min.kiwi",
                 Recognized = [".hayward", ".kiwi"]
