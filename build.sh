@@ -33,7 +33,7 @@ case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*) DEFAULT_RID="win-x64" ;;
   *)        DEFAULT_RID="win-x64" ;; # Fallback to win-x64 for Windows
 esac
-RUNTIME_ID="$DEFAULT_RID"  # Default RID; override with HAYWARD_RUNTIME_ID env var or argument
+RUNTIME_ID="$DEFAULT_RID"  # Default RID; override with env var or argument
 
 # Allow overriding runtime identifier via environment variable or argument
 if [[ -n "${HAYWARD_RUNTIME_ID:-}" ]]; then
@@ -61,24 +61,24 @@ fi
 BUILD_OUTPUT=""
 echo "Building Hayward with AOT and trimming for $RUNTIME_ID..."
 if ! BUILD_OUTPUT=$(dotnet publish "$SOLUTION_PATH" -c Release -r "$RUNTIME_ID" --self-contained true \
-  /p:PublishAot=true \
-  /p:PublishTrimmed=true \
-  /p:PublishReadyToRun=true \
-  /p:StripSymbols=true \
-  /p:DebugType=none \
-  /p:IncludeNativeLibrariesForSelfExtract=true \
-  /p:UseSystemTextJsonSourceGeneration=true \
-  /p:JsonSerializerIsReflectionEnabled=false \
+  -p:PublishAot=true \
+  -p:PublishTrimmed=true \
+  -p:PublishReadyToRun=true \
+  -p:StripSymbols=true \
+  -p:DebugType=none \
+  -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:UseSystemTextJsonSourceGeneration=true \
+  -p:JsonSerializerIsReflectionEnabled=false \
   -o "$OUTPUT_DIR" 2>&1); then
   echo "AOT build failed. Output:"
   echo "$BUILD_OUTPUT"
   echo "Falling back to non-AOT build..."
   if ! BUILD_OUTPUT=$(dotnet publish "$SOLUTION_PATH" -c Release -r "$RUNTIME_ID" --self-contained true \
-    /p:PublishTrimmed=true \
-    /p:PublishReadyToRun=true \
-    /p:StripSymbols=true \
-    /p:DebugType=none \
-    /p:IncludeNativeLibrariesForSelfExtract=true \
+    -p:PublishTrimmed=true \
+    -p:PublishReadyToRun=true \
+    -p:StripSymbols=true \
+    -p:DebugType=none \
+    -p:IncludeNativeLibrariesForSelfExtract=true \
     -o "$OUTPUT_DIR" 2>&1); then
     echo "Fallback build failed. Output:"
     echo "$BUILD_OUTPUT"
