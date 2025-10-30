@@ -30,7 +30,7 @@ for repo in repos do
   sys::exec("git remote add origin \"git@gitlab.com:${GITLAB_GROUP}/${repo}.git\"")
 
   # push all refs to GitLab
-  sys::exec("git push --mirror origin'")
+  sys::exec("git push --mirror origin")
 
   # clean up
   fio::chdir("..")
