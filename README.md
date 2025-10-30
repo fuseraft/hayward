@@ -29,7 +29,9 @@ For syntax highlighting and code snippets in Visual Studio Code, install the [VS
 
 ## Sample Code
 
-Below is a simple markdown generator. You can find other examples in the [docs](docs/README.md) and in the [scripts](scripts/) directory. 
+Below is a simple markdown generator that reads `.kiwi` files and generates a markdown file called `hayward-files.md`. 
+
+You can find other examples in the [docs](docs/README.md) and in the [scripts](scripts/) directory. 
 
 ```hayward
 /#

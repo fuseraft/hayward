@@ -1,6 +1,6 @@
-# Hashmapmaps
+# Hashmaps
 
-Hashmapmaps in Hayward are similar to hashmaps and dictionaries in other languages.
+Hashmaps in Hayward are similar to hashmaps and dictionaries in other languages.
 
 A hashmap contains a series of key-value pairs and can easily be serialized into JSON and vice-versa.
 
