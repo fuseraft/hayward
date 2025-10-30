@@ -29,7 +29,7 @@ For syntax highlighting and code snippets in Visual Studio Code, install the [VS
 
 ## Sample Code
 
-Below is a simple markdown generator that reads `.kiwi` files and generates a markdown file called `hayward-files.md`. 
+Below is a simple markdown generator that reads `.kiwi` files and generates a file called `kiwi-files.md` with their contents. 
 
 You can find other examples in the [docs](docs/README.md) and in the [scripts](scripts/) directory. 
 
@@ -72,7 +72,7 @@ fn generate_markdown(output_name: string = "output.md",
   end
 end
 
-generate_markdown("hayward-files.md", ".kiwi", "kiwi")
+generate_markdown("kiwi-files.md", ".kiwi", "kiwi")
 ```
 
 ## Contributing
