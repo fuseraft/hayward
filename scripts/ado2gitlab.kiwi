@@ -21,7 +21,7 @@ for repo in repos do
   println "Migrating ${repo}..."
 
   # clone the repo and all refs
-  sys::exec("git clone --mirror \"${https://${PAT}@dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_git/${repo}}\"")
+  sys::exec("git clone --mirror \"${https://${PAT}@dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_git/${repo}\"")
 
   # go into the repo directory
   fio::chdir("${repo}.git")
