@@ -762,10 +762,55 @@ public class Interpreter
         return Value.CreateNull();
     }
 
+    private string PrintObject(Token token, Value? value)
+    {
+        if (value == null)
+        {
+            return string.Empty;
+        }
+
+        var obj = value.GetObject();
+        var func = GetObjectMethod(obj, CoreBuiltin.ToS);
+
+        if (func == null)
+        {
+            return Serializer.Serialize(value);
+        }
+
+        var frame = CallStack.Peek();
+        var oldObjContext = frame.GetObjectContext();
+        var contextSwitch = false;
+
+        if (frame.InObjectContext())
+        {
+            contextSwitch = true;
+        }
+
+        frame.SetObjectContext(obj);
+
+        var result = CallFunction(func, [], token, CoreBuiltin.ToS);
+
+        if (contextSwitch)
+        {
+            frame.SetObjectContext(oldObjContext);
+        }
+
+        return Serializer.Serialize(result);
+    }
+
     private Value Visit(PrintNode node)
     {
         var value = Interpret(node.Expression);
-        var serializedValue = Serializer.Serialize(value);
+        string? serializedValue;
+
+        if (value.IsObject())
+        {
+            serializedValue = PrintObject(node.Token, value);
+        }
+        else
+        {
+            serializedValue = Serializer.Serialize(value);
+        }
 
         if (node.PrintStdError)
         {
@@ -1921,6 +1966,31 @@ public class Interpreter
         return "tmp_" + RNGUtil.Generate(8);
     }
 
+    private KFunction? GetObjectMethod(InstanceRef obj, string name)
+    {
+        var struc = Context.Structs[obj.StructName];
+        var strucMethods = struc.Methods;
+
+        if (strucMethods.TryGetValue(name, out KFunction? func))
+        {
+            return func;
+        }
+
+        // check the base
+        if (!string.IsNullOrEmpty(struc.BaseStruct))
+        {
+            var baseStruct = Context.Structs[struc.BaseStruct];
+            var baseStructMethods = baseStruct.Methods;
+
+            if (baseStructMethods.TryGetValue(name, out KFunction? baseStructFunc))
+            {
+                return baseStructFunc;
+            }
+        }
+
+        return null;
+    }
+
     private CallableType GetCallable(Token token, string name)
     {
         if (Context.HasFunction(name))
@@ -2160,26 +2230,7 @@ public class Interpreter
 
         try
         {
-            for (var i = 0; i < function.Parameters.Count; ++i)
-            {
-                var param = function.Parameters[i];
-                var argValue = Value.Default;
-
-                if (i < args.Count)
-                {
-                    argValue = Interpret(args[i]);
-                }
-                else if (defaultParameters.Contains(param.Key))
-                {
-                    argValue = param.Value;
-                }
-                else
-                {
-                    throw new ParameterCountMismatchError(token, functionName, function.Parameters.Count, args.Count);
-                }
-
-                PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, functionFrame);
-            }
+            ProcessFunctionParameters(function, args, token, functionName, defaultParameters, functionFrame, typeHints);
 
             requireDrop = PushFrame(functionFrame);
             result = ExecuteFunctionBody(function);
@@ -2201,6 +2252,30 @@ public class Interpreter
         }
 
         return result;
+    }
+
+    private void ProcessFunctionParameters(KFunction function, List<ASTNode?> args, Token token, string functionName, HashSet<string> defaultParameters, StackFrame functionFrame, Dictionary<string, TokenName> typeHints)
+    {
+        for (var i = 0; i < function.Parameters.Count; ++i)
+        {
+            var param = function.Parameters[i];
+            var argValue = Value.Default;
+
+            if (i < args.Count)
+            {
+                argValue = Interpret(args[i]);
+            }
+            else if (defaultParameters.Contains(param.Key))
+            {
+                argValue = param.Value;
+            }
+            else
+            {
+                throw new ParameterCountMismatchError(token, functionName, function.Parameters.Count, args.Count);
+            }
+
+            PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, functionFrame);
+        }
     }
 
     private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool requireDrop)
