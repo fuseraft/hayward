@@ -23,7 +23,7 @@
    - **Collections**
      - [Lists](lists.md)
      - [Ranges](ranges.md)
-     - [Hashes](hashes.md)
+     - [Hashmaps](hashmaps.md)
    - **Core Functions**
      - [Builtins](builtins.md)
      - [Console I/O](console_io.md)

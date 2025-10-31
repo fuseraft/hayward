@@ -9,7 +9,7 @@ Hayward provides robust mechanisms for error handling through the use of `try`, 
   - [`finally` block](#finally-block)
 - [Nested `try-catch` Blocks](#nested-try-catch-blocks)
 - [Using `throw` for Custom Errors](#using-throw-for-custom-errors)
-- [Error Hashes](#error-hashmaps)
+- [Error Hashmaps](#error-hashmaps)
 
 ## Basic Error Handling
 
