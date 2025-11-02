@@ -17,6 +17,9 @@ public class Callable(CallableType type)
     public CallableType Type { get; set; } = type;
     public List<KeyValuePair<string, Value>> Parameters { get; set; } = [];
     public HashSet<string> DefaultParameters { get; set; } = [];
+    public TokenName ReturnTypeHint { get; set; } = TokenName.Types_Any;
+    public Dictionary<string, TokenName> TypeHints { get; set; } = [];
+    public Scope? CapturedScope { get; set; }
 }
 
 public class KBuiltin(Token token, string name) : Callable(CallableType.Builtin)
@@ -43,44 +46,42 @@ public class KFunction(ASTNode node) : Callable(CallableType.Function)
     public bool IsStatic { get; set; }
     public bool IsPrivate { get; set; }
     public bool IsCtor { get; set; }
-    public Dictionary<string, TokenName> TypeHints { get; set; } = [];
-    public TokenName ReturnTypeHint { get; set; } = TokenName.Types_Any;
 
     public KFunction Clone()
     {
-        FunctionNode nodeptr = (FunctionNode)Decl.Clone();
-        return new(nodeptr)
+        var cloned = new KFunction((FunctionNode)Decl.Clone())
         {
-            Name = Name,
-            IsStatic = IsStatic,
-            IsPrivate = IsPrivate,
-            IsCtor = IsCtor,
-            Parameters = Parameters,
+            Name            = Name,
+            IsStatic        = IsStatic,
+            IsPrivate       = IsPrivate,
+            IsCtor          = IsCtor,
+            Parameters      = Parameters,
             DefaultParameters = DefaultParameters,
-            TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint
+            TypeHints       = TypeHints,
+            ReturnTypeHint  = ReturnTypeHint,
+            CapturedScope   = CapturedScope
         };
+        return cloned;
     }
 }
 
 public class KLambda(ASTNode node) : Callable(CallableType.Lambda)
 {
     public LambdaNode Decl { get; set; } = (LambdaNode)node.Clone();
-    public Dictionary<string, TokenName> TypeHints { get; set; } = [];
-    public TokenName ReturnTypeHint { get; set; } = TokenName.Types_Any;
 
     public KLambda Clone()
     {
-        LambdaNode nodeptr = (LambdaNode)Decl.Clone();
-        return new(nodeptr)
+        var cloned = new KLambda((LambdaNode)Decl.Clone())
         {
-            Parameters = Parameters,
+            Parameters      = Parameters,
             DefaultParameters = DefaultParameters,
-            TypeHints = TypeHints,
-            ReturnTypeHint = ReturnTypeHint
+            TypeHints       = TypeHints,
+            ReturnTypeHint  = ReturnTypeHint,
+            CapturedScope   = CapturedScope
         };
+        return cloned;
     }
-};
+}
 
 public class KStruct
 {

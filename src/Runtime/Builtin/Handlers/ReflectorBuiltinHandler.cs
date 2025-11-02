@@ -6,228 +6,115 @@ using hayward.Typing;
 
 namespace hayward.Runtime.Builtin.Handlers;
 
-public class ReflectorBuiltinHandler
+public static class ReflectorBuiltinHandler
 {
     public static Value Execute(Token token, TokenName op, List<Value> args, KContext context, Stack<StackFrame> callStack, Stack<string> funcStack)
     {
         return op switch
         {
-            TokenName.Builtin_Reflector_RList => RList(token, args, context, callStack),
-            TokenName.Builtin_Reflector_RObject => RObject(token, args, callStack),
-            TokenName.Builtin_Reflector_RStack => RStack(token, args, funcStack),
-            TokenName.Builtin_Reflector_RFFlags => RFFlags(token, args, callStack),
-            TokenName.Builtin_Reflector_RRetVal => RRetVal(token, args, callStack),
-            _ => throw new InvalidOperationError(token, "Come back later."),
+            TokenName.Builtin_Reflector_RList    => RList(token, context, callStack),
+            TokenName.Builtin_Reflector_RObject  => RObject(token, callStack),
+            TokenName.Builtin_Reflector_RStack   => RStack(token, funcStack),
+            TokenName.Builtin_Reflector_RFFlags  => RFFlags(token, args, callStack),
+            TokenName.Builtin_Reflector_RRetVal  => RRetVal(token, callStack),
+            _ => throw new InvalidOperationError(token, "Unknown reflector builtin.")
         };
     }
 
     private static Value RFFlags(Token token, List<Value> args, Stack<StackFrame> callStack)
     {
         if (args.Count > 1)
-        {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RFFlags);
-        }
+            throw new ParameterCountMismatchError(token, "rfflags", 1, args.Count);
 
-        List<Value> list = [];
         int fromTop = 0;
-
         if (args.Count == 1)
         {
             fromTop = (int)ConversionOp.GetInteger(token, args[0]);
-
             if (fromTop < 0)
+                throw new InvalidOperationError(token, "rfflags: frame index must be non-negative");
+        }
+
+        var frames = callStack.ToArray(); // Top is last
+        if (fromTop >= frames.Length)
+            throw new InvalidOperationError(token, $"rfflags: only {frames.Length} frames exist");
+
+        var frame = frames[frames.Length - 1 - fromTop];
+        var flags = new List<Value>();
+
+        void AddIfSet(FrameFlags flag)
+        {
+            if (frame.IsFlagSet(flag))
             {
-                throw new InvalidOperationError(token, "Expected a positive integer for first parameter of `{ReflectorBuiltin.RFFlags}`.");
+                flags.Add(Value.CreateInteger((long)flag));
             }
         }
 
-        Stack<StackFrame> tempStack = new([.. callStack]);
+        AddIfSet(FrameFlags.Break);
+        AddIfSet(FrameFlags.InLambda);
+        AddIfSet(FrameFlags.InLoop);
+        AddIfSet(FrameFlags.InObject);
+        AddIfSet(FrameFlags.InTry);
+        AddIfSet(FrameFlags.Next);
+        AddIfSet(FrameFlags.None);
+        AddIfSet(FrameFlags.Return);
+        AddIfSet(FrameFlags.SubFrame);
 
-        if (fromTop > tempStack.Count)
+        return Value.CreateList(flags);
+    }
+
+    private static Value RRetVal(Token token, Stack<StackFrame> callStack)
+    {
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RRetVal, 0, 0);
+        return callStack.Count > 0 ? callStack.Peek().ReturnValue ?? Value.Default : Value.Default;
+    }
+
+    private static Value RList(Token token, KContext ctx, Stack<StackFrame> callStack)
+    {
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RList, 0, 0);
+
+        var result = new Dictionary<Value, Value>();
+        var packages = ctx.Packages.Keys.Select(Value.CreateString).OrderBy(v => v.GetString()).ToList();
+        var structs  = ctx.Structs.Keys.Select(Value.CreateString).OrderBy(v => v.GetString()).ToList();
+        var functions = ctx.Functions.Keys.Select(Value.CreateString).OrderBy(v => v.GetString()).ToList();
+
+        var stackFrames = new List<Value>();
+        foreach (var frame in callStack.Reverse()) // Bottom → Top
         {
-            throw new InvalidOperationError(token, $"Too many frames. Expected < {tempStack.Count} but instead received: {fromTop}");
-        }
-
-        int frameCounter = 0;
-
-        while (tempStack.Count > 0)
-        {
-            var frame = tempStack.Peek();
-
-            if (frameCounter - fromTop == 0)
+            var frameVars = new List<Value>();
+            foreach (var kv in frame.Scope.GetAllBindings().OrderBy(kv => kv.Key))
             {
-                if (frame.IsFlagSet(FrameFlags.Break))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.Break));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.InLambda))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.InLambda));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.InLoop))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.InLoop));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.InObject))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.InObject));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.InTry))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.InTry));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.Next))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.Next));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.None))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.None));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.Return));
-                }
-
-                if (frame.IsFlagSet(FrameFlags.SubFrame))
-                {
-                    list.Add(Value.CreateInteger(FrameFlags.SubFrame));
-                }
-
-                break;
+                var varMap = new Dictionary<Value, Value> { [Value.CreateString(kv.Key)] = kv.Value };
+                frameVars.Add(Value.CreateHashmap(varMap));
             }
-
-            frameCounter++;
-            tempStack.Pop();
+            var frameMap = new Dictionary<Value, Value> { [Value.CreateString("variables")] = Value.CreateList(frameVars) };
+            stackFrames.Add(Value.CreateHashmap(frameMap));
         }
 
-        return Value.CreateList(list);
+        result[Value.CreateString("packages")]  = Value.CreateList(packages);
+        result[Value.CreateString("structs")]   = Value.CreateList(structs);
+        result[Value.CreateString("functions")] = Value.CreateList(functions);
+        result[Value.CreateString("stack")]     = Value.CreateList(stackFrames);
+
+        return Value.CreateHashmap(result);
     }
 
-    private static Value RRetVal(Token token, List<Value> args, Stack<StackFrame> callStack)
+    private static Value RObject(Token token, Stack<StackFrame> callStack)
     {
-        if (args.Count != 0)
-        {
-            throw new ParameterCountMismatchError(token, ReflectorBuiltin.RRetVal, 0, args.Count);
-        }
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RObject, 0, 0);
 
-        if (callStack.Count == 0)
-        {
-            return Value.Default;
-        }
-
-        return callStack.Peek().ReturnValue ?? Value.Default;
-    }
-
-    private static Value RList(Token token, List<Value> args, KContext ctx, Stack<StackFrame> callStack)
-    {
-        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RList, 0, args.Count);
-
-        Dictionary<Value, Value> rlist = [];
-        List<Value> rlistPackages = [];
-        List<Value> rlistStructs = [];
-        List<Value> rlistFunctions = [];
-        List<Value> rlistStack = [];
-
-        var variablesKey = Value.CreateString("variables");
-        var packagesKey = Value.CreateString("packages");
-        var structsKey = Value.CreateString("structs");
-        var functionsKey = Value.CreateString("functions");
-        var stackKey = Value.CreateString("stack");
-
-        foreach (var m in ctx.Functions)
-        {
-            rlistFunctions.Add(Value.CreateString(m.Key));
-        }
-
-        foreach (var p in ctx.Packages)
-        {
-            rlistPackages.Add(Value.CreateString(p.Key));
-        }
-
-        foreach (var c in ctx.Structs)
-        {
-            rlistStructs.Add(Value.CreateString(c.Key));
-        }
-
-        Stack<StackFrame> tempStack = new ([.. callStack]);
-
-        while (tempStack.Count > 0)
-        {
-            var outerFrame = tempStack.Peek();
-            var frameVariables = outerFrame.Variables;
-
-            Dictionary<Value, Value> rlistStackFrame = [];
-            List<Value> rlistStackFrameVariables = [];
-
-            foreach (var v in frameVariables)
-            {
-                Dictionary<Value, Value> rlistStackFrameVariable = [];
-                rlistStackFrameVariable[Value.CreateString(v.Key)] = v.Value;
-                rlistStackFrameVariables.Add(Value.CreateHashmap(rlistStackFrameVariable));
-            }
-
-            rlistStackFrameVariables.Sort();
-
-            rlistStackFrame[variablesKey] = Value.CreateList(rlistStackFrameVariables);
-            rlistStack.Add(Value.CreateHashmap(rlistStackFrame));
-
-            tempStack.Pop();
-        }
-
-        rlistPackages.Sort();
-        rlistStructs.Sort();
-        rlistFunctions.Sort();
-        rlistStack.Reverse();
-
-        rlist[packagesKey] = Value.CreateList(rlistPackages);
-        rlist[structsKey] = Value.CreateList(rlistStructs);
-        rlist[functionsKey] = Value.CreateList(rlistFunctions);
-        rlist[stackKey] = Value.CreateList(rlistStack);
-
-        return Value.CreateHashmap(rlist);
-    }
-
-    private static Value RObject(Token token, List<Value> args, Stack<StackFrame> callStack)
-    {
-        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RObject, 0, args.Count);
-
-        if (callStack.Count == 0)
-        {
+        if (callStack.Count == 0 || !callStack.Peek().InObjectContext())
             return Value.EmptyString;
-        }
 
-        var frame = callStack.Peek();
-        if (frame.InObjectContext())
-        {
-            var obj = frame.GetObjectContext() ?? throw new NullObjectError(token);
-            var serializedObject = Serializer.BasicSerializeObject(obj);
-            return Value.CreateString(serializedObject);
-        }
-
-        return Value.EmptyString;
+        var obj = callStack.Peek().GetObjectContext() ?? throw new NullObjectError(token);
+        var serialized = Serializer.BasicSerializeObject(obj);
+        return Value.CreateString(serialized);
     }
 
-    private static Value RStack(Token token, List<Value> args, Stack<string> funcStack)
+    private static Value RStack(Token token, Stack<string> funcStack)
     {
-        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RStack, 0, args.Count);
+        ParameterCountMismatchError.Check(token, ReflectorBuiltin.RStack, 0, 0);
 
-        Stack<string> tempStack = new ([.. funcStack]);
-        List<Value> stackNames = [];
-
-        while (tempStack.Count > 0)
-        {
-            stackNames.Add(Value.CreateString(tempStack.Peek()));
-            tempStack.Pop();
-        }
-
-        return Value.CreateList(stackNames);
+        var names = funcStack.Reverse().Select(Value.CreateString).ToList();
+        return Value.CreateList(names);
     }
 }
