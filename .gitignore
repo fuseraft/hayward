@@ -3,3 +3,6 @@ obj/*
 /src/bin/*
 /src/obj/*
 /.vs/hayward
+debug.kiwi
+data.csv
+debug.kiwi.txt
