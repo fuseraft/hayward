@@ -10,6 +10,7 @@ public class Config
     public bool UseREPL { get; set; } = false;
     public List<string> Args { get; set; } = [];
     public List<string> Scripts { get; set; } = [];
+    public bool HasScripts => Scripts.Count > 0;
 
     public static Config Configure(IEnumerable<string> cliArgs)
     {
@@ -29,7 +30,7 @@ public class Config
             {
                 case "-i":
                 case "--interactive":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         config.UseREPL = true;
                         config.Scripts.Add(string.Empty);
@@ -42,7 +43,7 @@ public class Config
 
                 case "-s":
                 case "--settings":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         PrintSettings();
                     }
@@ -54,7 +55,7 @@ public class Config
 
                 case "-n":
                 case "--new":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         if (!iter.MoveNext())
                         {
@@ -87,7 +88,7 @@ public class Config
 
                 case "-t":
                 case "--tokens":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         var filename = GetFilename(ref iter);
                         config.Scripts.Add(filename);
@@ -101,7 +102,7 @@ public class Config
 
                 case "-a":
                 case "--ast":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         var filename = GetFilename(ref iter);
                         config.Scripts.Add(filename);
@@ -115,7 +116,7 @@ public class Config
 
                 case "-sm":
                 case "--safemode":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         Hayward.Settings.SafeMode = true;
                     }
@@ -127,7 +128,7 @@ public class Config
 
                 case "-ns":
                 case "--no-stdlib":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         Hayward.Settings.StandardLibrary.Clear();
                     }
@@ -139,7 +140,7 @@ public class Config
 
                 case "-v":
                 case "--version":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         PrintVersion();
                         Environment.Exit(0);
@@ -152,7 +153,7 @@ public class Config
 
                 case "-h":
                 case "--help":
-                    if (config.Scripts.Count == 0)
+                    if (!config.HasScripts)
                     {
                         PrintHelp();
                         Environment.Exit(0);
@@ -164,7 +165,7 @@ public class Config
                     break;
 
                 default:
-                    if (config.Scripts.Count == 0 && IsScript(ref current))
+                    if (!config.HasScripts && IsScript(ref current))
                     {
                         config.Scripts.Add(current);
                     }

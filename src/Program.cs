@@ -19,14 +19,23 @@ public class Program
         try
         {
             var config = Config.Configure(args);
-            var runner = GetRunner(config, new ScriptRunner(new()
-            {
-                CliArgs = ParseKeyValueArgs(config.Args),
-            }));
+            var runner = GetRunner(config);
 
-            foreach (var script in config.Scripts)
+            if (config.HasScripts)
             {
-                var _ = runner.Run(script, config.Args);
+                foreach (var script in config.Scripts)
+                {
+                    var _ = runner.Run(script, config.Args);
+
+                    if (exitCode != 0 && exitCode != _)
+                    {
+                        exitCode = _;
+                    }
+                }
+            }
+            else
+            {
+                var _ = runner.Run(string.Empty, config.Args);
 
                 if (exitCode != 0 && exitCode != _)
                 {
@@ -46,7 +55,7 @@ public class Program
         return exitCode;
     }
 
-    private static IRunner GetRunner(Config config, IRunner runner)
+    private static IRunner GetRunner(Config config)
     {
         if (config.PrintAST)
         {
@@ -60,8 +69,17 @@ public class Program
         {
             return new REPLRunner(new());
         }
-
-        return runner;
+        else if (config.HasScripts)
+        {
+            return new ScriptRunner(new()
+            {
+                CliArgs = ParseKeyValueArgs(config.Args),
+            });
+        }
+        return new StdInRunner(new()
+        {
+            CliArgs = ParseKeyValueArgs(config.Args),
+        });
     }
 
     /// <summary>

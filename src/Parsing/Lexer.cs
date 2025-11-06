@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.Channels;
 using hayward.Parsing.AST;
 using hayward.Parsing.Keyword;
@@ -23,6 +24,12 @@ public class Lexer : IDisposable
     {
         File = fileId;
         stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(code));
+    }
+
+    public Lexer(Stream dataStream, int fileId = 0)
+    {
+        stream = dataStream;
+        File = fileId;
     }
 
     public TokenStream GetTokenStream()
@@ -60,16 +67,12 @@ public class Lexer : IDisposable
     private Token GetToken()
     {
         SkipWhitespace();
-
         var span = CreateSpan();
-        var ch = GetChar();
 
-        if (ch == null)
+        if (GetChar() is not char c)
         {
             return CreateToken(TokenType.Eof, span, string.Empty);
         }
-
-        var c = ch.Value;
 
         if (char.IsAsciiLetter(c) || c == '_')
         {
