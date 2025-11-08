@@ -1812,15 +1812,17 @@ public class Interpreter
             parameters.Add(new(paramName, paramValue));
         }
 
-        return new(node.Clone())
+        return new KFunction(node)
         {
-            Name = name,
+            Name = node.Name,
             Parameters = parameters,
             DefaultParameters = defaultParameters,
             IsPrivate = node.IsPrivate,
             IsStatic = node.IsStatic,
+            IsCtor = node.Name == "new",
             TypeHints = node.TypeHints,
-            ReturnTypeHint = node.ReturnTypeHint
+            ReturnTypeHint = node.ReturnTypeHint,
+            CapturedScope = CallStack.Peek().Scope
         };
     }
 
@@ -2765,107 +2767,112 @@ public class Interpreter
     private Value ListLoop(ForLoopNode node, List<Value> list)
     {
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         frame.SetFlag(FrameFlags.InLoop);
 
-        var scope = frame.Scope;
-        var result = Value.Default;
-        var valueIteratorName = Id(node.ValueIterator);
-        var indexIteratorName = string.Empty;
-        var hasIndexIterator = false;
-
+        var valueName = Id(node.ValueIterator);
+        string? indexName = null;
         if (node.IndexIterator != null)
         {
-            indexIteratorName = Id(node.IndexIterator);
-            hasIndexIterator = true;
+            indexName = Id(node.IndexIterator);
         }
 
+        // Declare iterators in scope
+        scope.Declare(valueName, Value.Default);
+        if (indexName != null)
+        {
+            scope.Declare(indexName, Value.Default);
+        }
+
+        var result = Value.Default;
         var fallOut = false;
-        var iteratorValue = Value.CreateInteger(0L);
-        var iteratorIndex = Value.CreateInteger(0L);
 
-        for (var i = 0; i < list.Count; ++i)
+        try
         {
-            if (fallOut)
+            for (int i = 0; i < list.Count; i++)
             {
-                break;
-            }
-
-            iteratorValue.SetValue(list[i]);
-            scope.Assign(valueIteratorName, iteratorValue);
-
-            if (hasIndexIterator)
-            {
-                iteratorIndex.SetValue((long)i);
-                scope.Assign(indexIteratorName, iteratorIndex);
-            }
-
-            var skip = false;
-
-            foreach (var stmt in node.Body)
-            {
-                if (skip)
+                if (fallOut)
                 {
                     break;
                 }
 
-                if (stmt == null)
+                // Update iterators
+                scope.Assign(valueName, list[i]);
+                if (indexName != null)
                 {
-                    continue;
+                    scope.Assign(indexName, Value.CreateInteger(i));
                 }
 
-                ASTNodeType statement = stmt.Type;
-                if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
-                {
-                    result = Interpret(stmt);
+                var skip = false;
 
-                    if (frame.IsFlagSet(FrameFlags.Break))
+                foreach (var stmt in node.Body)
+                {
+                    if (skip)
                     {
-                        frame.ClearFlag(FrameFlags.Break);
-                        fallOut = true;
                         break;
                     }
 
-                    if (frame.IsFlagSet(FrameFlags.Next))
+                    if (stmt == null)
                     {
-                        frame.ClearFlag(FrameFlags.Next);
-                        skip = true;
+                        continue;
+                    }
+
+                    ASTNodeType statement = stmt.Type;
+                    if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
+                    {
+                        result = Interpret(stmt);
+
+                        if (frame.IsFlagSet(FrameFlags.Break))
+                        {
+                            frame.ClearFlag(FrameFlags.Break);
+                            fallOut = true;
+                            break;
+                        }
+
+                        if (frame.IsFlagSet(FrameFlags.Next))
+                        {
+                            frame.ClearFlag(FrameFlags.Next);
+                            skip = true;
+                            break;
+                        }
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
                         break;
                     }
-                }
 
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    break;
-                }
-
-                if (statement == ASTNodeType.Next)
-                {
-                    var condition = ((NextNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    if (statement == ASTNodeType.Next)
                     {
-                        skip = true;
-                        break;
+                        var condition = ((NextNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            skip = true;
+                            break;
+                        }
                     }
-                }
-                else if (statement == ASTNodeType.Break)
-                {
-                    var condition = ((BreakNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    else if (statement == ASTNodeType.Break)
                     {
-                        fallOut = true;
-                        break;
+                        var condition = ((BreakNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            fallOut = true;
+                            break;
+                        }
                     }
                 }
             }
         }
-
-        scope.Remove(valueIteratorName);
-        if (hasIndexIterator)
+        finally
         {
-            scope.Remove(indexIteratorName);
-        }
+            scope.Remove(valueName);
+            if (indexName != null)
+            {
+                scope.Remove(indexName);
+            }
 
-        frame.ClearFlag(FrameFlags.InLoop);
+            frame.ClearFlag(FrameFlags.InLoop);
+        }
 
         return result;
     }
@@ -2873,103 +2880,109 @@ public class Interpreter
     private Value HashmapLoop(ForLoopNode node, Dictionary<Value, Value> hash)
     {
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         frame.SetFlag(FrameFlags.InLoop);
 
-        var scope = frame.Scope;
-        var indexIteratorName = string.Empty;
-        var hasIndexIterator = false;
-
-        string? valueIteratorName = Id(node.ValueIterator);
-
+        var keyName = Id(node.ValueIterator);
+        string? valueName = null;
         if (node.IndexIterator != null)
         {
-            indexIteratorName = Id(node.IndexIterator);
-            hasIndexIterator = true;
+            valueName = Id(node.IndexIterator);
         }
 
-        var fallOut = false;
+        scope.Declare(keyName, Value.Default);
+        if (valueName != null)
+        {
+            scope.Declare(valueName, Value.Default);            
+        }
+
         var result = Value.Default;
+        var fallOut = false;
 
-        foreach (var key in hash.Keys)
+        try
         {
-            if (fallOut)
+            foreach (var kvp in hash)
             {
-                break;
-            }
-
-            scope.Assign(valueIteratorName, key);
-
-            if (hasIndexIterator)
-            {
-                scope.Assign(indexIteratorName, hash[key]);
-            }
-
-            var skip = false;
-
-            foreach (var stmt in node.Body)
-            {
-                if (skip)
+                if (fallOut)
                 {
                     break;
                 }
-
-                if (stmt == null)
+                
+                scope.Assign(keyName, kvp.Key);
+                if (valueName != null)
                 {
-                    continue;
+                    scope.Assign(valueName, kvp.Value);
                 }
 
-                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
-                {
-                    result = Interpret(stmt);
+                var skip = false;
 
-                    if (frame.IsFlagSet(FrameFlags.Break))
+                foreach (var stmt in node.Body)
+                {
+                    if (skip)
                     {
-                        frame.ClearFlag(FrameFlags.Break);
-                        fallOut = true;
                         break;
                     }
 
-                    if (frame.IsFlagSet(FrameFlags.Next))
+                    if (stmt == null)
                     {
-                        frame.ClearFlag(FrameFlags.Next);
-                        skip = true;
+                        continue;
+                    }
+
+                    if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                    {
+                        result = Interpret(stmt);
+
+                        if (frame.IsFlagSet(FrameFlags.Break))
+                        {
+                            frame.ClearFlag(FrameFlags.Break);
+                            fallOut = true;
+                            break;
+                        }
+
+                        if (frame.IsFlagSet(FrameFlags.Next))
+                        {
+                            frame.ClearFlag(FrameFlags.Next);
+                            skip = true;
+                            break;
+                        }
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
                         break;
                     }
-                }
 
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    break;
-                }
-
-                if (stmt.Type == ASTNodeType.Next)
-                {
-                    var condition = ((NextNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    if (stmt.Type == ASTNodeType.Next)
                     {
-                        skip = true;
-                        break;
+                        var condition = ((NextNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            skip = true;
+                            break;
+                        }
                     }
-                }
-                else if (stmt.Type == ASTNodeType.Break)
-                {
-                    var condition = ((BreakNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    else if (stmt.Type == ASTNodeType.Break)
                     {
-                        fallOut = true;
-                        break;
+                        var condition = ((BreakNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            fallOut = true;
+                            break;
+                        }
                     }
                 }
             }
         }
-
-        scope.Remove(valueIteratorName);
-        if (hasIndexIterator)
+        finally
         {
-            scope.Remove(indexIteratorName);
-        }
 
-        frame.ClearFlag(FrameFlags.InLoop);
+            scope.Remove(keyName);
+            if (valueName != null)
+            {
+                scope.Remove(valueName);
+            }
+            frame.ClearFlag(FrameFlags.InLoop);
+        }
 
         return result;
     }
