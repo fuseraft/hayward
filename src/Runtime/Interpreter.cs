@@ -117,10 +117,10 @@ public class Interpreter
         // This is the program root
         if (node.IsEntryPoint)
         {
-            _globalScope.Declare("global", Value.CreateHashmap());
+            PushFrame("hayward", _globalScope);
 
-            StackFrame programFrame = new("hayward", _globalScope);
-            PushFrame(programFrame);
+            // Add the "global" hashmap.
+            _globalScope.Declare("global", Value.CreateHashmap());
         }
 
         var result = Value.Default;
@@ -137,7 +137,7 @@ public class Interpreter
 
         return Value.Default;
     }
-
+    
     private Value Visit(SelfNode node)
     {
         var frame = CallStack.Peek();
@@ -565,31 +565,59 @@ public class Interpreter
 
     private Value Visit(MemberAssignmentNode node)
     {
-        var obj = Interpret(node.Object);
+        var target = node.Object;
         var memberName = node.MemberName;
-        var initializer = Interpret(node.Initializer);
+        var key = Value.CreateString(memberName);
+        var newValue = Interpret(node.Initializer);
 
-        if (obj.IsHashmap())
+        if (target?.Type == ASTNodeType.Identifier)
         {
-            var hash = obj.GetHashmap();
-            var memberKey = Value.CreateString(memberName);
+            var varName = ((IdentifierNode)target).Name;
+            var frame = CallStack.Peek();
+            var scope = frame.Scope;
 
-            if (node.Op == TokenName.Ops_Assign)
+            if (!scope.TryGet(varName, out var container))
             {
-                hash[memberKey] = initializer;
+                throw new VariableUndefinedError(node.Token, varName);
             }
-            else if (hash.TryGetValue(memberKey, out Value? value))
-            {
-                var newValue = OpDispatch.DoBinary(node.Token, node.Op, ref value, ref initializer);
-                hash[memberKey] = newValue;
-            }
-            else
-            {
-                throw new HashKeyError(node.Token, memberName);
-            }
+
+            ApplyMemberAssignment(node.Token, ref container, key, node.Op, ref newValue);
+            scope.Assign(varName, container);
+        }
+        else
+        {
+            var container = Interpret(target);
+            ApplyMemberAssignment(node.Token, ref container, key, node.Op, ref newValue);
         }
 
         return Value.Default;
+    }
+
+    private void ApplyMemberAssignment(Token token, ref Value container, Value key, TokenName op, ref Value newValue)
+    {
+        if (!container.IsHashmap())
+        {
+            throw new TypeError(token, $"Cannot assign to member of type {container.Type}");
+        }
+
+        var dict = container.GetHashmap();
+
+        if (op == TokenName.Ops_Assign)
+        {
+            dict[key] = newValue;
+        }
+        else
+        {
+            if (!dict.TryGetValue(key, out var oldValue))
+            {
+                throw new HashKeyError(token, Serializer.Serialize(key));
+            }
+
+            dict[key] = OpDispatch.DoBinary(token, op, ref oldValue, ref newValue);
+        }
+
+        // Update container (in case of future write-back)
+        container = Value.CreateHashmap(dict);
     }
 
     private Value Visit(PackAssignmentNode node)
@@ -3393,6 +3421,38 @@ public class Interpreter
         }
 
         return Value.CreateList(resultList);
+    }
+
+    private void PushFrame(string name, Scope scope, bool inLambda = false)
+    {
+        var frame = new StackFrame(name, scope);
+        
+        if (inLambda)
+        {
+            frame.SetFlag(FrameFlags.InLambda);
+        }
+
+        CallStack.Push(frame);
+        FuncStack.Push(name);
+    }
+
+    private Value PopFrame()
+    {
+        if (CallStack.Count == 0)
+        {
+            return Value.Default;
+        }
+
+        var frame = CallStack.Pop();
+        FuncStack.Pop();
+
+        var ret = frame.ReturnValue ?? Value.Default;
+        if (CallStack.Count > 0)
+        {
+            CallStack.Peek().ReturnValue = ret;
+        }
+
+        return ret;
     }
 
     private bool PushFrame(StackFrame frame)
