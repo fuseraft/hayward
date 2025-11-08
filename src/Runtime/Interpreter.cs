@@ -117,10 +117,10 @@ public class Interpreter
         // This is the program root
         if (node.IsEntryPoint)
         {
-            _globalScope.Declare("global", Value.CreateHashmap());
+            PushFrame("hayward", _globalScope);
 
-            StackFrame programFrame = new("hayward", _globalScope);
-            PushFrame(programFrame);
+            // Add the "global" hashmap.
+            _globalScope.Declare("global", Value.CreateHashmap());
         }
 
         var result = Value.Default;
@@ -137,7 +137,7 @@ public class Interpreter
 
         return Value.Default;
     }
-
+    
     private Value Visit(SelfNode node)
     {
         var frame = CallStack.Peek();
@@ -565,81 +565,93 @@ public class Interpreter
 
     private Value Visit(MemberAssignmentNode node)
     {
-        var obj = Interpret(node.Object);
+        var target = node.Object;
         var memberName = node.MemberName;
-        var initializer = Interpret(node.Initializer);
+        var key = Value.CreateString(memberName);
+        var newValue = Interpret(node.Initializer);
 
-        if (obj.IsHashmap())
+        if (target?.Type == ASTNodeType.Identifier)
         {
-            var hash = obj.GetHashmap();
-            var memberKey = Value.CreateString(memberName);
+            var varName = Id(target);
+            var frame = CallStack.Peek();
+            var scope = frame.Scope;
 
-            if (node.Op == TokenName.Ops_Assign)
+            if (!scope.TryGet(varName, out var container))
             {
-                hash[memberKey] = initializer;
+                throw new VariableUndefinedError(node.Token, varName);
             }
-            else if (hash.TryGetValue(memberKey, out Value? value))
-            {
-                var newValue = OpDispatch.DoBinary(node.Token, node.Op, ref value, ref initializer);
-                hash[memberKey] = newValue;
-            }
-            else
-            {
-                throw new HashKeyError(node.Token, memberName);
-            }
+
+            ApplyMemberAssignment(node.Token, ref container, key, node.Op, ref newValue);
+            scope.Assign(varName, container);
+        }
+        else
+        {
+            var container = Interpret(target);
+            ApplyMemberAssignment(node.Token, ref container, key, node.Op, ref newValue);
         }
 
         return Value.Default;
     }
 
+    private void ApplyMemberAssignment(Token token, ref Value container, Value key, TokenName op, ref Value newValue)
+    {
+        if (!container.IsHashmap())
+        {
+            throw new TypeError(token, $"Cannot assign to member of type {container.Type}");
+        }
+
+        var dict = container.GetHashmap();
+
+        if (op == TokenName.Ops_Assign)
+        {
+            dict[key] = newValue;
+        }
+        else
+        {
+            if (!dict.TryGetValue(key, out var oldValue))
+            {
+                throw new HashKeyError(token, Serializer.Serialize(key));
+            }
+
+            dict[key] = OpDispatch.DoBinary(token, op, ref oldValue, ref newValue);
+        }
+
+        // Update container (in case of future write-back)
+        container = Value.CreateHashmap(dict);
+    }
+
     private Value Visit(PackAssignmentNode node)
     {
-        var scope = CallStack.Peek().Scope;
+        var frame = CallStack.Peek();
+        var scope = frame.Scope;
 
-        List<Value> rhsValues = [];
-        foreach (var rhs in node.Right)
+        // Evaluate RHS
+        var rhsValues = node.Right.Select(Interpret).ToList();
+
+        // Unpack if RHS is a single list
+        if (rhsValues.Count == 1 && rhsValues[0].IsList())
         {
-            rhsValues.Add(Interpret(rhs));
+            rhsValues = rhsValues[0].GetList();
         }
 
-        var rhsPosition = 0;
-        var lhsLength = node.Left.Count;
+        var lhsCount = node.Left.Count;
+        var rhsCount = rhsValues.Count;
 
-        // unpack
-        if (rhsValues.Count == 1)
+        // Assign to each LHS identifier
+        for (int i = 0; i < lhsCount; i++)
         {
-            List<Value> unpacked = [];
-            var rhsValue = rhsValues.First();
-            if (!rhsValue.IsList())
+            var lhs = node.Left[i];
+            if (lhs == null) continue;
+
+            if (lhs.Type != ASTNodeType.Identifier)
             {
-                throw new InvalidOperationError(node.Token, "Expected a list to unpack.");
+                throw new SyntaxError(node.Token, "Left side of pack assignment must be identifier");
             }
 
-            foreach (var rhs in rhsValue.GetList())
-            {
-                unpacked.Add(rhs);
-            }
+            var name = Id(lhs);
+            var value = i < rhsCount ? rhsValues[i] : Value.CreateNull();
 
-            rhsValues.Clear();
-            rhsValues = unpacked;
-        }
-
-        foreach (var lhs in node.Left)
-        {
-            if (lhs == null)
-            {
-                continue;
-            }
-
-            var identifierName = Id(lhs);
-            if (rhsValues.Count == lhsLength)
-            {
-                scope.Assign(identifierName, rhsValues[rhsPosition++]);
-            }
-            else
-            {
-                scope.Assign(identifierName, Value.CreateNull());
-            }
+            scope.Assign(name, value);
         }
 
         return Value.Default;
@@ -756,81 +768,166 @@ public class Interpreter
         {
             return Context.Constants[name];
         }
+        else if (_globalScope.TryGet(node.Name, out val))
+        {
+            return val;
+        }
 
         return Value.CreateNull();
     }
 
-    private string PrintObject(Token token, Value? value)
+    private void BindParameters(Callable callable, List<Value> args, Token token, string name, Scope scope)
     {
-        if (value == null)
+        for (int i = 0; i < callable.Parameters.Count; i++)
         {
-            return string.Empty;
+            var param = callable.Parameters[i];
+            var argValue = i < args.Count ? args[i] :
+                        callable.DefaultParameters.Contains(param.Key) ? param.Value :
+                        throw new ParameterCountMismatchError(token, name, callable.Parameters.Count, args.Count);
+
+            // Type hint check
+            if (callable.TypeHints.TryGetValue(param.Key, out var hint) &&
+                !Serializer.AssertTypematch(argValue, hint))
+            {
+                throw new TypeError(token,
+                    $"Parameter {i + 1} of `{name}` expected `{Serializer.GetTypenameString(hint)}`, " +
+                    $"got `{Serializer.GetTypenameString(argValue)}`.");
+            }
+
+            // Lambda mapping
+            if (argValue.IsLambda())
+            {
+                Context.AddMappedLambda(param.Key, argValue.GetLambda().Identifier);
+            }
+
+            scope.Declare(param.Key, argValue);
+        }
+    }
+    
+    private Value ExecuteBody(List<ASTNode?> body, StackFrame frame)
+    {
+        var result = Value.Default;
+        foreach (var stmt in body)
+        {
+            if (stmt == null)
+            {
+                continue;
+            }
+
+            if (stmt.Type == ASTNodeType.Next || stmt.Type == ASTNodeType.Break)
+            {
+                continue;
+            }
+
+            result = Interpret(stmt);
+
+            if (frame.IsFlagSet(FrameFlags.Return))
+            {
+                break;
+            }
+        }
+        
+        return result;
+    }
+
+    private Value InvokeCallable(Callable callable, List<ASTNode?> argNodes, Token token, string displayName, InstanceRef? instance = null)
+    {
+        var args = argNodes.Select(Interpret).ToList();
+        var scope = new Scope(callable.CapturedScope ?? _globalScope);
+        var frame = new StackFrame(displayName, scope);
+
+        BindParameters(callable, args, token, displayName, scope);
+
+        // Set object context for methods
+        if (instance != null)
+        {
+            frame.SetObjectContext(instance);
         }
 
-        var obj = value.GetObject();
-        var func = GetObjectMethod(obj, CoreBuiltin.ToS);
+        PushFrame(displayName, scope, callable is KLambda);
+        if (callable is KLambda)
+        {
+            frame.SetFlag(FrameFlags.InLambda);
+        }
 
-        if (func == null)
+        try
+        {
+            var body = callable switch
+            {
+                KFunction f => f.Decl.Body,
+                KLambda l => l.Decl.Body,
+                _ => throw new NotSupportedException()
+            };
+
+            var result = ExecuteBody(body, frame);
+
+            // Validate return type
+            if (!Serializer.AssertTypematch(result, callable.ReturnTypeHint))
+            {
+                throw new TypeError(token,
+                    $"Expected `{Serializer.GetTypenameString(callable.ReturnTypeHint)}` " +
+                    $"from `{displayName}` but got `{Serializer.GetTypenameString(result)}`.");
+            }
+
+            return result;
+        }
+        finally
+        {
+            PopFrame();
+        }
+    }
+
+    private string PrintObject(Token token, Value value)
+    {
+        if (!value.IsObject())
+        {
+            return Serializer.Serialize(value);
+        }
+
+        var instance = value.GetObject();
+        var method = GetObjectMethod(instance, CoreBuiltin.ToS);
+        if (method == null)
         {
             return Serializer.Serialize(value);
         }
 
         var frame = CallStack.Peek();
-        var oldObjContext = frame.GetObjectContext();
-        var contextSwitch = false;
+        var oldContext = frame.GetObjectContext();
+        var hadContext = frame.InObjectContext();
 
-        if (frame.InObjectContext())
+        frame.SetObjectContext(instance);
+
+        try
         {
-            contextSwitch = true;
+            var result = InvokeCallable(method, [], token, $"{instance.StructName}#{CoreBuiltin.ToS}", instance);
+            return Serializer.Serialize(result);
         }
-
-        frame.SetObjectContext(obj);
-
-        var result = CallFunction(func, [], token, CoreBuiltin.ToS);
-
-        if (contextSwitch)
+        finally
         {
-            frame.SetObjectContext(oldObjContext);
+            if (hadContext)
+            {
+                frame.SetObjectContext(oldContext);
+            }
+            else
+            {
+                frame.ClearFlag(FrameFlags.InObject);    
+            }
         }
-
-        return Serializer.Serialize(result);
     }
-
+    
     private Value Visit(PrintNode node)
     {
         var value = Interpret(node.Expression);
-        string? serializedValue;
+        var text = value.IsObject() ? PrintObject(node.Token, value) : Serializer.Serialize(value);
 
-        if (value.IsObject())
+        var writer = node.PrintStdError ? Console.Error : Console.Out;
+        if (node.PrintNewline)
         {
-            serializedValue = PrintObject(node.Token, value);
+            writer.WriteLine(text);
         }
         else
         {
-            serializedValue = Serializer.Serialize(value);
-        }
-
-        if (node.PrintStdError)
-        {
-            if (node.PrintNewline)
-            {
-                Console.Error.WriteLine(serializedValue);
-            }
-            else
-            {
-                Console.Error.Write(serializedValue);
-            }
-        }
-        else
-        {
-            if (node.PrintNewline)
-            {
-                Console.WriteLine(serializedValue);
-            }
-            else
-            {
-                Console.Write(serializedValue);
-            }
+            writer.Write(text);
         }
 
         return Value.Default;
@@ -1123,108 +1220,98 @@ public class Interpreter
     private Value Visit(RepeatLoopNode node)
     {
         var countValue = Interpret(node.Count);
-
         if (!countValue.IsInteger())
         {
             throw new InvalidOperationError(node.Token, "Repeat loop count must be an integer.");
         }
 
-        var count = countValue.GetInteger();
-        var aliasName = string.Empty;
+        var count = (int)countValue.GetInteger();
+        var frame = CallStack.Peek();
+        var scope = frame.Scope;
         var result = Value.Default;
-        var aliasValue = Value.Default;
-        var hasAlias = false;
 
+        string? aliasName = null;
         if (node.Alias != null)
         {
             aliasName = Id(node.Alias);
-            hasAlias = true;
+            scope.Declare(aliasName, Value.Default); // Will be updated each iteration
         }
 
-        var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
-        var scope = frame.Scope;
 
-        var fallOut = false;
-        for (var i = 1; i <= count; ++i)
+        try
         {
-            if (fallOut)
+            for (int i = 1; i <= count; i++)
             {
-                break;
-            }
-
-            if (hasAlias)
-            {
-                aliasValue.SetValue(i);
-                scope.Assign(aliasName, aliasValue);
-            }
-
-            var skip = false;
-
-            foreach (var stmt in node.Body)
-            {
-                if (skip)
+                // Update loop alias (e.g., `i` in `repeat 5 as i`)
+                if (aliasName != null)
                 {
-                    break;
+                    scope.Assign(aliasName, Value.CreateInteger(i));
                 }
 
-                if (stmt == null)
-                {
-                    continue;
-                }
-
-                var statement = stmt.Type;
-                if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
-                {
-                    result = Interpret(stmt);
-
-                    if (frame.IsFlagSet(FrameFlags.Break))
-                    {
-                        frame.ClearFlag(FrameFlags.Break);
-                        fallOut = true;
-                        break;
-                    }
-
-                    if (frame.IsFlagSet(FrameFlags.Next))
-                    {
-                        frame.ClearFlag(FrameFlags.Next);
-                        skip = true;
-                        break;
-                    }
-                }
-
+                result = ExecuteLoopBody(node.Body, frame);
                 if (frame.IsFlagSet(FrameFlags.Return))
                 {
                     break;
                 }
-
-                if (statement == ASTNodeType.Next)
-                {
-                    var condition = ((NextNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
-                    {
-                        skip = true;
-                        break;
-                    }
-                }
-                else if (statement == ASTNodeType.Break)
-                {
-                    var condition = ((BreakNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
-                    {
-                        fallOut = true;
-                        break;
-                    }
-                }
+            }
+        }
+        finally
+        {
+            frame.ClearFlag(FrameFlags.InLoop);
+            if (aliasName != null)
+            {
+                scope.Assign(aliasName, Value.Default); // Optional: clean up
             }
         }
 
-        if (hasAlias)
+        return result;
+    }
+
+    private Value ExecuteLoopBody(List<ASTNode?> body, StackFrame frame)
+    {
+        var result = Value.Default;
+
+        foreach (var stmt in body)
         {
-            scope.Remove(aliasName);
+            if (stmt == null) continue;
+
+            if (stmt.Type == ASTNodeType.Next)
+            {
+                var next = (NextNode)stmt;
+                if (next.Condition == null || BooleanOp.IsTruthy(Interpret(next.Condition)))
+                {
+                    frame.SetFlag(FrameFlags.Next);
+                    break;
+                }
+            }
+            else if (stmt.Type == ASTNodeType.Break)
+            {
+                var brk = (BreakNode)stmt;
+                if (brk.Condition == null || BooleanOp.IsTruthy(Interpret(brk.Condition)))
+                {
+                    frame.SetFlag(FrameFlags.Break);
+                    break;
+                }
+            }
+            else
+            {
+                result = Interpret(stmt);
+            }
+
+            if (frame.IsFlagSet(FrameFlags.Return) ||
+                frame.IsFlagSet(FrameFlags.Break) ||
+                frame.IsFlagSet(FrameFlags.Next))
+            {
+                break;
+            }
         }
 
-        frame.ClearFlag(FrameFlags.InLoop);
+        // Clear Next flag for next iteration
+        if (frame.IsFlagSet(FrameFlags.Next))
+        {
+            frame.ClearFlag(FrameFlags.Next);
+        }
 
         return result;
     }
@@ -1255,129 +1342,93 @@ public class Interpreter
 
     private Value Visit(TryNode node)
     {
-        var returnValue = Value.Default;
-        var requireDrop = false;
+        Value result = Value.Default;
+        var tryName = $"try-{Guid.NewGuid()}";
         var setReturnValue = false;
 
         try
         {
-            var tryFrame = CreateFrame("try");
+            var tryFrame = PushFrame(tryName, new Scope(CallStack.Peek().Scope));
             tryFrame.SetFlag(FrameFlags.InTry);
-            requireDrop = PushFrame(tryFrame);
 
-            foreach (var stmt in node.TryBody)
+            result = ExecuteBody(node.TryBody, tryFrame);
+            if (tryFrame.IsFlagSet(FrameFlags.Return))
             {
-                Interpret(stmt);
-                if (tryFrame.IsFlagSet(FrameFlags.Return))
-                {
-                    returnValue = tryFrame.ReturnValue ?? returnValue;
-                    setReturnValue = true;
-                    break;
-                }
+                result = tryFrame.ReturnValue ?? result;
+                setReturnValue = true;
             }
 
-            DropFrame();
+            PopFrame();
         }
         catch (HaywardError e)
         {
-            if (requireDrop)
+            // Ensure try frame is cleaned up
+            if (CallStack.Count > 0 && CallStack.Peek().Name == tryName)
             {
-                DropFrame();
+                PopFrame();
             }
 
             if (node.CatchBody.Count > 0)
             {
-                var catchFrame = CreateFrame("catch");
-                var catchScope = catchFrame.Scope;
-                requireDrop = false;
+                var catchScope = new Scope(CallStack.Peek().Scope);
+                var catchFrame = PushFrame("catch", catchScope);
 
-                var errorTypeName = string.Empty;
-                var errorMessageName = string.Empty;
-
-                try
+                if (node.ErrorType != null)
                 {
-                    if (node.ErrorType != null)
-                    {
-                        errorTypeName = Id(node.ErrorType);
-                        catchScope.Declare(errorTypeName, Value.CreateString(e.Type));
-                    }
-
-                    if (node.ErrorMessage != null)
-                    {
-                        errorMessageName = Id(node.ErrorMessage);
-                        catchScope.Declare(errorMessageName, Value.CreateString(e.Message));
-                    }
-
-                    requireDrop = PushFrame(catchFrame);
-
-                    foreach (var stmt in node.CatchBody)
-                    {
-                        Interpret(stmt);
-                        if (catchFrame.IsFlagSet(FrameFlags.Return))
-                        {
-                            returnValue = catchFrame.ReturnValue ?? returnValue;
-                            setReturnValue = true;
-                            break;
-                        }
-                    }
-
-                    if (node.ErrorType != null)
-                    {
-                        catchScope.Remove(errorTypeName);
-                    }
-
-                    if (node.ErrorMessage != null)
-                    {
-                        catchScope.Remove(errorMessageName);
-                    }
-
-                    DropFrame();
+                    var typeName = Id(node.ErrorType);
+                    catchScope.Declare(typeName, Value.CreateString(e.Type));
                 }
-                catch (HaywardError)
+                if (node.ErrorMessage != null)
                 {
-                    if (requireDrop && InTry())
-                    {
-                        DropFrame();
-                    }
-                    throw;
+                    var msgName = Id(node.ErrorMessage);
+                    catchScope.Declare(msgName, Value.CreateString(e.Message));
                 }
+
+                result = ExecuteBody(node.CatchBody, catchFrame);
+                if (catchFrame.IsFlagSet(FrameFlags.Return))
+                {
+                    result = catchFrame.ReturnValue ?? result;
+                    setReturnValue = true;
+                }
+                PopFrame();
+            }
+            else if (node.FinallyBody.Count == 0)
+            {
+                throw; // Re-throw if no finally-block
             }
         }
 
         if (node.FinallyBody.Count > 0)
         {
-            var frame = CallStack.Peek();
-            foreach (var stmt in node.FinallyBody)
+            var finallyResult = ExecuteBody(node.FinallyBody, CallStack.Peek());
+            if (CallStack.Peek().IsFlagSet(FrameFlags.Return))
             {
-                Interpret(stmt);
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    returnValue = frame.ReturnValue ?? returnValue;
-                    setReturnValue = true;
-                    break;
-                }
+                result = CallStack.Peek().ReturnValue ?? finallyResult;
+                setReturnValue = true;
+            }
+            else
+            {
+                result = finallyResult;    
             }
         }
 
         if (setReturnValue)
         {
             var frame = CallStack.Peek();
-
             if (!frame.IsFlagSet(FrameFlags.InLambda))
             {
                 frame.SetFlag(FrameFlags.Return);
-                frame.ReturnValue = returnValue;
+                frame.ReturnValue = result;
             }
         }
 
-        return returnValue;
+        return result;
     }
 
     private Value Visit(LambdaNode node)
     {
         List<KeyValuePair<string, Value>> parameters = [];
         HashSet<string> defaultParameters = [];
-        var tmpId = GetTemporaryId();
 
         foreach (var pair in node.Parameters)
         {
@@ -1393,17 +1444,19 @@ public class Interpreter
             parameters.Add(new(paramName, paramValue));
         }
 
-        Context.Lambdas[tmpId] = new(node.Clone())
+        var internalName = $"<lambda_{Context.Lambdas.Count}>";
+        Context.Lambdas[internalName] = new KLambda(node)
         {
             Parameters = parameters,
             DefaultParameters = defaultParameters,
             TypeHints = node.TypeHints,
-            ReturnTypeHint = node.ReturnTypeHint
+            ReturnTypeHint = node.ReturnTypeHint,
+            CapturedScope = CallStack.Peek().Scope
         };
+        
+        Context.AddMappedLambda(node.Token.Text, internalName);
 
-        Context.AddMappedLambda(tmpId, tmpId);
-
-        return Value.CreateLambda(new LambdaRef { Identifier = tmpId });
+        return Value.CreateLambda(new LambdaRef { Identifier = internalName });
     }
 
     private Value Visit(FunctionNode node)
@@ -1522,18 +1575,18 @@ public class Interpreter
         var nodeValue = Interpret(node.LambdaNode);
         var lambdaName = nodeValue.GetLambda().Identifier;
         var result = Value.Default;
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
-            result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
-            DropFrame();
+            result = CallLambda(node.Token, lambdaName, node.Arguments, ref doPop);
+            PopFrame();
         }
         catch (HaywardError)
         {
-            if (requireDrop && InTry())
+            if (doPop && InTry())
             {
-                DropFrame();
+                PopFrame();
             }
             throw;
         }
@@ -1545,7 +1598,7 @@ public class Interpreter
     {
         var result = Value.Default;
         var callableType = GetCallable(node.Token, node.FunctionName);
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
@@ -1556,28 +1609,29 @@ public class Interpreter
                     break;
 
                 case CallableType.Method:
-                    result = ExecuteInstanceMethod(node, ref requireDrop);
+                    result = ExecuteInstanceMethod(node, ref doPop);
                     break;
 
                 case CallableType.Function:
-                    result = CallFunction(node, ref requireDrop);
+                    result = CallFunction(node);
+                    doPop = true;
                     break;
 
                 case CallableType.Lambda:
-                    result = CallLambda(node.Token, node.FunctionName, node.Arguments, ref requireDrop);
+                    result = CallLambda(node.Token, node.FunctionName, node.Arguments, ref doPop);
                     break;
             }
 
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
         }
         catch (HaywardError)
         {
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
 
             throw;
@@ -1759,15 +1813,17 @@ public class Interpreter
             parameters.Add(new(paramName, paramValue));
         }
 
-        return new(node.Clone())
+        return new KFunction(node)
         {
-            Name = name,
+            Name = node.Name,
             Parameters = parameters,
             DefaultParameters = defaultParameters,
             IsPrivate = node.IsPrivate,
             IsStatic = node.IsStatic,
+            IsCtor = node.Name == "new",
             TypeHints = node.TypeHints,
-            ReturnTypeHint = node.ReturnTypeHint
+            ReturnTypeHint = node.ReturnTypeHint,
+            CapturedScope = CallStack.Peek().Scope
         };
     }
 
@@ -2182,19 +2238,17 @@ public class Interpreter
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
     }
 
-    private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
+    private Value CallFunction(FunctionCallNode node)
     {
         var functionName = node.FunctionName;
         var func = Context.Functions[functionName];
         var typeHints = func.TypeHints;
         var returnTypeHint = func.ReturnTypeHint;
         var defaultParameters = func.DefaultParameters;
-        var functionFrame = CreateFrame(functionName);
+        var functionFrame = PushFrame(functionName, CallStack.Peek().Scope);
         var result = Value.Default;
 
         PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
-
-        requireDrop = PushFrame(functionFrame);
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2225,22 +2279,22 @@ public class Interpreter
         var returnTypeHint = function.ReturnTypeHint;
 
         var result = Value.Default;
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
             ProcessFunctionParameters(function, args, token, functionName, defaultParameters, scope, typeHints);
 
-            requireDrop = PushFrame(functionFrame);
+            doPop = PushFrame(functionFrame);
             result = ExecuteFunctionBody(function);
 
-            DropFrame();
+            PopFrame();
         }
         catch (HaywardError)
         {
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
             throw;
         }
@@ -2277,10 +2331,10 @@ public class Interpreter
         }
     }
 
-    private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool requireDrop)
+    private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool doPop)
     {
-        var lambdaFrame = CreateFrame(lambdaName);
-        var scope = lambdaFrame.Scope;
+        var scope = new Scope(CallStack.Peek().Scope);
+        var lambdaFrame = PushFrame(lambdaName, scope, true);
         var targetLambda = lambdaName;
         var result = Value.Default;
 
@@ -2302,7 +2356,7 @@ public class Interpreter
         PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, scope);
 
         lambdaFrame.SetFlag(FrameFlags.InLambda);
-        requireDrop = PushFrame(lambdaFrame);
+        doPop = true;
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2527,7 +2581,7 @@ public class Interpreter
         return result;
     }
 
-    private Value ExecuteInstanceMethod(FunctionCallNode node, ref bool requireDrop)
+    private Value ExecuteInstanceMethod(FunctionCallNode node, ref bool doPop)
     {
         var frame = CallStack.Peek();
         if (!frame.InObjectContext())
@@ -2556,13 +2610,13 @@ public class Interpreter
                 throw new UnimplementedMethodError(node.Token, struc.Name, functionName);
             }
 
-            return ExecuteInstanceMethodFunction(baseStructMethods, node, ref requireDrop);
+            return ExecuteInstanceMethodFunction(baseStructMethods, node, ref doPop);
         }
 
-        return ExecuteInstanceMethodFunction(strucMethods, node, ref requireDrop);
+        return ExecuteInstanceMethodFunction(strucMethods, node, ref doPop);
     }
 
-    private Value ExecuteInstanceMethodFunction(Dictionary<string, KFunction> strucMethods, FunctionCallNode node, ref bool requireDrop)
+    private Value ExecuteInstanceMethodFunction(Dictionary<string, KFunction> strucMethods, FunctionCallNode node, ref bool doPop)
     {
         var functionName = node.FunctionName;
         var func = strucMethods[functionName];
@@ -2575,7 +2629,7 @@ public class Interpreter
 
         PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
 
-        requireDrop = PushFrame(functionFrame);
+        doPop = PushFrame(functionFrame);
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2712,107 +2766,112 @@ public class Interpreter
     private Value ListLoop(ForLoopNode node, List<Value> list)
     {
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         frame.SetFlag(FrameFlags.InLoop);
 
-        var scope = frame.Scope;
-        var result = Value.Default;
-        var valueIteratorName = Id(node.ValueIterator);
-        var indexIteratorName = string.Empty;
-        var hasIndexIterator = false;
-
+        var valueName = Id(node.ValueIterator);
+        string? indexName = null;
         if (node.IndexIterator != null)
         {
-            indexIteratorName = Id(node.IndexIterator);
-            hasIndexIterator = true;
+            indexName = Id(node.IndexIterator);
         }
 
+        // Declare iterators in scope
+        scope.Declare(valueName, Value.Default);
+        if (indexName != null)
+        {
+            scope.Declare(indexName, Value.Default);
+        }
+
+        var result = Value.Default;
         var fallOut = false;
-        var iteratorValue = Value.CreateInteger(0L);
-        var iteratorIndex = Value.CreateInteger(0L);
 
-        for (var i = 0; i < list.Count; ++i)
+        try
         {
-            if (fallOut)
+            for (int i = 0; i < list.Count; i++)
             {
-                break;
-            }
-
-            iteratorValue.SetValue(list[i]);
-            scope.Assign(valueIteratorName, iteratorValue);
-
-            if (hasIndexIterator)
-            {
-                iteratorIndex.SetValue((long)i);
-                scope.Assign(indexIteratorName, iteratorIndex);
-            }
-
-            var skip = false;
-
-            foreach (var stmt in node.Body)
-            {
-                if (skip)
+                if (fallOut)
                 {
                     break;
                 }
 
-                if (stmt == null)
+                // Update iterators
+                scope.Assign(valueName, list[i]);
+                if (indexName != null)
                 {
-                    continue;
+                    scope.Assign(indexName, Value.CreateInteger(i));
                 }
 
-                ASTNodeType statement = stmt.Type;
-                if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
-                {
-                    result = Interpret(stmt);
+                var skip = false;
 
-                    if (frame.IsFlagSet(FrameFlags.Break))
+                foreach (var stmt in node.Body)
+                {
+                    if (skip)
                     {
-                        frame.ClearFlag(FrameFlags.Break);
-                        fallOut = true;
                         break;
                     }
 
-                    if (frame.IsFlagSet(FrameFlags.Next))
+                    if (stmt == null)
                     {
-                        frame.ClearFlag(FrameFlags.Next);
-                        skip = true;
+                        continue;
+                    }
+
+                    ASTNodeType statement = stmt.Type;
+                    if (statement != ASTNodeType.Next && statement != ASTNodeType.Break)
+                    {
+                        result = Interpret(stmt);
+
+                        if (frame.IsFlagSet(FrameFlags.Break))
+                        {
+                            frame.ClearFlag(FrameFlags.Break);
+                            fallOut = true;
+                            break;
+                        }
+
+                        if (frame.IsFlagSet(FrameFlags.Next))
+                        {
+                            frame.ClearFlag(FrameFlags.Next);
+                            skip = true;
+                            break;
+                        }
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
                         break;
                     }
-                }
 
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    break;
-                }
-
-                if (statement == ASTNodeType.Next)
-                {
-                    var condition = ((NextNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    if (statement == ASTNodeType.Next)
                     {
-                        skip = true;
-                        break;
+                        var condition = ((NextNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            skip = true;
+                            break;
+                        }
                     }
-                }
-                else if (statement == ASTNodeType.Break)
-                {
-                    var condition = ((BreakNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    else if (statement == ASTNodeType.Break)
                     {
-                        fallOut = true;
-                        break;
+                        var condition = ((BreakNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            fallOut = true;
+                            break;
+                        }
                     }
                 }
             }
         }
-
-        scope.Remove(valueIteratorName);
-        if (hasIndexIterator)
+        finally
         {
-            scope.Remove(indexIteratorName);
-        }
+            scope.Remove(valueName);
+            if (indexName != null)
+            {
+                scope.Remove(indexName);
+            }
 
-        frame.ClearFlag(FrameFlags.InLoop);
+            frame.ClearFlag(FrameFlags.InLoop);
+        }
 
         return result;
     }
@@ -2820,103 +2879,109 @@ public class Interpreter
     private Value HashmapLoop(ForLoopNode node, Dictionary<Value, Value> hash)
     {
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         frame.SetFlag(FrameFlags.InLoop);
 
-        var scope = frame.Scope;
-        var indexIteratorName = string.Empty;
-        var hasIndexIterator = false;
-
-        string? valueIteratorName = Id(node.ValueIterator);
-
+        var keyName = Id(node.ValueIterator);
+        string? valueName = null;
         if (node.IndexIterator != null)
         {
-            indexIteratorName = Id(node.IndexIterator);
-            hasIndexIterator = true;
+            valueName = Id(node.IndexIterator);
         }
 
-        var fallOut = false;
+        scope.Declare(keyName, Value.Default);
+        if (valueName != null)
+        {
+            scope.Declare(valueName, Value.Default);            
+        }
+
         var result = Value.Default;
+        var fallOut = false;
 
-        foreach (var key in hash.Keys)
+        try
         {
-            if (fallOut)
+            foreach (var kvp in hash)
             {
-                break;
-            }
-
-            scope.Assign(valueIteratorName, key);
-
-            if (hasIndexIterator)
-            {
-                scope.Assign(indexIteratorName, hash[key]);
-            }
-
-            var skip = false;
-
-            foreach (var stmt in node.Body)
-            {
-                if (skip)
+                if (fallOut)
                 {
                     break;
                 }
 
-                if (stmt == null)
+                scope.Assign(keyName, kvp.Key);
+                if (valueName != null)
                 {
-                    continue;
+                    scope.Assign(valueName, kvp.Value);
                 }
 
-                if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
-                {
-                    result = Interpret(stmt);
+                var skip = false;
 
-                    if (frame.IsFlagSet(FrameFlags.Break))
+                foreach (var stmt in node.Body)
+                {
+                    if (skip)
                     {
-                        frame.ClearFlag(FrameFlags.Break);
-                        fallOut = true;
                         break;
                     }
 
-                    if (frame.IsFlagSet(FrameFlags.Next))
+                    if (stmt == null)
                     {
-                        frame.ClearFlag(FrameFlags.Next);
-                        skip = true;
+                        continue;
+                    }
+
+                    if (stmt.Type != ASTNodeType.Next && stmt.Type != ASTNodeType.Break)
+                    {
+                        result = Interpret(stmt);
+
+                        if (frame.IsFlagSet(FrameFlags.Break))
+                        {
+                            frame.ClearFlag(FrameFlags.Break);
+                            fallOut = true;
+                            break;
+                        }
+
+                        if (frame.IsFlagSet(FrameFlags.Next))
+                        {
+                            frame.ClearFlag(FrameFlags.Next);
+                            skip = true;
+                            break;
+                        }
+                    }
+
+                    if (frame.IsFlagSet(FrameFlags.Return))
+                    {
                         break;
                     }
-                }
 
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    break;
-                }
-
-                if (stmt.Type == ASTNodeType.Next)
-                {
-                    var condition = ((NextNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    if (stmt.Type == ASTNodeType.Next)
                     {
-                        skip = true;
-                        break;
+                        var condition = ((NextNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            skip = true;
+                            break;
+                        }
                     }
-                }
-                else if (stmt.Type == ASTNodeType.Break)
-                {
-                    var condition = ((BreakNode)stmt).Condition;
-                    if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                    else if (stmt.Type == ASTNodeType.Break)
                     {
-                        fallOut = true;
-                        break;
+                        var condition = ((BreakNode)stmt).Condition;
+                        if (condition == null || BooleanOp.IsTruthy(Interpret(condition)))
+                        {
+                            fallOut = true;
+                            break;
+                        }
                     }
                 }
             }
         }
-
-        scope.Remove(valueIteratorName);
-        if (hasIndexIterator)
+        finally
         {
-            scope.Remove(indexIteratorName);
-        }
 
-        frame.ClearFlag(FrameFlags.InLoop);
+            scope.Remove(keyName);
+            if (valueName != null)
+            {
+                scope.Remove(valueName);
+            }
+            frame.ClearFlag(FrameFlags.InLoop);
+        }
 
         return result;
     }
@@ -3395,6 +3460,39 @@ public class Interpreter
         return Value.CreateList(resultList);
     }
 
+    private StackFrame PushFrame(string name, Scope scope, bool inLambda = false)
+    {
+        var frame = new StackFrame(name, scope);
+        
+        if (inLambda)
+        {
+            frame.SetFlag(FrameFlags.InLambda);
+        }
+
+        CallStack.Push(frame);
+        FuncStack.Push(name);
+        return frame;
+    }
+
+    private Value PopFrame()
+    {
+        if (CallStack.Count == 0)
+        {
+            return Value.Default;
+        }
+
+        var frame = CallStack.Pop();
+        FuncStack.Pop();
+
+        var ret = frame.ReturnValue ?? Value.Default;
+        if (CallStack.Count > 0)
+        {
+            CallStack.Peek().ReturnValue = ret;
+        }
+
+        return ret;
+    }
+
     private bool PushFrame(StackFrame frame)
     {
         CallStack.Push(frame);
@@ -3412,19 +3510,11 @@ public class Interpreter
         return CallStack.Peek().IsFlagSet(FrameFlags.InTry);
     }
 
-    private StackFrame CreateFrame(string name, bool isMethodInvocation = false)
+    private StackFrame CreateFrame(string name)
     {
         StackFrame frame = CallStack.Peek();
         Scope scope = new(frame.Scope);
         StackFrame subFrame = new(name, scope);
-
-        if (!isMethodInvocation)
-        {
-            foreach (var kvp in scope.GetAllBindings())
-            {
-                scope.Declare(kvp.Key, kvp.Value);
-            }
-        }
 
         if (frame.InObjectContext())
         {
@@ -3445,50 +3535,5 @@ public class Interpreter
         return subFrame;
     }
 
-    private void DropFrame()
-    {
-        if (CallStack.Count == 0)
-        {
-            return;
-        }
-
-        if (FuncStack.Count > 0)
-        {
-            FuncStack.Pop();
-        }
-
-        var frame = CallStack.Peek();
-        var returnValue = frame.ReturnValue;
-        var topVariables = frame.Scope.GetAllBindings();
-
-        CallStack.Pop();
-
-        if (CallStack.Count > 0)
-        {
-            var callerFrame = CallStack.Peek();
-
-            callerFrame.ReturnValue = returnValue;
-
-            if (callerFrame.IsFlagSet(FrameFlags.SubFrame))
-            {
-                callerFrame.SetFlag(FrameFlags.Return);
-            }
-
-            UpdateVariablesInCallerFrame(topVariables, callerFrame);
-        }
-    }
-
     private static string Id(ASTNode node) => ((IdentifierNode)node).Name;
-
-    private static void UpdateVariablesInCallerFrame(IEnumerable<KeyValuePair<string, Value>> variables, StackFrame callerFrame)
-    {
-        var callerScope = callerFrame.Scope;
-        foreach (var v in variables)
-        {
-            if (callerScope.TryGet(v.Key, out Value _))
-            {
-                callerScope.Assign(v.Key, v.Value);
-            }
-        }
-    }
 }
