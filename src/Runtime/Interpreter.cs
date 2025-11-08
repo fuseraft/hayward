@@ -572,7 +572,7 @@ public class Interpreter
 
         if (target?.Type == ASTNodeType.Identifier)
         {
-            var varName = ((IdentifierNode)target).Name;
+            var varName = Id(target);
             var frame = CallStack.Peek();
             var scope = frame.Scope;
 
@@ -648,7 +648,7 @@ public class Interpreter
                 throw new SyntaxError(node.Token, "Left side of pack assignment must be identifier");
             }
 
-            var name = ((IdentifierNode)lhs).Name;
+            var name = Id(lhs);
             var value = i < rhsCount ? rhsValues[i] : Value.CreateNull();
 
             scope.Assign(name, value);
@@ -1233,7 +1233,7 @@ public class Interpreter
         string? aliasName = null;
         if (node.Alias != null)
         {
-            aliasName = ((IdentifierNode)node.Alias).Name;
+            aliasName = Id(node.Alias);
             scope.Declare(aliasName, Value.Default); // Will be updated each iteration
         }
 
@@ -1575,18 +1575,18 @@ public class Interpreter
         var nodeValue = Interpret(node.LambdaNode);
         var lambdaName = nodeValue.GetLambda().Identifier;
         var result = Value.Default;
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
-            result = CallLambda(node.Token, lambdaName, node.Arguments, ref requireDrop);
-            DropFrame();
+            result = CallLambda(node.Token, lambdaName, node.Arguments, ref doPop);
+            PopFrame();
         }
         catch (HaywardError)
         {
-            if (requireDrop && InTry())
+            if (doPop && InTry())
             {
-                DropFrame();
+                PopFrame();
             }
             throw;
         }
@@ -1598,7 +1598,7 @@ public class Interpreter
     {
         var result = Value.Default;
         var callableType = GetCallable(node.Token, node.FunctionName);
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
@@ -1609,28 +1609,29 @@ public class Interpreter
                     break;
 
                 case CallableType.Method:
-                    result = ExecuteInstanceMethod(node, ref requireDrop);
+                    result = ExecuteInstanceMethod(node, ref doPop);
                     break;
 
                 case CallableType.Function:
-                    result = CallFunction(node, ref requireDrop);
+                    result = CallFunction(node);
+                    doPop = true;
                     break;
 
                 case CallableType.Lambda:
-                    result = CallLambda(node.Token, node.FunctionName, node.Arguments, ref requireDrop);
+                    result = CallLambda(node.Token, node.FunctionName, node.Arguments, ref doPop);
                     break;
             }
 
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
         }
         catch (HaywardError)
         {
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
 
             throw;
@@ -2237,19 +2238,17 @@ public class Interpreter
         return BuiltinDispatch.Execute(node.Token, op, args, CliArgs);
     }
 
-    private Value CallFunction(FunctionCallNode node, ref bool requireDrop)
+    private Value CallFunction(FunctionCallNode node)
     {
         var functionName = node.FunctionName;
         var func = Context.Functions[functionName];
         var typeHints = func.TypeHints;
         var returnTypeHint = func.ReturnTypeHint;
         var defaultParameters = func.DefaultParameters;
-        var functionFrame = CreateFrame(functionName);
+        var functionFrame = PushFrame(functionName, CallStack.Peek().Scope);
         var result = Value.Default;
 
         PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
-
-        requireDrop = PushFrame(functionFrame);
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2280,22 +2279,22 @@ public class Interpreter
         var returnTypeHint = function.ReturnTypeHint;
 
         var result = Value.Default;
-        var requireDrop = false;
+        var doPop = false;
 
         try
         {
             ProcessFunctionParameters(function, args, token, functionName, defaultParameters, scope, typeHints);
 
-            requireDrop = PushFrame(functionFrame);
+            doPop = PushFrame(functionFrame);
             result = ExecuteFunctionBody(function);
 
-            DropFrame();
+            PopFrame();
         }
         catch (HaywardError)
         {
-            if (requireDrop)
+            if (doPop)
             {
-                DropFrame();
+                PopFrame();
             }
             throw;
         }
@@ -2332,10 +2331,10 @@ public class Interpreter
         }
     }
 
-    private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool requireDrop)
+    private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool doPop)
     {
-        var lambdaFrame = CreateFrame(lambdaName);
-        var scope = lambdaFrame.Scope;
+        var scope = new Scope(CallStack.Peek().Scope);
+        var lambdaFrame = PushFrame(lambdaName, scope, true);
         var targetLambda = lambdaName;
         var result = Value.Default;
 
@@ -2357,7 +2356,7 @@ public class Interpreter
         PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, scope);
 
         lambdaFrame.SetFlag(FrameFlags.InLambda);
-        requireDrop = PushFrame(lambdaFrame);
+        doPop = true;
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2582,7 +2581,7 @@ public class Interpreter
         return result;
     }
 
-    private Value ExecuteInstanceMethod(FunctionCallNode node, ref bool requireDrop)
+    private Value ExecuteInstanceMethod(FunctionCallNode node, ref bool doPop)
     {
         var frame = CallStack.Peek();
         if (!frame.InObjectContext())
@@ -2611,13 +2610,13 @@ public class Interpreter
                 throw new UnimplementedMethodError(node.Token, struc.Name, functionName);
             }
 
-            return ExecuteInstanceMethodFunction(baseStructMethods, node, ref requireDrop);
+            return ExecuteInstanceMethodFunction(baseStructMethods, node, ref doPop);
         }
 
-        return ExecuteInstanceMethodFunction(strucMethods, node, ref requireDrop);
+        return ExecuteInstanceMethodFunction(strucMethods, node, ref doPop);
     }
 
-    private Value ExecuteInstanceMethodFunction(Dictionary<string, KFunction> strucMethods, FunctionCallNode node, ref bool requireDrop)
+    private Value ExecuteInstanceMethodFunction(Dictionary<string, KFunction> strucMethods, FunctionCallNode node, ref bool doPop)
     {
         var functionName = node.FunctionName;
         var func = strucMethods[functionName];
@@ -2630,7 +2629,7 @@ public class Interpreter
 
         PrepareFunctionCall(func, node, defaultParameters, typeHints, functionFrame);
 
-        requireDrop = PushFrame(functionFrame);
+        doPop = PushFrame(functionFrame);
 
         var decl = func.Decl.Body;
         foreach (var stmt in decl)
@@ -2907,7 +2906,7 @@ public class Interpreter
                 {
                     break;
                 }
-                
+
                 scope.Assign(keyName, kvp.Key);
                 if (valueName != null)
                 {
@@ -3511,19 +3510,11 @@ public class Interpreter
         return CallStack.Peek().IsFlagSet(FrameFlags.InTry);
     }
 
-    private StackFrame CreateFrame(string name, bool isMethodInvocation = false)
+    private StackFrame CreateFrame(string name)
     {
         StackFrame frame = CallStack.Peek();
         Scope scope = new(frame.Scope);
         StackFrame subFrame = new(name, scope);
-
-        if (!isMethodInvocation)
-        {
-            foreach (var kvp in scope.GetAllBindings())
-            {
-                scope.Declare(kvp.Key, kvp.Value);
-            }
-        }
 
         if (frame.InObjectContext())
         {
@@ -3544,50 +3535,5 @@ public class Interpreter
         return subFrame;
     }
 
-    private void DropFrame()
-    {
-        if (CallStack.Count == 0)
-        {
-            return;
-        }
-
-        if (FuncStack.Count > 0)
-        {
-            FuncStack.Pop();
-        }
-
-        var frame = CallStack.Peek();
-        var returnValue = frame.ReturnValue;
-        var topVariables = frame.Scope.GetAllBindings();
-
-        CallStack.Pop();
-
-        if (CallStack.Count > 0)
-        {
-            var callerFrame = CallStack.Peek();
-
-            callerFrame.ReturnValue = returnValue;
-
-            if (callerFrame.IsFlagSet(FrameFlags.SubFrame))
-            {
-                callerFrame.SetFlag(FrameFlags.Return);
-            }
-
-            UpdateVariablesInCallerFrame(topVariables, callerFrame);
-        }
-    }
-
     private static string Id(ASTNode node) => ((IdentifierNode)node).Name;
-
-    private static void UpdateVariablesInCallerFrame(IEnumerable<KeyValuePair<string, Value>> variables, StackFrame callerFrame)
-    {
-        var callerScope = callerFrame.Scope;
-        foreach (var v in variables)
-        {
-            if (callerScope.TryGet(v.Key, out Value _))
-            {
-                callerScope.Assign(v.Key, v.Value);
-            }
-        }
-    }
 }
