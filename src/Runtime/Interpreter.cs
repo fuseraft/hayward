@@ -1342,122 +1342,87 @@ public class Interpreter
 
     private Value Visit(TryNode node)
     {
-        var returnValue = Value.Default;
-        var requireDrop = false;
+        Value result = Value.Default;
+        var tryName = $"try-{Guid.NewGuid()}";
         var setReturnValue = false;
 
         try
         {
-            var tryFrame = CreateFrame("try");
+            var tryFrame = PushFrame(tryName, new Scope(CallStack.Peek().Scope));
             tryFrame.SetFlag(FrameFlags.InTry);
-            requireDrop = PushFrame(tryFrame);
 
-            foreach (var stmt in node.TryBody)
+            result = ExecuteBody(node.TryBody, tryFrame);
+            if (tryFrame.IsFlagSet(FrameFlags.Return))
             {
-                Interpret(stmt);
-                if (tryFrame.IsFlagSet(FrameFlags.Return))
-                {
-                    returnValue = tryFrame.ReturnValue ?? returnValue;
-                    setReturnValue = true;
-                    break;
-                }
+                result = tryFrame.ReturnValue ?? result;
+                setReturnValue = true;
             }
 
-            DropFrame();
+            PopFrame();
         }
         catch (HaywardError e)
         {
-            if (requireDrop)
+            // Ensure try frame is cleaned up
+            if (CallStack.Count > 0 && CallStack.Peek().Name == tryName)
             {
-                DropFrame();
+                PopFrame();
             }
 
             if (node.CatchBody.Count > 0)
             {
-                var catchFrame = CreateFrame("catch");
-                var catchScope = catchFrame.Scope;
-                requireDrop = false;
+                var catchScope = new Scope(CallStack.Peek().Scope);
+                var catchFrame = PushFrame("catch", catchScope);
 
-                var errorTypeName = string.Empty;
-                var errorMessageName = string.Empty;
-
-                try
+                if (node.ErrorType != null)
                 {
-                    if (node.ErrorType != null)
-                    {
-                        errorTypeName = Id(node.ErrorType);
-                        catchScope.Declare(errorTypeName, Value.CreateString(e.Type));
-                    }
-
-                    if (node.ErrorMessage != null)
-                    {
-                        errorMessageName = Id(node.ErrorMessage);
-                        catchScope.Declare(errorMessageName, Value.CreateString(e.Message));
-                    }
-
-                    requireDrop = PushFrame(catchFrame);
-
-                    foreach (var stmt in node.CatchBody)
-                    {
-                        Interpret(stmt);
-                        if (catchFrame.IsFlagSet(FrameFlags.Return))
-                        {
-                            returnValue = catchFrame.ReturnValue ?? returnValue;
-                            setReturnValue = true;
-                            break;
-                        }
-                    }
-
-                    if (node.ErrorType != null)
-                    {
-                        catchScope.Remove(errorTypeName);
-                    }
-
-                    if (node.ErrorMessage != null)
-                    {
-                        catchScope.Remove(errorMessageName);
-                    }
-
-                    DropFrame();
+                    var typeName = Id(node.ErrorType);
+                    catchScope.Declare(typeName, Value.CreateString(e.Type));
                 }
-                catch (HaywardError)
+                if (node.ErrorMessage != null)
                 {
-                    if (requireDrop && InTry())
-                    {
-                        DropFrame();
-                    }
-                    throw;
+                    var msgName = Id(node.ErrorMessage);
+                    catchScope.Declare(msgName, Value.CreateString(e.Message));
                 }
+
+                result = ExecuteBody(node.CatchBody, catchFrame);
+                if (catchFrame.IsFlagSet(FrameFlags.Return))
+                {
+                    result = catchFrame.ReturnValue ?? result;
+                    setReturnValue = true;
+                }
+                PopFrame();
+            }
+            else if (node.FinallyBody.Count == 0)
+            {
+                throw; // Re-throw if no finally-block
             }
         }
 
         if (node.FinallyBody.Count > 0)
         {
-            var frame = CallStack.Peek();
-            foreach (var stmt in node.FinallyBody)
+            var finallyResult = ExecuteBody(node.FinallyBody, CallStack.Peek());
+            if (CallStack.Peek().IsFlagSet(FrameFlags.Return))
             {
-                Interpret(stmt);
-                if (frame.IsFlagSet(FrameFlags.Return))
-                {
-                    returnValue = frame.ReturnValue ?? returnValue;
-                    setReturnValue = true;
-                    break;
-                }
+                result = CallStack.Peek().ReturnValue ?? finallyResult;
+                setReturnValue = true;
+            }
+            else
+            {
+                result = finallyResult;    
             }
         }
 
         if (setReturnValue)
         {
             var frame = CallStack.Peek();
-
             if (!frame.IsFlagSet(FrameFlags.InLambda))
             {
                 frame.SetFlag(FrameFlags.Return);
-                frame.ReturnValue = returnValue;
+                frame.ReturnValue = result;
             }
         }
 
-        return returnValue;
+        return result;
     }
 
     private Value Visit(LambdaNode node)
@@ -3482,7 +3447,7 @@ public class Interpreter
         return Value.CreateList(resultList);
     }
 
-    private void PushFrame(string name, Scope scope, bool inLambda = false)
+    private StackFrame PushFrame(string name, Scope scope, bool inLambda = false)
     {
         var frame = new StackFrame(name, scope);
         
@@ -3493,6 +3458,7 @@ public class Interpreter
 
         CallStack.Push(frame);
         FuncStack.Push(name);
+        return frame;
     }
 
     private Value PopFrame()
