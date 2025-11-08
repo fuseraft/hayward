@@ -298,6 +298,7 @@ public class Interpreter
         string Global = "global";
 
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         var value = Interpret(node.Initializer).Clone();
         var type = node.Op;
         var name = node.Name;
@@ -344,7 +345,7 @@ public class Interpreter
                     obj.Identifier = name;
                 }
 
-                frame.Scope.Assign(name, value);
+                scope.Assign(name, value);
             }
         }
         else
@@ -354,18 +355,18 @@ public class Interpreter
                 throw new IllegalNameError(node.Token, name);
             }
 
-            if (frame.Scope.TryGet(name, out Value oldValue))
+            if (scope.TryGet(name, out Value oldValue))
             {
                 if (type == TokenName.Ops_BitwiseNotAssign)
                 {
-                    frame.Scope.Assign(name, BitwiseOp.Not(node.Token, ref oldValue));
+                    scope.Assign(name, BitwiseOp.Not(node.Token, ref oldValue));
                 }
                 else
                 {
-                    frame.Scope.Assign(name, OpDispatch.DoBinary(node.Token, type, ref oldValue, ref value));
+                    scope.Assign(name, OpDispatch.DoBinary(node.Token, type, ref oldValue, ref value));
                 }
 
-                return frame.Scope.GetBinding(name);
+                return scope.GetBinding(name);
             }
             else if (frame.InObjectContext())
             {
@@ -398,7 +399,7 @@ public class Interpreter
             throw new VariableUndefinedError(node.Token, name);
         }
 
-        return frame.Scope.GetBinding(name);
+        return scope.GetBinding(name);
     }
 
     private Value Visit(ConstAssignmentNode node)
@@ -431,6 +432,7 @@ public class Interpreter
     private Value Visit(IndexAssignmentNode node)
     {
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
         var op = node.Op;
         var newValue = Interpret(node.Initializer);
 
@@ -449,7 +451,7 @@ public class Interpreter
                 {
                     slicedObj = objContext.InstanceVariables[identifierName];
                 }
-                else if (frame.Scope.TryGet(identifierName, out Value val))
+                else if (scope.TryGet(identifierName, out Value val))
                 {
                     slicedObj = val;
                 }
@@ -461,7 +463,7 @@ public class Interpreter
                 var slice = GetSlice(sliceExpr, slicedObj);
 
                 DoSliceAssignment(node.Token, ref slicedObj, slice, ref newValue);
-                frame.Scope.Assign(identifierName, slicedObj);
+                scope.Assign(identifierName, slicedObj);
             }
         }
         else if (node.Object != null && node.Object.Type == ASTNodeType.Index)
@@ -484,7 +486,7 @@ public class Interpreter
                 {
                     indexedObj = objContext.InstanceVariables[identifierName];
                 }
-                else if (frame.Scope.TryGet(identifierName, out Value val))
+                else if (scope.TryGet(identifierName, out Value val))
                 {
                     indexedObj = val;
                 }
@@ -523,7 +525,7 @@ public class Interpreter
                         }
                     }
 
-                    frame.Scope.Assign(identifierName, Value.CreateList(listObj));
+                    scope.Assign(identifierName, Value.CreateList(listObj));
                 }
                 else if (indexedObj.IsHashmap())
                 {
@@ -592,7 +594,7 @@ public class Interpreter
 
     private Value Visit(PackAssignmentNode node)
     {
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         List<Value> rhsValues = [];
         foreach (var rhs in node.Right)
@@ -632,11 +634,11 @@ public class Interpreter
             var identifierName = Id(lhs);
             if (rhsValues.Count == lhsLength)
             {
-                frame.Scope.Assign(identifierName, rhsValues[rhsPosition++]);
+                scope.Assign(identifierName, rhsValues[rhsPosition++]);
             }
             else
             {
-                frame.Scope.Assign(identifierName, Value.CreateNull());
+                scope.Assign(identifierName, Value.CreateNull());
             }
         }
 
@@ -1141,6 +1143,7 @@ public class Interpreter
 
         var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
+        var scope = frame.Scope;
 
         var fallOut = false;
         for (var i = 1; i <= count; ++i)
@@ -1153,7 +1156,7 @@ public class Interpreter
             if (hasAlias)
             {
                 aliasValue.SetValue(i);
-                frame.Scope.Assign(aliasName, aliasValue);
+                scope.Assign(aliasName, aliasValue);
             }
 
             var skip = false;
@@ -1218,7 +1221,7 @@ public class Interpreter
 
         if (hasAlias)
         {
-            frame.Scope.Remove(aliasName);
+            scope.Remove(aliasName);
         }
 
         frame.ClearFlag(FrameFlags.InLoop);
@@ -1285,6 +1288,7 @@ public class Interpreter
             if (node.CatchBody.Count > 0)
             {
                 var catchFrame = CreateFrame("catch");
+                var catchScope = catchFrame.Scope;
                 requireDrop = false;
 
                 var errorTypeName = string.Empty;
@@ -1295,13 +1299,13 @@ public class Interpreter
                     if (node.ErrorType != null)
                     {
                         errorTypeName = Id(node.ErrorType);
-                        catchFrame.Scope.Declare(errorTypeName, Value.CreateString(e.Type));
+                        catchScope.Declare(errorTypeName, Value.CreateString(e.Type));
                     }
 
                     if (node.ErrorMessage != null)
                     {
                         errorMessageName = Id(node.ErrorMessage);
-                        catchFrame.Scope.Declare(errorMessageName, Value.CreateString(e.Message));
+                        catchScope.Declare(errorMessageName, Value.CreateString(e.Message));
                     }
 
                     requireDrop = PushFrame(catchFrame);
@@ -1319,12 +1323,12 @@ public class Interpreter
 
                     if (node.ErrorType != null)
                     {
-                        catchFrame.Scope.Remove(errorTypeName);
+                        catchScope.Remove(errorTypeName);
                     }
 
                     if (node.ErrorMessage != null)
                     {
-                        catchFrame.Scope.Remove(errorMessageName);
+                        catchScope.Remove(errorMessageName);
                     }
 
                     DropFrame();
@@ -1435,7 +1439,7 @@ public class Interpreter
         var typeHints = node.TypeHints;
 
         // we're going to be injecting these into the stack frame
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         // for each declared variable
         foreach (var pair in node.Variables)
@@ -1507,7 +1511,7 @@ public class Interpreter
             }
 
             // inject the variable
-            frame.Scope.Declare(name, value);
+            scope.Declare(name, value);
         }
 
         return Value.Default;
@@ -2216,6 +2220,7 @@ public class Interpreter
     {
         var defaultParameters = function.DefaultParameters;
         var functionFrame = CreateFrame(functionName);
+        var scope = functionFrame.Scope;
         var typeHints = function.TypeHints;
         var returnTypeHint = function.ReturnTypeHint;
 
@@ -2224,7 +2229,7 @@ public class Interpreter
 
         try
         {
-            ProcessFunctionParameters(function, args, token, functionName, defaultParameters, functionFrame, typeHints);
+            ProcessFunctionParameters(function, args, token, functionName, defaultParameters, scope, typeHints);
 
             requireDrop = PushFrame(functionFrame);
             result = ExecuteFunctionBody(function);
@@ -2248,7 +2253,7 @@ public class Interpreter
         return result;
     }
 
-    private void ProcessFunctionParameters(KFunction function, List<ASTNode?> args, Token token, string functionName, HashSet<string> defaultParameters, StackFrame functionFrame, Dictionary<string, TokenName> typeHints)
+    private void ProcessFunctionParameters(KFunction function, List<ASTNode?> args, Token token, string functionName, HashSet<string> defaultParameters, Scope scope, Dictionary<string, TokenName> typeHints)
     {
         for (var i = 0; i < function.Parameters.Count; ++i)
         {
@@ -2268,13 +2273,14 @@ public class Interpreter
                 throw new ParameterCountMismatchError(token, functionName, function.Parameters.Count, args.Count);
             }
 
-            PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, functionFrame);
+            PrepareFunctionVariables(typeHints, param, ref argValue, token, i, functionName, scope);
         }
     }
 
     private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool requireDrop)
     {
         var lambdaFrame = CreateFrame(lambdaName);
+        var scope = lambdaFrame.Scope;
         var targetLambda = lambdaName;
         var result = Value.Default;
 
@@ -2293,7 +2299,7 @@ public class Interpreter
         var returnTypeHint = func.ReturnTypeHint;
         var defaultParameters = func.DefaultParameters;
 
-        PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, lambdaFrame);
+        PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, scope);
 
         lambdaFrame.SetFlag(FrameFlags.InLambda);
         requireDrop = PushFrame(lambdaFrame);
@@ -2368,6 +2374,7 @@ public class Interpreter
     {
         var parms = func.Parameters;
         var nodeArguments = node.Arguments;
+        var scope = functionFrame.Scope;
 
         for (var i = 0; i < parms.Count; ++i)
         {
@@ -2399,12 +2406,12 @@ public class Interpreter
             }
             else
             {
-                functionFrame.Scope.Declare(param.Key, argValue);
+                scope.Declare(param.Key, argValue);
             }
         }
     }
 
-    private void PrepareFunctionVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string functionName, StackFrame functionFrame)
+    private void PrepareFunctionVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string functionName, Scope scope)
     {
         if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
         {
@@ -2418,11 +2425,11 @@ public class Interpreter
         }
         else
         {
-            functionFrame.Scope.Declare(param.Key, argValue);
+            scope.Declare(param.Key, argValue);
         }
     }
 
-    private void PrepareLambdaCall(KLambda func, List<ASTNode?> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
+    private void PrepareLambdaCall(KLambda func, List<ASTNode?> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, Scope scope)
     {
         var parms = func.Parameters;
         for (var i = 0; i < parms.Count; ++i)
@@ -2442,11 +2449,11 @@ public class Interpreter
                 throw new ParameterCountMismatchError(token, targetLambda, parms.Count, args.Count);
             }
 
-            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, lambdaFrame);
+            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, scope);
         }
     }
 
-    private void PrepareLambdaCall(KLambda func, List<Value> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, StackFrame lambdaFrame)
+    private void PrepareLambdaCall(KLambda func, List<Value> args, HashSet<string> defaultParameters, Token token, string targetLambda, Dictionary<string, TokenName> typeHints, string lambdaName, Scope scope)
     {
         var parms = func.Parameters;
         for (var i = 0; i < parms.Count; ++i)
@@ -2478,12 +2485,12 @@ public class Interpreter
             }
             else
             {
-                lambdaFrame.Scope.Declare(param.Key, argValue);
+                scope.Declare(param.Key, argValue);
             }
         }
     }
 
-    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string lambdaName, StackFrame lambdaFrame)
+    private void PrepareLambdaVariables(Dictionary<string, TokenName> typeHints, KeyValuePair<string, Value> param, ref Value argValue, Token token, int i, string lambdaName, Scope scope)
     {
         if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
         {
@@ -2497,7 +2504,7 @@ public class Interpreter
         }
         else
         {
-            lambdaFrame.Scope.Declare(param.Key, argValue);
+            scope.Declare(param.Key, argValue);
         }
     }
 
@@ -2707,6 +2714,7 @@ public class Interpreter
         var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
 
+        var scope = frame.Scope;
         var result = Value.Default;
         var valueIteratorName = Id(node.ValueIterator);
         var indexIteratorName = string.Empty;
@@ -2730,12 +2738,12 @@ public class Interpreter
             }
 
             iteratorValue.SetValue(list[i]);
-            frame.Scope.Assign(valueIteratorName, iteratorValue);
+            scope.Assign(valueIteratorName, iteratorValue);
 
             if (hasIndexIterator)
             {
                 iteratorIndex.SetValue((long)i);
-                frame.Scope.Assign(indexIteratorName, iteratorIndex);
+                scope.Assign(indexIteratorName, iteratorIndex);
             }
 
             var skip = false;
@@ -2798,10 +2806,10 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(valueIteratorName);
+        scope.Remove(valueIteratorName);
         if (hasIndexIterator)
         {
-            frame.Scope.Remove(indexIteratorName);
+            scope.Remove(indexIteratorName);
         }
 
         frame.ClearFlag(FrameFlags.InLoop);
@@ -2813,6 +2821,8 @@ public class Interpreter
     {
         var frame = CallStack.Peek();
         frame.SetFlag(FrameFlags.InLoop);
+
+        var scope = frame.Scope;
         var indexIteratorName = string.Empty;
         var hasIndexIterator = false;
 
@@ -2834,11 +2844,11 @@ public class Interpreter
                 break;
             }
 
-            frame.Scope.Assign(valueIteratorName, key);
+            scope.Assign(valueIteratorName, key);
 
             if (hasIndexIterator)
             {
-                frame.Scope.Assign(indexIteratorName, hash[key]);
+                scope.Assign(indexIteratorName, hash[key]);
             }
 
             var skip = false;
@@ -2900,10 +2910,10 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(valueIteratorName);
+        scope.Remove(valueIteratorName);
         if (hasIndexIterator)
         {
-            frame.Scope.Remove(indexIteratorName);
+            scope.Remove(indexIteratorName);
         }
 
         frame.ClearFlag(FrameFlags.InLoop);
@@ -3097,7 +3107,7 @@ public class Interpreter
     private Value LambdaEach(KLambda lambda, List<Value> list)
     {
         var defaultParameters = lambda.DefaultParameters;
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         var valueVariable = string.Empty;
         var indexVariable = string.Empty;
@@ -3114,13 +3124,13 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Scope.Assign(valueVariable, Value.Default);
+                scope.Assign(valueVariable, Value.Default);
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Scope.Assign(indexVariable, Value.Default);
+                scope.Assign(indexVariable, Value.Default);
             }
         }
 
@@ -3130,12 +3140,12 @@ public class Interpreter
 
         for (var i = 0; i < list.Count; ++i)
         {
-            frame.Scope.Assign(valueVariable, list[i]);
+            scope.Assign(valueVariable, list[i]);
 
             if (hasIndexVariable)
             {
                 indexValue.SetValue(i);
-                frame.Scope.Assign(indexVariable, indexValue);
+                scope.Assign(indexVariable, indexValue);
             }
 
             foreach (var stmt in decl.Body)
@@ -3144,10 +3154,10 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(valueVariable);
+        scope.Remove(valueVariable);
         if (hasIndexVariable)
         {
-            frame.Scope.Remove(indexVariable);
+            scope.Remove(indexVariable);
         }
 
         return result;
@@ -3171,6 +3181,7 @@ public class Interpreter
     {
         var defaultParameters = lambda.DefaultParameters;
         var frame = CallStack.Peek();
+        var scope = frame.Scope;
 
         var mapVariable = string.Empty;
 
@@ -3185,7 +3196,7 @@ public class Interpreter
             if (i == 0)
             {
                 mapVariable = param.Key;
-                frame.Scope.Assign(mapVariable, Value.Default);
+                scope.Assign(mapVariable, Value.Default);
             }
         }
 
@@ -3195,7 +3206,7 @@ public class Interpreter
 
         for (var i = 0; i < list.Count; ++i)
         {
-            frame.Scope.Assign(mapVariable, list[i]);
+            scope.Assign(mapVariable, list[i]);
 
             foreach (var stmt in decl.Body)
             {
@@ -3208,7 +3219,7 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(mapVariable);
+        scope.Remove(mapVariable);
 
         return Value.CreateList(resultList);
     }
@@ -3216,7 +3227,7 @@ public class Interpreter
     private Value LambdaReduce(KLambda lambda, Value accumulator, List<Value> list)
     {
         var defaultParameters = lambda.DefaultParameters;
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         var accumVariable = string.Empty;
         var valueVariable = string.Empty;
@@ -3232,12 +3243,12 @@ public class Interpreter
             if (i == 0)
             {
                 accumVariable = param.Key;
-                frame.Scope.Assign(accumVariable, accumulator);
+                scope.Assign(accumVariable, accumulator);
             }
             else if (i == 1)
             {
                 valueVariable = param.Key;
-                frame.Scope.Assign(valueVariable, Value.Default);
+                scope.Assign(valueVariable, Value.Default);
             }
         }
 
@@ -3246,7 +3257,7 @@ public class Interpreter
 
         for (var i = 0; i < list.Count; ++i)
         {
-            frame.Scope.Assign(valueVariable, list[i]);
+            scope.Assign(valueVariable, list[i]);
 
             foreach (var stmt in decl.Body)
             {
@@ -3254,10 +3265,10 @@ public class Interpreter
             }
         }
 
-        result = frame.Scope.GetBinding(accumVariable);
+        result = scope.GetBinding(accumVariable);
 
-        frame.Scope.Remove(accumVariable);
-        frame.Scope.Remove(valueVariable);
+        scope.Remove(accumVariable);
+        scope.Remove(valueVariable);
 
         return result;
     }
@@ -3265,7 +3276,7 @@ public class Interpreter
     private Value LambdaAll(KLambda lambda, List<Value> list)
     {
         var defaultParameters = lambda.DefaultParameters;
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         var valueVariable = string.Empty;
         var indexVariable = string.Empty;
@@ -3280,13 +3291,13 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Scope.Assign(valueVariable, Value.Default);
+                scope.Assign(valueVariable, Value.Default);
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Scope.Assign(indexVariable, Value.Default);
+                scope.Assign(indexVariable, Value.Default);
             }
         }
 
@@ -3296,12 +3307,12 @@ public class Interpreter
 
         for (var i = 0; i < list.Count; ++i)
         {
-            frame.Scope.Assign(valueVariable, list[i]);
+            scope.Assign(valueVariable, list[i]);
 
             if (hasIndexVariable)
             {
                 indexValue.SetValue(i);
-                frame.Scope.Assign(indexVariable, indexValue);
+                scope.Assign(indexVariable, indexValue);
             }
 
             foreach (var stmt in decl.Body)
@@ -3315,10 +3326,10 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(valueVariable);
+        scope.Remove(valueVariable);
         if (hasIndexVariable)
         {
-            frame.Scope.Remove(indexVariable);
+            scope.Remove(indexVariable);
         }
 
         return Value.CreateBoolean(newListSize == listSize);
@@ -3327,7 +3338,7 @@ public class Interpreter
     private Value LambdaFilter(KLambda lambda, List<Value> list)
     {
         var defaultParameters = lambda.DefaultParameters;
-        var frame = CallStack.Peek();
+        var scope = CallStack.Peek().Scope;
 
         var valueVariable = string.Empty;
         var indexVariable = string.Empty;
@@ -3339,13 +3350,13 @@ public class Interpreter
             if (i == 0)
             {
                 valueVariable = param.Key;
-                frame.Scope.Assign(valueVariable, Value.Default);
+                scope.Assign(valueVariable, Value.Default);
             }
             else if (i == 1)
             {
                 indexVariable = param.Key;
                 hasIndexVariable = true;
-                frame.Scope.Assign(indexVariable, Value.Default);
+                scope.Assign(indexVariable, Value.Default);
             }
         }
 
@@ -3356,12 +3367,12 @@ public class Interpreter
 
         for (var i = 0; i < list.Count; ++i)
         {
-            frame.Scope.Assign(valueVariable, list[i]);
+            scope.Assign(valueVariable, list[i]);
 
             if (hasIndexVariable)
             {
                 indexValue.SetValue(i);
-                frame.Scope.Assign(indexVariable, indexValue);
+                scope.Assign(indexVariable, indexValue);
             }
 
             foreach (var stmt in decl.Body)
@@ -3375,10 +3386,10 @@ public class Interpreter
             }
         }
 
-        frame.Scope.Remove(valueVariable);
+        scope.Remove(valueVariable);
         if (hasIndexVariable)
         {
-            frame.Scope.Remove(indexVariable);
+            scope.Remove(indexVariable);
         }
 
         return Value.CreateList(resultList);
@@ -3409,7 +3420,7 @@ public class Interpreter
 
         if (!isMethodInvocation)
         {
-            foreach (var kvp in frame.Scope.GetAllBindings())
+            foreach (var kvp in scope.GetAllBindings())
             {
                 scope.Declare(kvp.Key, kvp.Value);
             }
