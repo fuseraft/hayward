@@ -1429,7 +1429,6 @@ public class Interpreter
     {
         List<KeyValuePair<string, Value>> parameters = [];
         HashSet<string> defaultParameters = [];
-        var tmpId = GetTemporaryId();
 
         foreach (var pair in node.Parameters)
         {
@@ -1445,17 +1444,19 @@ public class Interpreter
             parameters.Add(new(paramName, paramValue));
         }
 
-        Context.Lambdas[tmpId] = new(node.Clone())
+        var internalName = $"<lambda_{Context.Lambdas.Count}>";
+        Context.Lambdas[internalName] = new KLambda(node)
         {
             Parameters = parameters,
             DefaultParameters = defaultParameters,
             TypeHints = node.TypeHints,
-            ReturnTypeHint = node.ReturnTypeHint
+            ReturnTypeHint = node.ReturnTypeHint,
+            CapturedScope = CallStack.Peek().Scope
         };
+        
+        Context.AddMappedLambda(node.Token.Text, internalName);
 
-        Context.AddMappedLambda(tmpId, tmpId);
-
-        return Value.CreateLambda(new LambdaRef { Identifier = tmpId });
+        return Value.CreateLambda(new LambdaRef { Identifier = internalName });
     }
 
     private Value Visit(FunctionNode node)
