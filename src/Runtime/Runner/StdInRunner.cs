@@ -1,74 +1,84 @@
 ﻿using hayward.Parsing;
-using hayward.Runtime.Builtin;
-using hayward.Settings;
 using hayward.Tracing;
 using hayward.Tracing.Error;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace hayward.Runtime.Runner;
 
+/// <summary>
+/// Runs a script from standard input (stdin), e.g., `cat script.kiwi | hayward`.
+/// </summary>
 public class StdInRunner(Interpreter interpreter) : ScriptRunner(interpreter)
 {
     /// <summary>
-    /// Maximum size of input data streamed over input stream
+    /// Maximum size of input data streamed from stdin (default: 40 MB).
     /// </summary>
-    protected const long MaxInputBufferSize = 40 * 1024 * 1024;
+    public long MaxInputBufferSize { get; set; } = 40 * 1024 * 1024;
 
     /// <summary>
-    /// Runs the standard input as a script stream as the entrypoint to the program.
+    /// Internal buffer size for reading stdin (4 KB).
     /// </summary>
-    /// <param name="script">The script.</param>
-    /// <param name="args">The arguments.</param>
-    /// <returns>Returns <c>0</c> for now.</returns>
+    private const int BufferSize = 4096;
+
+    /// <summary>
+    /// Runs the standard input as a script stream.
+    /// </summary>
     public override int Run(string script, List<string> args)
     {
-        int res = SuccessReturnCode;
         try
         {
-            var stdIn = Console.OpenStandardInput();
-            var memoryStream = new MemoryStream();
-            var size = BufferMemoryStream(ref memoryStream, stdIn, MaxInputBufferSize);
-            if(size > 0)
-            {
-                using Lexer lexer = new(memoryStream);
-                res = RunLexer(lexer);
-            }
+            using var stdIn = Console.OpenStandardInput();
+            using var memoryStream = new MemoryStream();
+
+            long bytesRead = BufferStandardInput(stdIn, memoryStream, MaxInputBufferSize);
+            if (bytesRead == 0)
+                return SuccessReturnCode; // Empty input
+
+            memoryStream.Position = 0;
+            using var lexer = new Lexer(memoryStream, fileId: -1); // -1 = stdin
+            return RunLexer(lexer);
         }
         catch (HaywardError e)
         {
             ErrorHandler.PrintError(e);
+            return 1;
         }
         catch (Exception e)
         {
             ErrorHandler.DumpCrashLog(e);
+            return 1;
         }
-
-        return res;
     }
 
-    public long BufferMemoryStream(ref MemoryStream memoryStream, Stream stdIn, long maxBytes)
+    /// <summary>
+    /// Efficiently buffers stdin into a MemoryStream with size limiting.
+    /// </summary>
+    /// <param name="stdIn">The input stream (Console.OpenStandardInput).</param>
+    /// <param name="output">The destination MemoryStream.</param>
+    /// <param name="maxBytes">Maximum bytes to read.</param>
+    /// <returns>Total bytes read.</returns>
+    /// <exception cref="HaywardError">Thrown when input exceeds max size.</exception>
+    private static long BufferStandardInput(Stream stdIn, MemoryStream output, long maxBytes)
     {
-        long res = 0;
-        var buffer = new byte[1024];
-        while(true)
+        if (!stdIn.CanRead)
+            throw new IOException("Standard input is not readable.");
+
+        long totalBytes = 0;
+        var buffer = new byte[BufferSize];
+
+        while (true)
         {
-            int read = stdIn.Read(buffer, 0, buffer.Length);
-            if (read == 0) break;
+            int bytesRead = stdIn.Read(buffer, 0, buffer.Length);
+            if (bytesRead == 0)
+                break;
 
-            res += read;
-            if (res > maxBytes) throw new IOException($"Input exceeded maximum cap of {maxBytes} bytes.");
-            for(int i=0; i < 1024; i++)
-            {
-                if (buffer[i] == 0) break;
-                memoryStream.WriteByte(buffer[i]);
-            }
+            totalBytes += bytesRead;
+
+            if (totalBytes > maxBytes)
+                throw new IOException($"Input exceeded maximum size of {maxBytes} bytes.");
+
+            output.Write(buffer, 0, bytesRead);
         }
-        memoryStream.Position = 0;
 
-        return res;
+        return totalBytes;
     }
 }
