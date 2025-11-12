@@ -11,17 +11,17 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
     /// <summary>
     /// A success return code. A placeholder until a smarter mechanism is implemented.
     /// </summary>
-    private const int SuccessReturnCode = 0;
+    protected const int SuccessReturnCode = 0;
 
     /// <summary>
     /// Gets the local interpreter.
     /// </summary>
-    private Interpreter Interpreter { get; } = interpreter;
+    protected Interpreter Interpreter { get; } = interpreter;
 
     /// <summary>
     /// Gets or sets a flag indicating whether the standard library has been loaded.
     /// </summary>
-    private bool StandardLibraryLoaded { get; set; } = false;
+    protected bool StandardLibraryLoaded { get; set; } = false;
 
     /// <summary>
     /// Runs a given script as the entrypoint to the program.
@@ -29,7 +29,27 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
     /// <param name="script">The script.</param>
     /// <param name="args">The arguments.</param>
     /// <returns>Returns <c>0</c> for now.</returns>
-    public int Run(string script, List<string> args)
+    public virtual int Run(string script, List<string> args)
+    {
+        int res = SuccessReturnCode;
+        try
+        {
+            using Lexer lexer = new(script);
+            res = RunLexer(lexer);
+        }
+        catch (HaywardError e)
+        {
+            ErrorHandler.PrintError(e);
+        }
+        catch (Exception e)
+        {
+            ErrorHandler.DumpCrashLog(e);
+        }
+
+        return res;
+    }
+
+    protected int RunLexer(Lexer lexer)
     {
         try
         {
@@ -38,7 +58,6 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
             List<TokenStream> streams = [];
             LoadStandardLibrary(ref streams);
 
-            using Lexer lexer = new(script);
             streams.Add(lexer.GetTokenStream());
             var ast = parser.ParseTokenStreamCollection(streams);
 
@@ -61,7 +80,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
         return SuccessReturnCode;
     }
 
-    private void LoadStandardLibrary(ref List<TokenStream> streams)
+    protected void LoadStandardLibrary(ref List<TokenStream> streams)
     {
         if (StandardLibraryLoaded)
         {
