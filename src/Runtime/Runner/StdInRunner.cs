@@ -34,7 +34,7 @@ public class StdInRunner(Interpreter interpreter) : ScriptRunner(interpreter)
                 return SuccessReturnCode; // Empty input
 
             memoryStream.Position = 0;
-            using var lexer = new Lexer(memoryStream, fileId: -1); // -1 = stdin
+            using var lexer = new Lexer(memoryStream, fileId: -1, closeOnDispose: false); // -1 = stdin
             return RunLexer(lexer);
         }
         catch (HaywardError e)

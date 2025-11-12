@@ -2,6 +2,7 @@
 
 1. **Getting Started**
    - [Using the Hayward CLI](cli.md)
+   - **[Running Scripts & Execution Modes](runners.md)**
 
 2. **Language Basics**
    - [Comments](comments.md)

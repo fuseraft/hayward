@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.Threading.Channels;
-using hayward.Parsing.AST;
 using hayward.Parsing.Keyword;
 using hayward.Tracing;
 using hayward.Typing;
@@ -11,6 +8,7 @@ public class Lexer : IDisposable
 {
     private readonly Stream stream;
     private readonly int File;
+    private readonly bool CloseOnDispose;
     private int LineNumber = 1;
     private int Position = 1;
 
@@ -18,18 +16,27 @@ public class Lexer : IDisposable
     {
         stream = System.IO.File.OpenRead(path);
         File = FileRegistry.Instance.RegisterFile(path);
+        CloseOnDispose = true;
     }
 
     public Lexer(int fileId, string code)
     {
         File = fileId;
         stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(code));
+        CloseOnDispose = true;
     }
 
-    public Lexer(Stream dataStream, int fileId = 0)
+    /// <summary>
+    /// Creates a lexer from a stream. Does NOT close the stream on dispose unless specified.
+    /// </summary>
+    /// <param name="dataStream">The input stream (e.g., Console.OpenStandardInput).</param>
+    /// <param name="fileId">File ID for error reporting (-1 = stdin).</param>
+    /// <param name="closeOnDispose">If true, stream is disposed when lexer is disposed.</param>
+    public Lexer(Stream dataStream, int fileId = 0, bool closeOnDispose = true)
     {
-        stream = dataStream;
+        stream = dataStream ?? throw new ArgumentNullException(nameof(dataStream));
         File = fileId;
+        CloseOnDispose = closeOnDispose;
     }
 
     public TokenStream GetTokenStream()
@@ -39,7 +46,12 @@ public class Lexer : IDisposable
 
     public void Dispose()
     {
-        stream?.Close();
+        /*
+        Only dispose the underlying stream if we own it.
+        This prevents closing external streams like Console.OpenStandardInput() or MemoryStreams passed from StdInRunner.
+        */
+        if (CloseOnDispose)
+            stream?.Dispose();
     }
 
     private List<Token> GetTokens()
