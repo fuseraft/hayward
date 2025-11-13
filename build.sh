@@ -26,6 +26,7 @@ fi
 
 SOLUTION_PATH="src/hayward.csproj"
 OUTPUT_DIR="bin"
+
 # Detect OS for default RID
 case "$(uname -s)" in
   Linux*)   DEFAULT_RID="linux-x64" ;;
@@ -59,7 +60,7 @@ if [[ "$RUNTIME_ID" == "win-x64" ]]; then
 fi
 
 BUILD_OUTPUT=""
-echo "Building Hayward with AOT and trimming for $RUNTIME_ID..."
+echo "Building Hayward for $RUNTIME_ID..."
 if ! BUILD_OUTPUT=$(dotnet publish "$SOLUTION_PATH" -c Release -r "$RUNTIME_ID" --self-contained true \
   -p:PublishAot=true \
   -p:PublishTrimmed=true \
