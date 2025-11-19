@@ -1,1 +1,7 @@
-println "Hello, World!"
+# cat hello.kiwi | ./bin/hayward
+
+i = 0
+while !stdin::empty() do
+  println "${i}: ${stdin::readline()}"
+  i += 1
+end
