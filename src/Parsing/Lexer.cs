@@ -706,6 +706,7 @@ public class Lexer : IDisposable
         else if (TaskBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (SysBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (TimeBuiltin.Map.TryGetValue(builtin, out name)) { }
+        else if (StdInBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (WebServerBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (HttpBuiltin.Map.TryGetValue(builtin, out name)) { }
         else if (EncoderBuiltin.Map.TryGetValue(builtin, out name)) { }
@@ -724,7 +725,6 @@ public class Lexer : IDisposable
         else if (ListBuiltin.Map.TryGetValue(builtin, out name)) { }
 
         return CreateToken(TokenType.Identifier, span, builtin, name);
-
     }
 
     private static TokenName GetOperatorName(string text)

@@ -52,6 +52,10 @@ public struct BuiltinDispatch
         {
             return SerializerBuiltinHandler.Execute(token, builtin, args);
         }
+        else if (StdInBuiltin.IsBuiltin(builtin))
+        {
+            return StdinBuiltinHandler.Execute(token, builtin, args);
+        }
         else if (HttpBuiltin.IsBuiltin(builtin))
         {
             // return HttpBuiltinHandler::execute(token, builtin, args);

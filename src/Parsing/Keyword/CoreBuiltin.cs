@@ -196,6 +196,7 @@ public static class CoreBuiltin
         if (LoggingBuiltin.Map.ContainsKey(arg))    return true;
         if (EncoderBuiltin.Map.ContainsKey(arg))    return true;
         if (SerializerBuiltin.Map.ContainsKey(arg)) return true;
+        if (StdInBuiltin.Map.ContainsKey(arg))      return true;
         if (FFIBuiltin.Map.ContainsKey(arg))        return true;
         if (ReflectorBuiltin.Map.ContainsKey(arg))  return true;
         if (SignalBuiltin.Map.ContainsKey(arg))     return true;

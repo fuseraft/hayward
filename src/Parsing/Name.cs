@@ -4,6 +4,10 @@ public enum TokenName
 {
   Default,
   Regex,
+  Builtin_Stdin_Read,
+  Builtin_Stdin_ReadLine,
+  Builtin_Stdin_Lines,
+  Builtin_Stdin_Empty,
   Builtin_Console_Input,
   Builtin_Console_Foreground,
   Builtin_Console_Background,
