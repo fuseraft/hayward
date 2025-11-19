@@ -3,6 +3,10 @@ package stdin
     return __stdin_read__()
   end
 
+  fn readbytes()
+    return __stdin_readbytes__()
+  end
+
   fn readline()
     return __stdin_readline__()
   end

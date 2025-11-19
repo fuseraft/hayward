@@ -3,6 +3,7 @@ namespace hayward.Parsing.Keyword;
 public static class StdInBuiltin
 {
     public const string Read = "__stdin_read__";
+    public const string ReadBytes = "__stdin_readbytes__";
     public const string ReadLine = "__stdin_readline__";
     public const string Lines = "__stdin_lines__";
     public const string Empty = "__stdin_empty__";
@@ -11,6 +12,7 @@ public static class StdInBuiltin
         = new Dictionary<string, TokenName>
         {
             { Read,       TokenName.Builtin_Stdin_Read },
+            { ReadBytes,  TokenName.Builtin_Stdin_ReadBytes },
             { ReadLine,   TokenName.Builtin_Stdin_ReadLine },
             { Lines,      TokenName.Builtin_Stdin_Lines },
             { Empty,      TokenName.Builtin_Stdin_Empty }

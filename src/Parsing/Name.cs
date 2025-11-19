@@ -8,6 +8,7 @@ public enum TokenName
   Builtin_Stdin_ReadLine,
   Builtin_Stdin_Lines,
   Builtin_Stdin_Empty,
+  Builtin_Stdin_ReadBytes,
   Builtin_Console_Input,
   Builtin_Console_Foreground,
   Builtin_Console_Background,
