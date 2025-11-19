@@ -39,7 +39,7 @@ public static class StdinBuiltinHandler
         ParameterCountMismatchError.Check(token, StdInBuiltin.ReadLine, 0, args.Count);
 
         var line = Reader.ReadLine();
-        return Value.CreateString(line ?? "");
+        return Value.CreateString(line ?? string.Empty);
     }
 
     private static Value Lines(Token token, List<Value> args)
