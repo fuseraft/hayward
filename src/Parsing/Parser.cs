@@ -31,6 +31,13 @@ public partial class Parser
             case TokenName.KW_Do:
                 return ParseDo();
 
+            case TokenName.KW_On:
+            case TokenName.KW_Once:
+                return ParseEventHandler();
+
+            case TokenName.KW_Emit:
+                return ParseEmit();
+
             case TokenName.KW_PrintLn:
             case TokenName.KW_Print:
             case TokenName.KW_EPrintLn:
@@ -110,6 +117,91 @@ public partial class Parser
             default:
                 throw new SyntaxError(GetErrorToken(), $"Unexpected keyword '{token.Text}'.");
         }
+    }
+
+    private EmitNode ParseEmit()
+    {
+        MatchName(TokenName.KW_Emit);
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        var eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name for 'emit'.");
+        return new EmitNode(eventName);
+    }
+
+    private ASTNode ParseEventHandler()
+    {
+        var eventType = GetTokenName();
+        Next(); // Consume 'on' or 'once'
+
+        /*
+        on "event-name" [ with (variables...) ] do
+          [ statements ]
+        end
+
+        once "event-name" [ with (variables...) ] do
+          [ statements ]
+        end
+        */        
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name.");
+        ASTNode? callback = null;
+
+        if (GetTokenType() != TokenType.Keyword)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
+        }
+
+        if (GetTokenName() == TokenName.KW_Lambda)
+        {
+            callback = ParseLambda();
+        }
+        else if (GetTokenName() == TokenName.KW_Do)
+        {
+            List<ASTNode?> body = [];
+            while (GetTokenName() != TokenName.KW_End)
+            {
+                var stmt = ParseStatement();
+                if (stmt != null)
+                {
+                    body.Add(stmt);
+                }
+            }
+
+            Next();  // Consume 'end'
+
+            callback = new LambdaNode
+            {
+                Parameters = [],
+                Body = body,
+                TypeHints = [],
+                ReturnTypeHint = TokenName.Types_None
+            };
+        }
+        
+        if (callback == null)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
+        }
+
+        if (eventType == TokenName.KW_On)
+        {
+            return new OnNode(eventName, callback);
+        }
+        else if (eventType == TokenName.KW_Once)
+        {
+            return new OnceNode(eventName, callback);
+        }
+
+        throw new SyntaxError(GetErrorToken(), "Expected event handler.");
     }
 
     private DoNode? ParseDo()
@@ -1175,8 +1267,7 @@ public partial class Parser
 
         Next();
 
-        return new LambdaCallNode(lambdaNode,
-                                              arguments);
+        return new LambdaCallNode(lambdaNode, arguments);
     }
 
     private LambdaNode? ParseLambda()
