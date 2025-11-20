@@ -39,7 +39,7 @@ public sealed class EventBus
         }
     }
 
-    public void Emit(Token token, string name, Value? data = null)
+    public void Emit(Token token, string name, List<Value> data)
     {
         if (!_handlers.TryGetValue(name, out var list))
         {
@@ -57,10 +57,9 @@ public sealed class EventBus
 
             try
             {
-                var args = data != null ? new List<Value> { data } : [];
                 if (cb.IsString())
                 {
-                    Interpreter.Current?.InvokeEvent(token, cb.GetString(), args);
+                    Interpreter.Current?.InvokeEvent(token, cb.GetString(), data);
                 }
             }
             catch (Exception ex)

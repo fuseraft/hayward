@@ -166,17 +166,13 @@ public partial class Parser
         ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name.");
         ASTNode? callback = null;
 
-        if (GetTokenType() != TokenType.Keyword)
-        {
-            throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
-        }
-
         if (GetTokenName() == TokenName.KW_Lambda)
         {
             callback = ParseLambda();
         }
         else if (GetTokenName() == TokenName.KW_Do)
         {
+            Next(); // Consume 'do'
             List<ASTNode?> body = [];
             while (GetTokenName() != TokenName.KW_End)
             {

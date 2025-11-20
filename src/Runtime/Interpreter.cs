@@ -41,52 +41,55 @@ public class Interpreter
 
         var result = node.Type switch
         {
-            ASTNodeType.Program => Visit((ProgramNode)node),
-            ASTNodeType.Self => Visit((SelfNode)node),
-            ASTNodeType.Package => Visit((PackageNode)node),
-            ASTNodeType.Struct => Visit((StructNode)node),
-            ASTNodeType.Import => Visit((ImportNode)node),
-            ASTNodeType.Export => Visit((ExportNode)node),
-            ASTNodeType.Exit => Visit((ExitNode)node),
-            ASTNodeType.Throw => Visit((ThrowNode)node),
             ASTNodeType.Assignment => Visit((AssignmentNode)node),
-            ASTNodeType.ConstAssignment => Visit((ConstAssignmentNode)node),
-            ASTNodeType.IndexAssignment => Visit((IndexAssignmentNode)node),
-            ASTNodeType.MemberAssignment => Visit((MemberAssignmentNode)node),
-            ASTNodeType.PackAssignment => Visit((PackAssignmentNode)node),
-            ASTNodeType.MemberAccess => Visit((MemberAccessNode)node),
-            ASTNodeType.Literal => Visit((LiteralNode)node),
-            ASTNodeType.ListLiteral => Visit((ListLiteralNode)node),
-            ASTNodeType.RangeLiteral => Visit((RangeLiteralNode)node),
-            ASTNodeType.HashLiteral => Visit((HashLiteralNode)node),
-            ASTNodeType.Identifier => Visit((IdentifierNode)node),
-            ASTNodeType.Print => Visit((PrintNode)node),
-            ASTNodeType.PrintXy => Visit((PrintXyNode)node),
-            ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
             ASTNodeType.BinaryOperation => Visit((BinaryOperationNode)node),
-            ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
-            ASTNodeType.Do => Visit((DoNode)node),
-            ASTNodeType.If => Visit((IfNode)node),
+            ASTNodeType.Break => Visit((BreakNode)node),
             ASTNodeType.Case => Visit((CaseNode)node),
             ASTNodeType.CaseWhen => Visit((CaseWhenNode)node),
+            ASTNodeType.ConstAssignment => Visit((ConstAssignmentNode)node),
+            ASTNodeType.Do => Visit((DoNode)node),
+            ASTNodeType.Emit => Visit((EmitNode)node),
+            ASTNodeType.Exit => Visit((ExitNode)node),
+            ASTNodeType.Export => Visit((ExportNode)node),
             ASTNodeType.ForLoop => Visit((ForLoopNode)node),
-            ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
-            ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
-            ASTNodeType.Break => Visit((BreakNode)node),
-            ASTNodeType.Next => Visit((NextNode)node),
-            ASTNodeType.Try => Visit((TryNode)node),
+            ASTNodeType.Function => Visit((FunctionNode)node),
+            ASTNodeType.FunctionCall => Visit((FunctionCallNode)node),
+            ASTNodeType.HashLiteral => Visit((HashLiteralNode)node),
+            ASTNodeType.Identifier => Visit((IdentifierNode)node),
+            ASTNodeType.If => Visit((IfNode)node),
+            ASTNodeType.Import => Visit((ImportNode)node),
+            ASTNodeType.Index => Visit((IndexingNode)node),
+            ASTNodeType.IndexAssignment => Visit((IndexAssignmentNode)node),
             ASTNodeType.Lambda => Visit((LambdaNode)node),
             ASTNodeType.LambdaCall => Visit((LambdaCallNode)node),
-            ASTNodeType.Function => Visit((FunctionNode)node),
-            ASTNodeType.Variable => Visit((VariableNode)node),
-            ASTNodeType.FunctionCall => Visit((FunctionCallNode)node),
+            ASTNodeType.ListLiteral => Visit((ListLiteralNode)node),
+            ASTNodeType.Literal => Visit((LiteralNode)node),
+            ASTNodeType.MemberAccess => Visit((MemberAccessNode)node),
+            ASTNodeType.MemberAssignment => Visit((MemberAssignmentNode)node),
             ASTNodeType.MethodCall => Visit((MethodCallNode)node),
-            ASTNodeType.Return => Visit((ReturnNode)node),
-            ASTNodeType.Index => Visit((IndexingNode)node),
-            ASTNodeType.Slice => Visit((SliceNode)node),
-            ASTNodeType.Parse => Visit((ParseNode)node),
+            ASTNodeType.Next => Visit((NextNode)node),
             ASTNodeType.NoOp => Value.Default,
+            ASTNodeType.On => Visit((OnNode)node),
+            ASTNodeType.Once => Visit((OnceNode)node),
+            ASTNodeType.Package => Visit((PackageNode)node),
+            ASTNodeType.PackAssignment => Visit((PackAssignmentNode)node),
+            ASTNodeType.Parse => Visit((ParseNode)node),
+            ASTNodeType.Print => Visit((PrintNode)node),
+            ASTNodeType.PrintXy => Visit((PrintXyNode)node),
+            ASTNodeType.Program => Visit((ProgramNode)node),
+            ASTNodeType.RangeLiteral => Visit((RangeLiteralNode)node),
+            ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
+            ASTNodeType.Return => Visit((ReturnNode)node),
+            ASTNodeType.Self => Visit((SelfNode)node),
+            ASTNodeType.Slice => Visit((SliceNode)node),
             ASTNodeType.Spawn => Value.Default,
+            ASTNodeType.Struct => Visit((StructNode)node),
+            ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
+            ASTNodeType.Throw => Visit((ThrowNode)node),
+            ASTNodeType.Try => Visit((TryNode)node),
+            ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
+            ASTNodeType.Variable => Visit((VariableNode)node),
+            ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
             _ => PrintNode(node),
         };
 
@@ -110,6 +113,36 @@ public class Interpreter
     private static Value PrintNode(ASTNode node)
     {
         node.Print();
+        return Value.Default;
+    }
+
+    private Value Visit(OnNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var callback = Interpret(node.Callback);
+
+        Context.Events.On(eventName.GetString(), callback);
+
+        return Value.Default;
+    }
+
+    private Value Visit(OnceNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var callback = Interpret(node.Callback);
+
+        Context.Events.On(eventName.GetString(), callback, once: true);
+
+        return Value.Default;
+    }
+
+    private Value Visit(EmitNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var args = node.EventArgs.Select(Interpret).ToList();
+
+        Context.Events.Emit(node.Token, eventName.GetString(), args);
+
         return Value.Default;
     }
 

@@ -1,0 +1,5 @@
+on "hello" do
+  println "hello world!"
+end
+
+emit "hello"
