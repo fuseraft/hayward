@@ -163,6 +163,7 @@ public partial class Parser
             throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
         }
 
+        Token t = token.Clone();
         ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name.");
         ASTNode? callback = null;
 
@@ -190,7 +191,8 @@ public partial class Parser
                 Parameters = [],
                 Body = body,
                 TypeHints = [],
-                ReturnTypeHint = TokenName.Types_None
+                ReturnTypeHint = TokenName.Types_Any,
+                Token = t
             };
         }
 
@@ -199,6 +201,8 @@ public partial class Parser
             throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
         }
 
+        callback.Token = t;
+        
         if (eventType == TokenName.KW_On)
         {
             return new OnNode(eventName, callback);

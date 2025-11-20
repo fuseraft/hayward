@@ -57,9 +57,9 @@ public sealed class EventBus
 
             try
             {
-                if (cb.IsString())
+                if (cb.IsLambda())
                 {
-                    Interpreter.Current?.InvokeEvent(token, cb.GetString(), data);
+                    Interpreter.Current?.InvokeEvent(token, cb.GetLambda(), data);
                 }
             }
             catch (Exception ex)

@@ -2365,12 +2365,13 @@ public class Interpreter
         }
     }
 
-    public Value InvokeEvent(Token token, string lambdaName, List<Value> args)
+    public Value InvokeEvent(Token token, LambdaRef lambda, List<Value> args)
     {
         var doPop = false;
 
         try
         {
+            var lambdaName = lambda.Identifier;
             var scope = new Scope(CallStack.Peek().Scope);
             var lambdaFrame = PushFrame(lambdaName, scope, true);
             var targetLambda = lambdaName;
