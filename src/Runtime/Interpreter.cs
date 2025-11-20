@@ -69,6 +69,7 @@ public class Interpreter
             ASTNodeType.MethodCall => Visit((MethodCallNode)node),
             ASTNodeType.Next => Visit((NextNode)node),
             ASTNodeType.NoOp => Value.Default,
+            ASTNodeType.Off => Visit((OffNode)node),
             ASTNodeType.On => Visit((OnNode)node),
             ASTNodeType.Once => Visit((OnceNode)node),
             ASTNodeType.Package => Visit((PackageNode)node),
@@ -131,7 +132,7 @@ public class Interpreter
         var eventName = Interpret(node.EventName);
         var callback = Interpret(node.Callback);
 
-        Context.Events.On(eventName.GetString(), callback, once: true);
+        Context.Events.Once(eventName.GetString(), callback);
 
         return Value.Default;
     }
@@ -142,6 +143,15 @@ public class Interpreter
         var args = node.EventArgs.Select(Interpret).ToList();
 
         Context.Events.Emit(node.Token, eventName.GetString(), args);
+
+        return Value.Default;
+    }
+
+    private Value Visit(OffNode node)
+    {
+        var eventName = Interpret(node.EventName);
+
+        Context.Events.Off(eventName.GetString());
 
         return Value.Default;
     }

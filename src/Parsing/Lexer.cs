@@ -923,6 +923,7 @@ public class Lexer : IDisposable
             "fn" => TokenName.KW_Method,
             "package" => TokenName.KW_Package,
             "next" => TokenName.KW_Next,
+            "off" => TokenName.KW_Off,
             "on" => TokenName.KW_On,
             "once" => TokenName.KW_Once,
             "override" => TokenName.KW_Override,

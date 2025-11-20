@@ -34,6 +34,7 @@ public enum ASTNodeType
     MethodCall,
     Next,
     NoOp,
+    Off,
     On,
     Once,
     PackAssignment,

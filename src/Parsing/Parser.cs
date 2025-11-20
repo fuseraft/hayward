@@ -38,6 +38,9 @@ public partial class Parser
             case TokenName.KW_Emit:
                 return ParseEmit();
 
+            case TokenName.KW_Off:
+                return ParseOff();
+
             case TokenName.KW_PrintLn:
             case TokenName.KW_Print:
             case TokenName.KW_EPrintLn:
@@ -117,6 +120,24 @@ public partial class Parser
             default:
                 throw new SyntaxError(GetErrorToken(), $"Unexpected keyword '{token.Text}'.");
         }
+    }
+
+    private OffNode ParseOff()
+    {
+        MatchName(TokenName.KW_Off);
+
+        /*
+        off "event-name"
+        */
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        var eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name for 'off'.");
+
+        return new OffNode(eventName);
     }
 
     private EmitNode ParseEmit()

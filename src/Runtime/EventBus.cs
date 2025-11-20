@@ -6,7 +6,6 @@ namespace hayward.Runtime;
 
 public sealed class EventBus
 {
-    // string to list of (callback: Value(Function), once: bool)
     private readonly Dictionary<string, List<(Value Callback, bool Once)>> _handlers = [];
 
     public void On(string name, Value callback, bool once = false)
@@ -22,21 +21,14 @@ public sealed class EventBus
 
     public void Once(string name, Value callback) => On(name, callback, once: true);
 
-    public void Off(string name, Value? callback = null)
+    public void Off(string name)
     {
         if (!_handlers.TryGetValue(name, out var list))
         {
             return;
         }
 
-        if (callback == null)
-        {
-            list.Clear();
-        }
-        else
-        {
-            list.RemoveAll(h => h.Callback == callback);
-        }
+        list.Clear();
     }
 
     public void Emit(Token token, string name, List<Value> data)

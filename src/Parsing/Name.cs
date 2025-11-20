@@ -305,6 +305,7 @@ public enum TokenName
   KW_Package,
   KW_Next,
   KW_Null,
+  KW_Off,
   KW_On,
   KW_Once,
   KW_Override,
