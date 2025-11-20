@@ -13,14 +13,20 @@ namespace hayward.Runtime;
 public class Interpreter
 {
     const int SafemodeMaxIterations = 1000000;
+    private readonly Scope _globalScope = new();
 
+    public Interpreter()
+    {
+        Current = this;
+    }
+
+    public static Interpreter? Current { get; private set; }
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
     private Stack<string> FuncStack { get; set; } = [];
-    private readonly Scope _globalScope = new();
 
     public void SetContext(KContext context) => Context = context;
 
@@ -1827,7 +1833,7 @@ public class Interpreter
         };
     }
 
-    public static Value DoSliceAssignment(Token token, ref Value slicedObj, SliceIndex slice, ref Value newValue)
+    private static Value DoSliceAssignment(Token token, ref Value slicedObj, SliceIndex slice, ref Value newValue)
     {
         if (slicedObj.IsList() && newValue.IsList())
         {
@@ -2013,11 +2019,6 @@ public class Interpreter
         {
             IsSlice = isSlice
         };
-    }
-
-    private static string GetTemporaryId()
-    {
-        return "tmp_" + RNGUtil.Generate(8);
     }
 
     private KFunction? GetObjectMethod(InstanceRef obj, string name)
@@ -2331,6 +2332,68 @@ public class Interpreter
         }
     }
 
+    public Value InvokeEvent(Token token, string lambdaName, List<Value> args)
+    {
+        var doPop = false;
+
+        try
+        {
+            var scope = new Scope(CallStack.Peek().Scope);
+            var lambdaFrame = PushFrame(lambdaName, scope, true);
+            var targetLambda = lambdaName;
+            var result = Value.Default;
+
+            if (!Context.HasLambda(targetLambda))
+            {
+                if (!Context.HasMappedLambda(targetLambda))
+                {
+                    throw new CallableError(token, $"Could not find target lambda `{targetLambda}`");
+                }
+
+                targetLambda = Context.LambdaTable[targetLambda];
+            }
+
+            var func = Context.Lambdas[targetLambda];
+            var typeHints = func.TypeHints;
+            var returnTypeHint = func.ReturnTypeHint;
+            var defaultParameters = func.DefaultParameters;
+
+            PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, scope);
+
+            lambdaFrame.SetFlag(FrameFlags.InLambda);
+            doPop = true;
+
+            var decl = func.Decl.Body;
+            foreach (var stmt in decl)
+            {
+                result = Interpret(stmt);
+                if (lambdaFrame.IsFlagSet(FrameFlags.Return))
+                {
+                    result = lambdaFrame.ReturnValue ?? result;
+                    break;
+                }
+            }
+
+            if (!Serializer.AssertTypematch(result, returnTypeHint))
+            {
+                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
+            }
+
+            return result;
+        }
+        catch
+        {
+            throw;
+        }
+        finally
+        {
+            if (doPop)
+            {
+                PopFrame();
+            }
+        }
+    }
+
     private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool doPop)
     {
         var scope = new Scope(CallStack.Peek().Scope);
@@ -2528,19 +2591,8 @@ public class Interpreter
                 throw new ParameterCountMismatchError(token, targetLambda, parms.Count, args.Count);
             }
 
-            if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
-            {
-                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
-            }
 
-            if (argValue.IsLambda())
-            {
-                Context.AddMappedLambda(param.Key, argValue.GetLambda().Identifier);
-            }
-            else
-            {
-                scope.Declare(param.Key, argValue);
-            }
+            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, scope);            
         }
     }
 
