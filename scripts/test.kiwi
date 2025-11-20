@@ -30,6 +30,20 @@ fn testsuite()
   end
 end
 
+tester::register_test("events", with do
+  invocations = 0
+  
+  on "event" do
+    invocations += 1
+  end
+
+  repeat 5 do
+    emit "event"
+  end
+
+  tester::assert(invocations == 5, "A1")
+end)
+
 tester::register_test("packages", with do
   package foobar_test_pkg
     fn hello()
