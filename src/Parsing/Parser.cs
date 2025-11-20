@@ -31,6 +31,16 @@ public partial class Parser
             case TokenName.KW_Do:
                 return ParseDo();
 
+            case TokenName.KW_On:
+            case TokenName.KW_Once:
+                return ParseEventHandler();
+
+            case TokenName.KW_Emit:
+                return ParseEmit();
+
+            case TokenName.KW_Off:
+                return ParseOff();
+
             case TokenName.KW_PrintLn:
             case TokenName.KW_Print:
             case TokenName.KW_EPrintLn:
@@ -110,6 +120,120 @@ public partial class Parser
             default:
                 throw new SyntaxError(GetErrorToken(), $"Unexpected keyword '{token.Text}'.");
         }
+    }
+
+    private OffNode ParseOff()
+    {
+        MatchName(TokenName.KW_Off);
+
+        /*
+        off "event-name"
+        */
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        var eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name for 'off'.");
+
+        return new OffNode(eventName);
+    }
+
+    private EmitNode ParseEmit()
+    {
+        MatchName(TokenName.KW_Emit);
+
+        /*
+        emit "event-name" [ (arguments...) ]
+        */
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        var eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name for 'emit'.");
+
+        List<ASTNode?> arguments = [];
+        if (GetTokenType() == TokenType.LParen)
+        {
+            arguments = CollectCallArguments();
+        }
+
+        return new EmitNode(eventName, arguments);
+    }
+
+    private ASTNode ParseEventHandler()
+    {
+        var eventType = GetTokenName();
+        Next(); // Consume 'on' or 'once'
+
+        /*
+        on "event-name" [ with (variables...) ] do
+          [ statements ]
+        end
+
+        once "event-name" [ with (variables...) ] do
+          [ statements ]
+        end
+        */
+
+        if (GetTokenType() != TokenType.String)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+        }
+
+        Token t = token.Clone();
+        ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name.");
+        ASTNode? callback = null;
+
+        if (GetTokenName() == TokenName.KW_Lambda)
+        {
+            callback = ParseLambda();
+        }
+        else if (GetTokenName() == TokenName.KW_Do)
+        {
+            Next(); // Consume 'do'
+            List<ASTNode?> body = [];
+            while (GetTokenName() != TokenName.KW_End)
+            {
+                var stmt = ParseStatement();
+                if (stmt != null)
+                {
+                    body.Add(stmt);
+                }
+            }
+
+            Next();  // Consume 'end'
+
+            callback = new LambdaNode
+            {
+                Parameters = [],
+                Body = body,
+                TypeHints = [],
+                ReturnTypeHint = TokenName.Types_Any,
+                Token = t
+            };
+        }
+
+        if (callback == null)
+        {
+            throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
+        }
+
+        callback.Token = t;
+        
+        if (eventType == TokenName.KW_On)
+        {
+            return new OnNode(eventName, callback);
+        }
+        else if (eventType == TokenName.KW_Once)
+        {
+            return new OnceNode(eventName, callback);
+        }
+
+        throw new SyntaxError(GetErrorToken(), "Expected event handler.");
     }
 
     private DoNode? ParseDo()
@@ -466,7 +590,7 @@ public partial class Parser
         {
             throw new SyntaxError(GetErrorToken(), $"Expected '(' after the identifier `{functionName}`.");
         }
-        
+
         var mangledNames = PushNameStack();
 
         if (GetTokenType() == TokenType.LParen)
@@ -1131,30 +1255,17 @@ public partial class Parser
 
     private FunctionCallNode? ParseFunctionCall(string identifierName, TokenName type)
     {
-        Next();
-
-        List<ASTNode?> arguments = [];
-        while (GetTokenType() != TokenType.RParen)
-        {
-            arguments.Add(ParseExpression());
-
-            if (GetTokenType() == TokenType.Comma)
-            {
-                Next();
-            }
-            else if (GetTokenType() != TokenType.RParen)
-            {
-                throw new SyntaxError(GetErrorToken(), "Expected ')' or ',' in function call.");
-            }
-        }
-
-        Next();
-
+        List<ASTNode?> arguments = CollectCallArguments();
         return new FunctionCallNode(identifierName, type, arguments);
     }
 
-    private LambdaCallNode? ParseLambdaCall(
-        ASTNode? lambdaNode)
+    private LambdaCallNode? ParseLambdaCall(ASTNode? lambdaNode)
+    {
+        List<ASTNode?> arguments = CollectCallArguments();
+        return new LambdaCallNode(lambdaNode, arguments);
+    }
+
+    private List<ASTNode?> CollectCallArguments()
     {
         Next();  // Consume the '('
 
@@ -1174,9 +1285,7 @@ public partial class Parser
         }
 
         Next();
-
-        return new LambdaCallNode(lambdaNode,
-                                              arguments);
+        return arguments;
     }
 
     private LambdaNode? ParseLambda()
@@ -1744,17 +1853,17 @@ public partial class Parser
 
         if (type == TokenName.KW_Spawn)
         {
-            assignment = new (baseNode, identifierName, type, ParseSpawn());
+            assignment = new(baseNode, identifierName, type, ParseSpawn());
         }
         else if (type == TokenName.KW_Case)
         {
-            assignment = new (baseNode, identifierName, type, ParseCase());
+            assignment = new(baseNode, identifierName, type, ParseCase());
         }
         else
         {
             Next();
 
-            assignment = new (baseNode, identifierName, type, ParseExpression());
+            assignment = new(baseNode, identifierName, type, ParseExpression());
         }
 
         if (assignment != null && MatchName(TokenName.KW_When))
@@ -1907,14 +2016,14 @@ public partial class Parser
         if (GetTokenType() == TokenType.Question)
         {
             Next();  // Consume '?'
-        
+
             var trueBranch = ParseExpression();
-        
+
             if (!MatchType(TokenType.Colon))
             {
                 throw new SyntaxError(GetErrorToken(), "Expected ':' in ternary operation.");
             }
-        
+
             var falseBranch = ParseExpression();  // Parse the false branch
 
             return new TernaryOperationNode(node, trueBranch, falseBranch);
@@ -1935,7 +2044,7 @@ public partial class Parser
         while (stream.CanRead && GetTokenName() == TokenName.Ops_Or)
         {
             Next();  // Consume '||'
-            
+
             var right = ParseLogicalAnd();
             left = new BinaryOperationNode(left, TokenName.Ops_Or, right);
         }
@@ -1950,11 +2059,11 @@ public partial class Parser
         while (stream.CanRead && GetTokenName() == TokenName.Ops_And)
         {
             Next();  // Consume '&&'
-        
+
             var right = ParseBitwiseOr();
             left = new BinaryOperationNode(left, TokenName.Ops_And, right);
         }
-        
+
         return left;
     }
 
@@ -1965,11 +2074,11 @@ public partial class Parser
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseOr)
         {
             Next();  // Consume '|'
-        
+
             var right = ParseBitwiseXor();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseOr, right);
         }
-        
+
         return left;
     }
 
@@ -1980,11 +2089,11 @@ public partial class Parser
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseXor)
         {
             Next();  // Consume '^'
-        
+
             var right = ParseBitwiseAnd();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseXor, right);
         }
-        
+
         return left;
     }
 
@@ -1995,28 +2104,28 @@ public partial class Parser
         while (stream.CanRead && GetTokenName() == TokenName.Ops_BitwiseAnd)
         {
             Next();  // Consume '&'
-        
+
             var right = ParseEquality();
             left = new BinaryOperationNode(left, TokenName.Ops_BitwiseAnd, right);
         }
-        
+
         return left;
     }
 
     private ASTNode? ParseEquality()
     {
         var left = ParseComparison();
-        
+
         while (stream.CanRead && IsEqualityOperator())
         {
             var op = GetTokenName();
-        
+
             Next();  // Skip operator
-        
+
             var right = ParseComparison();
             left = new BinaryOperationNode(left, op, right);
         }
-        
+
         return left;
     }
 
@@ -2027,9 +2136,9 @@ public partial class Parser
         while (stream.CanRead && IsComparisonOperator())
         {
             var op = GetTokenName();
-        
+
             Next();  // Skip operator
-        
+
             var right = ParseBitshift();
             left = new BinaryOperationNode(left, op, right);
         }
@@ -2044,13 +2153,13 @@ public partial class Parser
         while (stream.CanRead && IsBitwiseOperator())
         {
             var op = GetTokenName();
-        
+
             Next();  // Skip operator
-        
+
             var right = ParseAdditive();
             left = new BinaryOperationNode(left, op, right);
         }
-        
+
         return left;
     }
 
@@ -2074,13 +2183,13 @@ public partial class Parser
         while (stream.CanRead && IsMultiplicativeOperator())
         {
             var op = GetTokenName();
-        
+
             Next();  // Skip operator
-        
+
             var right = ParseUnary();
             left = new BinaryOperationNode(left, op, right);
         }
-        
+
         return left;
     }
 
@@ -2089,9 +2198,9 @@ public partial class Parser
         while (stream.CanRead && IsUnaryOperator())
         {
             var op = GetTokenName();
-        
+
             Next();  // Skip operator
-        
+
             var right = ParseUnary();
             return new UnaryOperationNode(op, right);
         }

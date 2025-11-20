@@ -13,14 +13,20 @@ namespace hayward.Runtime;
 public class Interpreter
 {
     const int SafemodeMaxIterations = 1000000;
+    private readonly Scope _globalScope = new();
 
+    public Interpreter()
+    {
+        Current = this;
+    }
+
+    public static Interpreter? Current { get; private set; }
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
     private Stack<StackFrame> CallStack { get; set; } = [];
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
     private Stack<string> FuncStack { get; set; } = [];
-    private readonly Scope _globalScope = new();
 
     public void SetContext(KContext context) => Context = context;
 
@@ -35,52 +41,56 @@ public class Interpreter
 
         var result = node.Type switch
         {
-            ASTNodeType.Program => Visit((ProgramNode)node),
-            ASTNodeType.Self => Visit((SelfNode)node),
-            ASTNodeType.Package => Visit((PackageNode)node),
-            ASTNodeType.Struct => Visit((StructNode)node),
-            ASTNodeType.Import => Visit((ImportNode)node),
-            ASTNodeType.Export => Visit((ExportNode)node),
-            ASTNodeType.Exit => Visit((ExitNode)node),
-            ASTNodeType.Throw => Visit((ThrowNode)node),
             ASTNodeType.Assignment => Visit((AssignmentNode)node),
-            ASTNodeType.ConstAssignment => Visit((ConstAssignmentNode)node),
-            ASTNodeType.IndexAssignment => Visit((IndexAssignmentNode)node),
-            ASTNodeType.MemberAssignment => Visit((MemberAssignmentNode)node),
-            ASTNodeType.PackAssignment => Visit((PackAssignmentNode)node),
-            ASTNodeType.MemberAccess => Visit((MemberAccessNode)node),
-            ASTNodeType.Literal => Visit((LiteralNode)node),
-            ASTNodeType.ListLiteral => Visit((ListLiteralNode)node),
-            ASTNodeType.RangeLiteral => Visit((RangeLiteralNode)node),
-            ASTNodeType.HashLiteral => Visit((HashLiteralNode)node),
-            ASTNodeType.Identifier => Visit((IdentifierNode)node),
-            ASTNodeType.Print => Visit((PrintNode)node),
-            ASTNodeType.PrintXy => Visit((PrintXyNode)node),
-            ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
             ASTNodeType.BinaryOperation => Visit((BinaryOperationNode)node),
-            ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
-            ASTNodeType.Do => Visit((DoNode)node),
-            ASTNodeType.If => Visit((IfNode)node),
+            ASTNodeType.Break => Visit((BreakNode)node),
             ASTNodeType.Case => Visit((CaseNode)node),
             ASTNodeType.CaseWhen => Visit((CaseWhenNode)node),
+            ASTNodeType.ConstAssignment => Visit((ConstAssignmentNode)node),
+            ASTNodeType.Do => Visit((DoNode)node),
+            ASTNodeType.Emit => Visit((EmitNode)node),
+            ASTNodeType.Exit => Visit((ExitNode)node),
+            ASTNodeType.Export => Visit((ExportNode)node),
             ASTNodeType.ForLoop => Visit((ForLoopNode)node),
-            ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
-            ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
-            ASTNodeType.Break => Visit((BreakNode)node),
-            ASTNodeType.Next => Visit((NextNode)node),
-            ASTNodeType.Try => Visit((TryNode)node),
+            ASTNodeType.Function => Visit((FunctionNode)node),
+            ASTNodeType.FunctionCall => Visit((FunctionCallNode)node),
+            ASTNodeType.HashLiteral => Visit((HashLiteralNode)node),
+            ASTNodeType.Identifier => Visit((IdentifierNode)node),
+            ASTNodeType.If => Visit((IfNode)node),
+            ASTNodeType.Import => Visit((ImportNode)node),
+            ASTNodeType.Index => Visit((IndexingNode)node),
+            ASTNodeType.IndexAssignment => Visit((IndexAssignmentNode)node),
             ASTNodeType.Lambda => Visit((LambdaNode)node),
             ASTNodeType.LambdaCall => Visit((LambdaCallNode)node),
-            ASTNodeType.Function => Visit((FunctionNode)node),
-            ASTNodeType.Variable => Visit((VariableNode)node),
-            ASTNodeType.FunctionCall => Visit((FunctionCallNode)node),
+            ASTNodeType.ListLiteral => Visit((ListLiteralNode)node),
+            ASTNodeType.Literal => Visit((LiteralNode)node),
+            ASTNodeType.MemberAccess => Visit((MemberAccessNode)node),
+            ASTNodeType.MemberAssignment => Visit((MemberAssignmentNode)node),
             ASTNodeType.MethodCall => Visit((MethodCallNode)node),
-            ASTNodeType.Return => Visit((ReturnNode)node),
-            ASTNodeType.Index => Visit((IndexingNode)node),
-            ASTNodeType.Slice => Visit((SliceNode)node),
-            ASTNodeType.Parse => Visit((ParseNode)node),
+            ASTNodeType.Next => Visit((NextNode)node),
             ASTNodeType.NoOp => Value.Default,
+            ASTNodeType.Off => Visit((OffNode)node),
+            ASTNodeType.On => Visit((OnNode)node),
+            ASTNodeType.Once => Visit((OnceNode)node),
+            ASTNodeType.Package => Visit((PackageNode)node),
+            ASTNodeType.PackAssignment => Visit((PackAssignmentNode)node),
+            ASTNodeType.Parse => Visit((ParseNode)node),
+            ASTNodeType.Print => Visit((PrintNode)node),
+            ASTNodeType.PrintXy => Visit((PrintXyNode)node),
+            ASTNodeType.Program => Visit((ProgramNode)node),
+            ASTNodeType.RangeLiteral => Visit((RangeLiteralNode)node),
+            ASTNodeType.RepeatLoop => Visit((RepeatLoopNode)node),
+            ASTNodeType.Return => Visit((ReturnNode)node),
+            ASTNodeType.Self => Visit((SelfNode)node),
+            ASTNodeType.Slice => Visit((SliceNode)node),
             ASTNodeType.Spawn => Value.Default,
+            ASTNodeType.Struct => Visit((StructNode)node),
+            ASTNodeType.TernaryOperation => Visit((TernaryOperationNode)node),
+            ASTNodeType.Throw => Visit((ThrowNode)node),
+            ASTNodeType.Try => Visit((TryNode)node),
+            ASTNodeType.UnaryOperation => Visit((UnaryOperationNode)node),
+            ASTNodeType.Variable => Visit((VariableNode)node),
+            ASTNodeType.WhileLoop => Visit((WhileLoopNode)node),
             _ => PrintNode(node),
         };
 
@@ -104,6 +114,45 @@ public class Interpreter
     private static Value PrintNode(ASTNode node)
     {
         node.Print();
+        return Value.Default;
+    }
+
+    private Value Visit(OnNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var callback = Interpret(node.Callback);
+
+        Context.Events.On(eventName.GetString(), callback);
+
+        return Value.Default;
+    }
+
+    private Value Visit(OnceNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var callback = Interpret(node.Callback);
+
+        Context.Events.Once(eventName.GetString(), callback);
+
+        return Value.Default;
+    }
+
+    private Value Visit(EmitNode node)
+    {
+        var eventName = Interpret(node.EventName);
+        var args = node.EventArgs.Select(Interpret).ToList();
+
+        Context.Events.Emit(node.Token, eventName.GetString(), args);
+
+        return Value.Default;
+    }
+
+    private Value Visit(OffNode node)
+    {
+        var eventName = Interpret(node.EventName);
+
+        Context.Events.Off(eventName.GetString());
+
         return Value.Default;
     }
 
@@ -1827,7 +1876,7 @@ public class Interpreter
         };
     }
 
-    public static Value DoSliceAssignment(Token token, ref Value slicedObj, SliceIndex slice, ref Value newValue)
+    private static Value DoSliceAssignment(Token token, ref Value slicedObj, SliceIndex slice, ref Value newValue)
     {
         if (slicedObj.IsList() && newValue.IsList())
         {
@@ -2013,11 +2062,6 @@ public class Interpreter
         {
             IsSlice = isSlice
         };
-    }
-
-    private static string GetTemporaryId()
-    {
-        return "tmp_" + RNGUtil.Generate(8);
     }
 
     private KFunction? GetObjectMethod(InstanceRef obj, string name)
@@ -2331,6 +2375,69 @@ public class Interpreter
         }
     }
 
+    public Value InvokeEvent(Token token, LambdaRef lambda, List<Value> args)
+    {
+        var doPop = false;
+
+        try
+        {
+            var lambdaName = lambda.Identifier;
+            var scope = new Scope(CallStack.Peek().Scope);
+            var lambdaFrame = PushFrame(lambdaName, scope, true);
+            var targetLambda = lambdaName;
+            var result = Value.Default;
+
+            if (!Context.HasLambda(targetLambda))
+            {
+                if (!Context.HasMappedLambda(targetLambda))
+                {
+                    throw new CallableError(token, $"Could not find target lambda `{targetLambda}`");
+                }
+
+                targetLambda = Context.LambdaTable[targetLambda];
+            }
+
+            var func = Context.Lambdas[targetLambda];
+            var typeHints = func.TypeHints;
+            var returnTypeHint = func.ReturnTypeHint;
+            var defaultParameters = func.DefaultParameters;
+
+            PrepareLambdaCall(func, args, defaultParameters, token, targetLambda, typeHints, lambdaName, scope);
+
+            lambdaFrame.SetFlag(FrameFlags.InLambda);
+            doPop = true;
+
+            var decl = func.Decl.Body;
+            foreach (var stmt in decl)
+            {
+                result = Interpret(stmt);
+                if (lambdaFrame.IsFlagSet(FrameFlags.Return))
+                {
+                    result = lambdaFrame.ReturnValue ?? result;
+                    break;
+                }
+            }
+
+            if (!Serializer.AssertTypematch(result, returnTypeHint))
+            {
+                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(returnTypeHint)}` for return type of `{lambdaName}` but received `{Serializer.GetTypenameString(result)}`.");
+            }
+
+            return result;
+        }
+        catch
+        {
+            throw;
+        }
+        finally
+        {
+            if (doPop)
+            {
+                PopFrame();
+            }
+        }
+    }
+
     private Value CallLambda(Token token, string lambdaName, List<ASTNode?> args, ref bool doPop)
     {
         var scope = new Scope(CallStack.Peek().Scope);
@@ -2528,19 +2635,8 @@ public class Interpreter
                 throw new ParameterCountMismatchError(token, targetLambda, parms.Count, args.Count);
             }
 
-            if (typeHints.TryGetValue(param.Key, out TokenName expectedType) && !Serializer.AssertTypematch(argValue, expectedType))
-            {
-                throw new TypeError(token, $"Expected type `{Serializer.GetTypenameString(expectedType)}` for parameter {(1 + i)} of `{lambdaName}` but received `{Serializer.GetTypenameString(argValue)}`.");
-            }
 
-            if (argValue.IsLambda())
-            {
-                Context.AddMappedLambda(param.Key, argValue.GetLambda().Identifier);
-            }
-            else
-            {
-                scope.Declare(param.Key, argValue);
-            }
+            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, scope);            
         }
     }
 

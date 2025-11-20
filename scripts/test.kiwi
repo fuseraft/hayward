@@ -1,5 +1,5 @@
 /#
- The Hayward Project 1.1.4
+ The Hayward Project 1.2.0
  #/
 
 fn testsuite()
@@ -29,6 +29,20 @@ fn testsuite()
     exit 1
   end
 end
+
+tester::register_test("events", with do
+  invocations = 0
+  
+  on "event" do
+    invocations += 1
+  end
+
+  repeat 5 do
+    emit "event"
+  end
+
+  tester::assert(invocations == 5, "A1")
+end)
 
 tester::register_test("packages", with do
   package foobar_test_pkg

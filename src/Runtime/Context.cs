@@ -11,6 +11,7 @@ public class KContext
     public Dictionary<string, KStruct> Structs { get; set; } = [];
     public Dictionary<string, string> LambdaTable { get; set; } = [];
     public Dictionary<string, Value> Constants { get; set; } = [];
+    public EventBus Events { get; } = new();
 
     public KContext Clone()
     {

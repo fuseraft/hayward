@@ -1,0 +1,68 @@
+using hayward.Parsing;
+using hayward.Tracing.Error;
+using hayward.Typing;
+
+namespace hayward.Runtime;
+
+public sealed class EventBus
+{
+    private readonly Dictionary<string, List<(Value Callback, bool Once)>> _handlers = [];
+
+    public void On(string name, Value callback, bool once = false)
+    {
+        if (!_handlers.TryGetValue(name, out var list))
+        {
+            list = [];
+            _handlers[name] = list;
+        }
+
+        list.Add((callback, once));
+    }
+
+    public void Once(string name, Value callback) => On(name, callback, once: true);
+
+    public void Off(string name)
+    {
+        if (!_handlers.TryGetValue(name, out var list))
+        {
+            return;
+        }
+
+        list.Clear();
+    }
+
+    public void Emit(Token token, string name, List<Value> data)
+    {
+        if (!_handlers.TryGetValue(name, out var list))
+        {
+            return;
+        }
+
+        List<(Value, bool)> toRemove = [];
+
+        foreach (var (cb, once) in list)
+        {
+            if (once) 
+            {
+                toRemove.Add((cb, once));
+            }
+
+            try
+            {
+                if (cb.IsLambda())
+                {
+                    Interpreter.Current?.InvokeEvent(token, cb.GetLambda(), data);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new EventError(token, $"Event handler error ({name}): {ex.Message}");
+            }
+        }
+
+        foreach (var item in toRemove)
+        {
+            list.Remove(item);
+        }
+    }
+}

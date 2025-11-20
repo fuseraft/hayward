@@ -110,7 +110,12 @@ public struct Token(TokenType type, TokenName name, TokenSpan span, string text,
 
     public void SetSpan(TokenSpan span) { Span = span; }
 
-    public static Token Eof => new Token(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default);
+    public readonly Token Clone()
+    {
+        return new Token(Type, Name, Span, Text, Value);
+    }
+
+    public static Token Eof => new(TokenType.Eof, TokenName.Default, new TokenSpan(), string.Empty, Value.Default);
 }
 
 public readonly struct TokenSpan(int file, int line, int pos)
