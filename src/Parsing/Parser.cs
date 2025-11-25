@@ -1535,6 +1535,11 @@ public partial class Parser
             var keyString = token.Text;
             var key = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected a key for hashmap.");
 
+            if (key.Type == ASTNodeType.Identifier)
+            {
+                key = new LiteralNode(Value.Create(keyString));
+            }
+
             if (!MatchType(TokenType.Colon))
             {
                 throw new SyntaxError(GetErrorToken(), "Expected ':' in hashmap literal");

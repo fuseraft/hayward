@@ -9,9 +9,9 @@ fn get_files(path: string, ext: string): list
     lines = fio::readlines(file).filter(with (l) do not l.trim().empty() end)
     
     cs_files.push({
-      "name": file[path_offset:],
-      "path": file,
-      "lines": lines
+      name: file[path_offset:],
+      path: file,
+      lines: lines
     })
   end
 
@@ -23,7 +23,7 @@ end
 #/
 fn print_report(cs_files: list)
   total_loc = cs_files.reduce(0, with (acc, f) do 
-    println "File: ${f.name} => ${f.lines.size()} line(s)"
+    println "${f.name} => ${f.lines.size()} line(s)"
     acc += f.lines.size()
   end)
 

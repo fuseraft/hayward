@@ -35,7 +35,7 @@ end
 
 package std::error
   fn create(error_type: string = "HaywardError", error_message: string = "An error occurred."): hashmap
-    return { "error": error_type, "message": error_message }
+    return { error: error_type, message: error_message }
   end
 
   fn InvalidRange(msg = "Invalid range.")

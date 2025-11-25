@@ -131,13 +131,13 @@ tester::register_test("truthiness", with do
   tester::assert(not [].truthy(), "A6")         # empty lists are not truthy
   tester::assert([0].truthy(), "A7")         # non-empty lists are truthy
   tester::assert(not {}.truthy(), "A8")         # empty hashmaps are not truthy
-  tester::assert({"a": 1}.truthy(), "A9")    # non-empty hashmaps are truthy
+  tester::assert({a: 1}.truthy(), "A9")    # non-empty hashmaps are truthy
   tester::assert(not false.truthy(), "A10")     # false is never truthy
   tester::assert(true.truthy(), "A11")       # true is always truthy
 end)
 
 tester::register_test("unpacking", with do
-  a, b, c =< true, {"a": false}, [1, 2, 3]
+  a, b, c =< true, {a: false}, [1, 2, 3]
 
   tester::assert(a == true, "A1")
   tester::assert(b.keys().size() == 1 and b.to_string() == "{\"a\": false}", "A2")
@@ -355,9 +355,9 @@ end)
 
 tester::register_test("hashmaps", with do
   var (hash: hashmap = {
-    "key1": true, 
-    "key2": 1, 
-    "key3": ["a", "b", "c"]
+    key1: true, 
+    key2: 1, 
+    key3: ["a", "b", "c"]
   })
 
   var (other_hashmap: hashmap)
@@ -431,7 +431,7 @@ tester::register_test("standard library", with do
 end)
 
 tester::register_test("nulls", with do
-  var (e: hashmap = {"a": null, "b": null})
+  var (e: hashmap = {a: null, b: null})
   tester::assert(e.get("a") == null, "A1")
   tester::assert(e.get("b") == null, "A2")
 
@@ -460,7 +460,7 @@ tester::register_test("type checks", with do
   i = 100
   d = 3.14159
   b = true
-  h = {"a": [123, 456, "789"]}
+  h = {a: [123, 456, "789"]}
 
   tester::assert(s.is_a(String), "A1")
   tester::assert(i.is_a(Integer), "A2")
@@ -626,8 +626,8 @@ end)
 
 tester::register_test("lambdas", with do
   # setup
-  new_list = [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}, {"id": 4},
-              {"id": 5}, {"id": 6}, {"id": 7}, {"id": 8}, {"id": 9}]
+  new_list = [{id: 0}, {id: 1}, {id: 2}, {id: 3}, {id: 4},
+              {id: 5}, {id: 6}, {id: 7}, {id: 8}, {id: 9}]
 
   # Assigned and inline lambdas
   odd_item_id = with (item) do 

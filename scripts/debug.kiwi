@@ -4,9 +4,9 @@ package program
   fn fun()
     var (tests: list = ["1234", "A234", "A23D", "123D", "ABCD"],
          results: hashmap = {
-          "isalpha": [],
-          "isnumeric": [],
-          "isalphanumeric": [],
+          isalpha: [],
+          isnumeric: [],
+          isalphanumeric: [],
          })
 
     for test in tests do
