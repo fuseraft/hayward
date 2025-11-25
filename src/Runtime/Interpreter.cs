@@ -184,12 +184,7 @@ public class Interpreter
             result = Interpret(stmt);
         }
 
-        if (result.IsInteger())
-        {
-            return result;
-        }
-
-        return Value.Default;
+        return result;
     }
     
     private Value Visit(SelfNode node)
