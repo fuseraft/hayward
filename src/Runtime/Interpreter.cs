@@ -150,9 +150,14 @@ public class Interpreter
     private Value Visit(OffNode node)
     {
         var eventName = Interpret(node.EventName);
+        Value? callback = null;
+        
+        if (node.Callback != null)
+        {
+            callback = Interpret(node.Callback!);
+        }
 
-        Context.Events.Off(eventName.GetString());
-
+        Context.Events.Off(eventName.GetString(), callback);
         return Value.Default;
     }
 
@@ -2384,8 +2389,8 @@ public class Interpreter
             var lambdaName = lambda.Identifier;
             var scope = new Scope(CallStack.Peek().Scope);
             var lambdaFrame = PushFrame(lambdaName, scope, true);
-            var targetLambda = lambdaName;
             var result = Value.Default;
+            var targetLambda = lambdaName;
 
             if (!Context.HasLambda(targetLambda))
             {
@@ -3177,8 +3182,7 @@ public class Interpreter
 
             if (!Context.HasLambda(lambdaRef.Identifier))
             {
-                throw new InvalidOperationError(
-                    token, $"Unrecognized lambda '{lambdaRef.Identifier}'.");
+                throw new InvalidOperationError(token, $"Unrecognized lambda '{lambdaRef.Identifier}'.");
             }
 
             var lambda = Context.Lambdas[lambdaRef.Identifier];

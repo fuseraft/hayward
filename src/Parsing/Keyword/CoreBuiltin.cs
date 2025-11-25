@@ -206,27 +206,4 @@ public static class CoreBuiltin
         // not a builtin method
         return false;
     }
-
-    public static bool IsBuiltinMethod(TokenName arg)
-    {
-        if (ConsoleBuiltin.IsBuiltin(arg))    return true;
-        if (EnvBuiltin.IsBuiltin(arg))        return true;
-        if (TimeBuiltin.IsBuiltin(arg))       return true;
-        if (FileIOBuiltin.IsBuiltin(arg))     return true;
-        if (MathBuiltin.IsBuiltin(arg))       return true;
-        if (SysBuiltin.IsBuiltin(arg))        return true;
-        if (HttpBuiltin.IsBuiltin(arg))       return true;
-        if (WebServerBuiltin.IsBuiltin(arg))  return true;
-        if (LoggingBuiltin.IsBuiltin(arg))    return true;
-        if (EncoderBuiltin.IsBuiltin(arg))    return true;
-        if (SerializerBuiltin.IsBuiltin(arg)) return true;
-        if (FFIBuiltin.IsBuiltin(arg))        return true;
-        if (ReflectorBuiltin.IsBuiltin(arg))  return true;
-        if (SignalBuiltin.IsBuiltin(arg))     return true;
-        if (SocketBuiltin.IsBuiltin(arg))     return true;
-        if (TaskBuiltin.IsBuiltin(arg))       return true;
-
-        // not a builtin method
-        return false;
-    }
 }

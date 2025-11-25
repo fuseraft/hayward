@@ -8,6 +8,8 @@ public sealed class EventBus
 {
     private readonly Dictionary<string, List<(Value Callback, bool Once)>> _handlers = [];
 
+    public Dictionary<string, List<(Value Callback, bool Once)>> Handlers => _handlers;
+
     public void On(string name, Value callback, bool once = false)
     {
         if (!_handlers.TryGetValue(name, out var list))
@@ -21,14 +23,22 @@ public sealed class EventBus
 
     public void Once(string name, Value callback) => On(name, callback, once: true);
 
-    public void Off(string name)
+    public void Off(string name, Value? callback = null)
     {
         if (!_handlers.TryGetValue(name, out var list))
         {
             return;
         }
 
-        list.Clear();
+        if (callback == null || callback.IsNull())
+        {
+            // Remove ALL handlers for this event
+            list.Clear();
+        }
+        else
+        {
+            list.RemoveAll(h => h.Callback.IsLambda() == callback.IsLambda() && h.Callback.GetLambda().Identifier == callback.GetLambda().Identifier);
+        }
     }
 
     public void Emit(Token token, string name, List<Value> data)

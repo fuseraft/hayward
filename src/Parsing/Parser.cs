@@ -126,28 +126,39 @@ public partial class Parser
     {
         MatchName(TokenName.KW_Off);
 
-        /*
-        off "event-name"
-        */
-
+        // off "event-name"
         if (GetTokenType() != TokenType.String)
         {
             throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
         }
 
         var eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name for 'off'.");
+        ASTNode? callback = null;
 
-        return new OffNode(eventName);
+        if (MatchType(TokenType.LParen))
+        {
+            // off "event-name" (handler)
+            if (GetTokenType() != TokenType.Identifier)
+            {
+                throw new SyntaxError(GetErrorToken(), "Expected an event handler.");
+            }
+
+            callback = ParseIdentifier(false, false);
+
+            if (!MatchType(TokenType.RParen))
+            {
+                throw new SyntaxError(GetErrorToken(), "Expected ')' in event registration.");
+            }
+        }
+
+        return new OffNode(eventName, callback);
     }
 
     private EmitNode ParseEmit()
     {
         MatchName(TokenName.KW_Emit);
 
-        /*
-        emit "event-name" [ (arguments...) ]
-        */
-
+        // emit "event-name" [ (arguments...) ]
         if (GetTokenType() != TokenType.String)
         {
             throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
@@ -177,24 +188,44 @@ public partial class Parser
         once "event-name" [ with (variables...) ] do
           [ statements ]
         end
+
+        on "event-name" (lambda)
         */
 
         if (GetTokenType() != TokenType.String)
         {
-            throw new SyntaxError(GetErrorToken(), "Expected string-literal for event name.");
+            throw new SyntaxError(GetErrorToken(), "Expected a string-literal for event name.");
         }
 
         Token t = token.Clone();
-        ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected event name.");
+        ASTNode eventName = ParseExpression() ?? throw new SyntaxError(GetErrorToken(), "Expected an event name.");
         ASTNode? callback = null;
 
         if (GetTokenName() == TokenName.KW_Lambda)
         {
+            // on "event-name" with (variables...) do [ statements ] end
             callback = ParseLambda();
+        }
+        else if (MatchType(TokenType.LParen))
+        {
+            // on "event-name" (lambda)
+            if (GetTokenType() != TokenType.Identifier)
+            {
+                throw new SyntaxError(GetErrorToken(), "Expected an event handler.");
+            }
+
+            callback = ParseIdentifier(false, false);
+
+            if (!MatchType(TokenType.RParen))
+            {
+                throw new SyntaxError(GetErrorToken(), "Expected ')' in event registration.");
+            }
         }
         else if (GetTokenName() == TokenName.KW_Do)
         {
+            // on "event-name" do [ statements ] end
             Next(); // Consume 'do'
+
             List<ASTNode?> body = [];
             while (GetTokenName() != TokenName.KW_End)
             {
@@ -219,7 +250,7 @@ public partial class Parser
 
         if (callback == null)
         {
-            throw new SyntaxError(GetErrorToken(), "Expected lambda for event callback.");
+            throw new SyntaxError(GetErrorToken(), "Expected an event handler.");
         }
 
         callback.Token = t;
@@ -233,7 +264,7 @@ public partial class Parser
             return new OnceNode(eventName, callback);
         }
 
-        throw new SyntaxError(GetErrorToken(), "Expected event handler.");
+        throw new SyntaxError(GetErrorToken(), "Expected an event handler.");
     }
 
     private DoNode? ParseDo()
@@ -286,7 +317,7 @@ public partial class Parser
 
     private ASTNode? ParseStatement()
     {
-        var nodeToken = token;
+        var nodeToken = token.Clone();
         ASTNode? node;
 
         switch (nodeToken.Type)
@@ -1927,7 +1958,7 @@ public partial class Parser
 
     private ASTNode? ParseIdentifier(bool packed, bool lenient)
     {
-        var idToken = token;
+        var idToken = token.Clone();
         bool isInstance = MatchName(TokenName.KW_This);
 
         var isTypeName = GetTokenType() == TokenType.Typename;
@@ -2211,7 +2242,7 @@ public partial class Parser
     private ASTNode? ParsePrimary()
     {
         ASTNode? node;
-        var nodeToken = token;
+        var nodeToken = token.Clone();
 
         switch (GetTokenType())
         {
