@@ -4,7 +4,7 @@ using hayward.Parsing.Keyword;
 using hayward.Tracing.Error;
 using hayward.Typing;
 
-namespace hayward.Runtime.Builtin.Handlers;
+namespace hayward.Runtime.Builtin.Handler;
 
 public static class EnvBuiltinHandler
 {

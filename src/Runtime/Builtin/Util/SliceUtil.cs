@@ -2,7 +2,7 @@ using hayward.Parsing;
 using hayward.Tracing.Error;
 using hayward.Typing;
 
-namespace hayward.Runtime.Builtin;
+namespace hayward.Runtime.Builtin.Util;
 
 public struct SliceUtil
 {
@@ -134,12 +134,12 @@ public struct SliceUtil
         int rhsSize = rhsValues.Count;
 
         // adjust negative indices to be from the end
-        start += (start < 0) ? listSize : 0;
-        stop += (stop < 0) ? listSize : 0;
+        start += start < 0 ? listSize : 0;
+        stop += stop < 0 ? listSize : 0;
 
         // clamp indices within the range [0, listSize]
-        start = (start < 0) ? 0 : start;
-        stop = (stop > listSize) ? listSize : stop;
+        start = start < 0 ? 0 : start;
+        stop = stop > listSize ? listSize : stop;
 
         // special case for reverse slicing
         stop = step < 0 && stop == listSize ? -1 : stop;
@@ -178,7 +178,7 @@ public struct SliceUtil
             int rhsIndex = 0;
             for (int i = start; i != stop && rhsIndex < rhsSize; i += step)
             {
-                if ((step > 0 && i < listSize) || (step < 0 && i >= 0))
+                if (step > 0 && i < listSize || step < 0 && i >= 0)
                 {
                     targetList[i] = rhsValues[rhsIndex++];
                 }

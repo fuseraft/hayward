@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using hayward.Typing;
 
-namespace hayward.Runtime.Builtin;
+namespace hayward.Runtime.Builtin.Util;
 
 public static class RegexUtil
 {

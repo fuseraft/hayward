@@ -1,10 +1,10 @@
-using hayward.Runtime.Builtin.Handlers;
+using hayward.Runtime.Builtin.Handler;
 using hayward.Parsing;
 using hayward.Parsing.Keyword;
 using hayward.Tracing.Error;
 using hayward.Typing;
 
-namespace hayward.Runtime.Builtin;
+namespace hayward.Runtime.Builtin.Dispatcher;
 
 public struct BuiltinDispatch
 {

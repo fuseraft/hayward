@@ -4,7 +4,7 @@ using hayward.Tracing.Error;
 using hayward.Typing;
 using Microsoft.Extensions.FileSystemGlobbing;
 
-namespace hayward.Runtime.Builtin;
+namespace hayward.Runtime.Builtin.Util;
 
 public struct FileUtil
 {

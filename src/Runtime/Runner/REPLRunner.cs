@@ -1,7 +1,7 @@
 
 using System.Text;
 using hayward.Parsing;
-using hayward.Runtime.Builtin;
+using hayward.Runtime.Builtin.Util;
 using hayward.Settings;
 using hayward.Tracing;
 using hayward.Tracing.Error;

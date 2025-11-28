@@ -3,7 +3,7 @@ using hayward.Parsing;
 using hayward.Tracing.Error;
 using hayward.Typing;
 
-namespace hayward.Runtime.Builtin;
+namespace hayward.Runtime.Builtin.Dispatcher;
 
 public struct OpDispatch
 {
