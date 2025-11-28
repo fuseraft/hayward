@@ -23,6 +23,7 @@ public class Interpreter
     public static Interpreter? Current { get; private set; }
     public Dictionary<string, string> CliArgs { get; set; } = [];
     public KContext Context { get; private set; } = new();
+    public string ExecutionPath { get; set; } = string.Empty;
     private Stack<StackFrame> CallStack { get; set; } = [];
     private Stack<string> PackageStack { get; set; } = [];
     private Stack<string> StructStack { get; set; } = [];
@@ -2814,9 +2815,10 @@ public class Interpreter
         if (!Context.HasPackage(packageNameValue))
         {
             // Check if external package.
-            if (FileUtil.IsScript(token, packageNameValue))
+            var packagePath = FileUtil.TryGetExtensionless(token, packageNameValue, ExecutionPath);
+            if (FileUtil.IsScript(token, packagePath))
             {
-                ImportExternal(token, packageNameValue);
+                ImportExternal(token, packagePath);
                 return;
             }
 

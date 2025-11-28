@@ -1,7 +1,3 @@
-# cat hello.kiwi | ./bin/hayward
+#!/usr/bin/env hayward
 
-i = 0
-while !stdin::empty() do
-  println "${i}: ${stdin::readline()}"
-  i += 1
-end
+println "Hello, World!"

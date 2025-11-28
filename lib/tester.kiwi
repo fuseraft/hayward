@@ -6,16 +6,24 @@ package tester
     end
   end
 
-  fn assert(condition, msg = "Assertion failed.")
-    throw msg when condition == false
+  fn assert_eq(actual: any, expected: any, msg: string = "")
+    if serialize(actual) != serialize(expected)
+      throw "FAIL: " + (msg.empty() ? "" : " ${msg}") + "\nexpected ${expected},\ngot ${actual}"
+    end
+  end
+
+  fn assert(condition: boolean, msg: string = "assertion failed")
+    if !condition
+      throw "FAIL: ${msg}"
+    end
   end
   
-  fn register_test(name, t)
+  fn register_test(name: string, t: lambda)
     tester::initialize()
     global.unit_tests.set(name, t)
   end
   
-  fn run_test(name, test, results = [])
+  fn run_test(name: string, test: lambda, results: list = [])
     print string::padend("Running test: ${name} ", 45, " ")
     tester::initialize()
   

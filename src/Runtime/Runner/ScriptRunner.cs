@@ -24,6 +24,11 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
     protected bool StandardLibraryLoaded { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets the path of execution.
+    /// </summary>
+    private string ExecutionPath { get; set; } = string.Empty;
+
+    /// <summary>
     /// Runs a given script as the entrypoint to the program.
     /// </summary>
     /// <param name="script">The script.</param>
@@ -32,6 +37,9 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
     public virtual int Run(string script, List<string> args)
     {
         int res = SuccessReturnCode;
+
+        ExecutionPath = script;
+
         try
         {
             using Lexer lexer = new(script);
@@ -66,6 +74,7 @@ public class ScriptRunner(Interpreter interpreter) : IRunner
                 return 1;
             }
 
+            Interpreter.ExecutionPath = ExecutionPath;
             Interpreter.Interpret(ast);
         }
         catch (HaywardError e)

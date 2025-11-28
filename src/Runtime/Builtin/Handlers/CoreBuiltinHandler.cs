@@ -29,6 +29,7 @@ public static class CoreBuiltinHandler
             TokenName.Builtin_Core_Type => Type(token, value, args),
             TokenName.Builtin_Core_First => First(token, value, args),
             TokenName.Builtin_Core_Last => Last(token, value, args),
+            TokenName.Builtin_Core_Append => Push(token, value, args),
             TokenName.Builtin_Core_Push => Push(token, value, args),
             TokenName.Builtin_Core_Pop => Pop(token, value, args),
             TokenName.Builtin_Core_Clear => Clear(token, value, args),

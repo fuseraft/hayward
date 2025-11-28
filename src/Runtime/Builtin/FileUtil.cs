@@ -476,11 +476,17 @@ public struct FileUtil
         }
     }
 
-    public static string TryGetExtensionless(Token token, string path)
+    public static string TryGetExtensionless(Token token, string path, string executionPath = "")
     {
         if (IsScript(token, path) && FileExists(token, path) && !DirectoryExists(token, path))
         {
             return path;
+        }
+
+        if (!string.IsNullOrEmpty(executionPath))
+        {
+            var parent = GetParentPath(token, executionPath);
+            path = Path.Combine(parent, path);
         }
 
         foreach (var ext in Hayward.Settings.Extensions.Recognized)
