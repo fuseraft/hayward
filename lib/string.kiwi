@@ -280,7 +280,49 @@ package string
     return ("${_input}").lowercase()
   end
 
+  /#
+  @summary Remove common leading whitespace from multi-line strings
+  @param   String text : The input string
+  @return  String      : The dedented string.
+  #/
+  fn dedent(text: string): string
+    lines = text.lines()
+
+    # Remove empty first line if it exists (common in multi-line strings)
+    if lines.size() > 0 && lines[0].trim().empty()
+      lines = lines[1:]
+    end
+
+    # Find minimum indentation (ignore blank lines)
+    min_indent = 999999
+    for line in lines do
+      trimmed = line.ltrim()
+      if !trimmed.empty() && line.size() > trimmed.size()
+        indent = line.size() - trimmed.size()
+        min_indent = [indent, min_indent].min()
+      end
+    end
+
+    # If no indentation found, return as-is
+    if min_indent == 999999
+      return text
+    end
+
+    # Remove common indent from each line
+    result = []
+    for line in lines do
+      if line.size() >= min_indent
+        result.append(line[min_indent:])
+      else
+        result.append(line)  # shouldn't happen, but safe
+      end
+    end
+
+    # Join and restore final newline if original had one
+    output = result.join("\n")
+    return text.ends_with("\n") ? output + "\n" : output
   end
+end
 
 struct StringIterator
   fn new(s)
