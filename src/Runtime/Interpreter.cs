@@ -153,7 +153,7 @@ public class Interpreter
     {
         var eventName = Interpret(node.EventName);
         Value? callback = null;
-        
+
         if (node.Callback != null)
         {
             callback = Interpret(node.Callback!);
@@ -188,7 +188,7 @@ public class Interpreter
 
         return result;
     }
-    
+
     private Value Visit(SelfNode node)
     {
         var frame = CallStack.Peek();
@@ -854,7 +854,7 @@ public class Interpreter
             scope.Declare(param.Key, argValue);
         }
     }
-    
+
     private Value ExecuteBody(List<ASTNode?> body, StackFrame frame)
     {
         var result = Value.Default;
@@ -877,7 +877,7 @@ public class Interpreter
                 break;
             }
         }
-        
+
         return result;
     }
 
@@ -961,11 +961,11 @@ public class Interpreter
             }
             else
             {
-                frame.ClearFlag(FrameFlags.InObject);    
+                frame.ClearFlag(FrameFlags.InObject);
             }
         }
     }
-    
+
     private Value Visit(PrintNode node)
     {
         var value = Interpret(node.Expression);
@@ -1459,7 +1459,7 @@ public class Interpreter
             }
             else
             {
-                result = finallyResult;    
+                result = finallyResult;
             }
         }
 
@@ -1504,7 +1504,7 @@ public class Interpreter
             ReturnTypeHint = node.ReturnTypeHint,
             CapturedScope = CallStack.Peek().Scope
         };
-        
+
         Context.AddMappedLambda(node.Token.Text, internalName);
 
         return Value.CreateLambda(new LambdaRef { Identifier = internalName });
@@ -2638,7 +2638,7 @@ public class Interpreter
             }
 
 
-            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, scope);            
+            PrepareLambdaVariables(typeHints, param, ref argValue, token, i, lambdaName, scope);
         }
     }
 
@@ -2991,7 +2991,7 @@ public class Interpreter
         scope.Declare(keyName, Value.Default);
         if (valueName != null)
         {
-            scope.Declare(valueName, Value.Default);            
+            scope.Declare(valueName, Value.Default);
         }
 
         var result = Value.Default;
@@ -3103,7 +3103,12 @@ public class Interpreter
                 return ListMin(token, list);
 
             case TokenName.Builtin_List_Sort:
-                return ListSort(list);
+                // perform a simple sort, otherwise expect a lambda.
+                if (args.Count == 0)
+                {
+                    return ListSort(list);
+                }
+                break;
 
             case TokenName.Builtin_List_Sum:
                 return ListSum(list);
@@ -3133,6 +3138,10 @@ public class Interpreter
 
             switch (op)
             {
+                case TokenName.Builtin_List_Sort:
+                    result = LambdaSort(lambda, list);
+                    break;
+
                 case TokenName.Builtin_List_Each:
                     result = LambdaEach(lambda, list);
                     break;
@@ -3264,6 +3273,74 @@ public class Interpreter
     private static Value ListSort(List<Value> list)
     {
         list.Sort();
+        return Value.CreateList(list);
+    }
+
+    private Value LambdaSort(KLambda lambda, List<Value> list)
+    {
+        var frame = CallStack.Peek();
+        var scope = frame.Scope;
+
+        if (lambda.Parameters.Count != 2)
+        {
+            return Value.CreateList(list);
+        }
+
+        var lhsVar = lambda.Parameters[0].Key;
+        var rhsVar = lambda.Parameters[1].Key;
+
+        scope.Declare(lhsVar, Value.Default);
+        scope.Declare(rhsVar, Value.Default);
+
+        var decl = lambda.Decl;
+
+        list.Sort((a, b) =>
+        {
+            scope.Assign(lhsVar, a);
+            scope.Assign(rhsVar, b);
+
+            Value result = Value.Default;
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    frame.ClearFlag(FrameFlags.Return);
+                }
+            }
+
+            bool isLess = BooleanOp.IsTruthy(result);
+
+            if (isLess) return -1;
+
+            scope.Assign(lhsVar, b);
+            scope.Assign(rhsVar, a);
+
+            result = Value.Default;
+
+            foreach (var stmt in decl.Body)
+            {
+                result = Interpret(stmt);
+                if (frame.IsFlagSet(FrameFlags.Return))
+                {
+                    frame.ClearFlag(FrameFlags.Return);
+                }
+            }
+
+            bool isGreater = BooleanOp.IsTruthy(result);
+
+            if (isGreater)
+            {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        scope.Remove(lhsVar);
+        scope.Remove(rhsVar);
+
         return Value.CreateList(list);
     }
 
@@ -3561,7 +3638,7 @@ public class Interpreter
     private StackFrame PushFrame(string name, Scope scope, bool inLambda = false)
     {
         var frame = new StackFrame(name, scope);
-        
+
         if (inLambda)
         {
             frame.SetFlag(FrameFlags.InLambda);
