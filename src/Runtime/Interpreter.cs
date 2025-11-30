@@ -3085,32 +3085,6 @@ public class Interpreter
         return result;
     }
 
-    private static Value ListSkip(ref Value obj, int count)
-    {
-        var lst = obj.GetList();
-
-        try
-        {
-            return Value.CreateList([.. lst.Skip(count)]);
-        }
-        catch {}
-
-        return Value.CreateList();
-    }
-
-    private static Value ListTake(ref Value obj, int count)
-    {
-        var lst = obj.GetList();
-
-        try
-        {
-            return Value.CreateList([.. lst.Take(count)]);
-        }
-        catch {}
-
-        return Value.CreateList();
-    }
-
     private Value InterpretListBuiltin(Token token, ref Value obj, TokenName op, List<Value> args)
     {
         if (!obj.IsList())
@@ -3232,6 +3206,32 @@ public class Interpreter
         }
 
         throw new InvalidOperationError(token, "Invalid specialized list builtin invocation.");
+    }
+
+    private static Value ListSkip(ref Value obj, int count)
+    {
+        var lst = obj.GetList();
+
+        try
+        {
+            return Value.CreateList([.. lst.Skip(count)]);
+        }
+        catch {}
+
+        return Value.CreateList();
+    }
+
+    private static Value ListTake(ref Value obj, int count)
+    {
+        var lst = obj.GetList();
+
+        try
+        {
+            return Value.CreateList([.. lst.Take(count)]);
+        }
+        catch {}
+
+        return Value.CreateList();
     }
 
     private static Value ListSum(List<Value> list)
