@@ -3085,7 +3085,7 @@ public class Interpreter
         return result;
     }
 
-    private Value ListSkip(ref Value obj, int count)
+    private static Value ListSkip(ref Value obj, int count)
     {
         var lst = obj.GetList();
 
@@ -3098,7 +3098,7 @@ public class Interpreter
         return Value.CreateList();
     }
 
-    private Value ListTake(ref Value obj, int count)
+    private static Value ListTake(ref Value obj, int count)
     {
         var lst = obj.GetList();
 
