@@ -3085,6 +3085,32 @@ public class Interpreter
         return result;
     }
 
+    private Value ListSkip(ref Value obj, int count)
+    {
+        var lst = obj.GetList();
+
+        try
+        {
+            return Value.CreateList([.. lst.Skip(count)]);
+        }
+        catch {}
+
+        return Value.CreateList();
+    }
+
+    private Value ListTake(ref Value obj, int count)
+    {
+        var lst = obj.GetList();
+
+        try
+        {
+            return Value.CreateList([.. lst.Take(count)]);
+        }
+        catch {}
+
+        return Value.CreateList();
+    }
+
     private Value InterpretListBuiltin(Token token, ref Value obj, TokenName op, List<Value> args)
     {
         if (!obj.IsList())
@@ -3117,13 +3143,20 @@ public class Interpreter
                 break;
         }
 
-        if (args.Count == 1)
+        if (args.Count == 1 && args[0].IsInteger())
+        {
+            switch (op)
+            {
+                case TokenName.Builtin_List_Skip:
+                    return ListSkip(ref obj, (int)args[0].GetInteger());
+                case TokenName.Builtin_List_Take:
+                    return ListTake(ref obj, (int)args[0].GetInteger());
+            }
+        }
+
+        if (args.Count == 1 && args[0].IsLambda())
         {
             var arg = args[0];
-            if (!arg.IsLambda())
-            {
-                throw new InvalidOperationError(token, "Expected a lambda in specialized list builtin.");
-            }
 
             var lambdaRef = arg.GetLambda();
 
@@ -3177,7 +3210,8 @@ public class Interpreter
 
             return result;
         }
-        else if (args.Count == 2 && op == TokenName.Builtin_List_Reduce)
+        
+        if (args.Count == 2 && op == TokenName.Builtin_List_Reduce)
         {
             var arg = args[1];
 

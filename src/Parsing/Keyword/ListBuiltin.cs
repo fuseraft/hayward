@@ -13,6 +13,8 @@ public static class ListBuiltin
     public const string Min    = "min";
     public const string Max    = "max";
     public const string ToH    = "to_hashmap";
+    public const string Skip   = "skip";
+    public const string Take   = "take";
 
     private static readonly IReadOnlyDictionary<string, TokenName> _map
         = new Dictionary<string, TokenName>
@@ -27,7 +29,9 @@ public static class ListBuiltin
             { Sum,    TokenName.Builtin_List_Sum },
             { Min,    TokenName.Builtin_List_Min },
             { Max,    TokenName.Builtin_List_Max },
-            { ToH,    TokenName.Builtin_List_ToH }
+            { ToH,    TokenName.Builtin_List_ToH },
+            { Skip,   TokenName.Builtin_List_Skip },
+            { Take,   TokenName.Builtin_List_Take },
         };
 
     private static readonly IReadOnlySet<TokenName> _names = Map.Values.ToHashSet();

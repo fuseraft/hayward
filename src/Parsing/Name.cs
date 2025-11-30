@@ -149,6 +149,8 @@ public enum TokenName
   Builtin_List_Sort,
   Builtin_List_Sum,
   Builtin_List_ToH,
+  Builtin_List_Skip,
+  Builtin_List_Take,
   Builtin_Logging_FilePath,
   Builtin_Logging_Mode,
   Builtin_Logging_EntryFormat,
