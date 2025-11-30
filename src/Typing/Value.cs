@@ -1,37 +1,5 @@
 namespace hayward.Typing;
 
-public class InstanceRef
-{
-    public string Identifier { get; set; } = string.Empty;
-    public string StructName { get; set; } = string.Empty;
-    public Dictionary<string, Value> InstanceVariables { get; set; } = [];
-
-    public bool HasVariable(string name)
-    {
-        return InstanceVariables.ContainsKey(name);
-    }
-}
-
-public class LambdaRef
-{
-    public string Identifier { get; set; } = string.Empty;
-}
-
-public class StructRef
-{
-    public string Identifier { get; set; } = string.Empty;
-}
-
-public class NullRef { }
-
-public class SliceIndex(Value indexOrStart, Value stopIndex, Value stepValue)
-{
-    public Value IndexOrStart { get; set; } = indexOrStart;
-    public Value StopIndex { get; set; } = stopIndex;
-    public Value StepValue { get; set; } = stepValue;
-    public bool IsSlice { get; set; }
-};
-
 public class Value(object value, ValueType type = ValueType.None) : IComparable<Value>, IComparable
 {
     public object Value_ { get; set; } = value;
@@ -58,6 +26,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
             LambdaRef => CreateLambda(value),
             StructRef => CreateStruct(value),
             NullRef => CreateNull(),
+            StreamRef => CreateStream(value),
             _ => CreateNull()
         };
     }
@@ -93,6 +62,8 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
     public static Value CreateStruct(StructRef value) => new(value, ValueType.Struct);
     public static Value CreateStruct(object value) => new(value, ValueType.Struct);
     public static Value CreatePointer(object value) => new(value, ValueType.Pointer);
+    public static Value CreateStream(StreamRef value) => new(value, ValueType.Stream);
+    public static Value CreateStream(object value) => new(value, ValueType.Stream);
 
     public double GetNumber()
     {
@@ -118,6 +89,8 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
     public InstanceRef GetObject() => (InstanceRef)Value_;
     public LambdaRef GetLambda() => (LambdaRef)Value_;
     public StructRef GetStruct() => (StructRef)Value_;
+    public StreamRef GetStream() => (StreamRef)Value_;
+    
     public NullRef GetNull()
     {
         Value_ ??= new NullRef();
@@ -137,6 +110,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
     public bool IsNull() => Type == ValueType.None;
     public bool IsStruct() => Type == ValueType.Struct;
     public bool IsPointer() => Type == ValueType.Pointer;
+    public bool IsStream() => Type == ValueType.Stream;
 
     public static List<Value> Clone(List<Value> list)
     {
@@ -421,6 +395,13 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
                     return thisStruct.Identifier == otherStruct.Identifier;
                 }
 
+            case ValueType.Stream:
+                {
+                    var thisStream = GetStream();
+                    var otherStream = other.GetStream();
+                    return thisStream.Identifier == otherStream.Identifier;
+                }
+
             case ValueType.None:
                 return true;
 
@@ -472,6 +453,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
                 }
             case ValueType.Lambda:
             case ValueType.Struct:
+            case ValueType.Stream:
             case ValueType.None:
             default:
                 {
@@ -535,6 +517,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
 
             case ValueType.Lambda:
             case ValueType.Struct:
+            case ValueType.Stream:
             case ValueType.None:
             default:
                 {
@@ -622,6 +605,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
                 }
             case ValueType.Lambda:
             case ValueType.Struct:
+            case ValueType.Stream:
             case ValueType.None:
             default:
                 break;
@@ -692,6 +676,7 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
             ValueType.Object => CompareObjects(GetObject(), other.GetObject()),// Compare by StructName, then Identifier, then instance variables for a deeper structural comparison
             ValueType.Lambda => string.Compare(GetLambda().Identifier, other.GetLambda().Identifier, StringComparison.Ordinal),// Compare by the Identifier of the lambda
             ValueType.Struct => string.Compare(GetStruct().Identifier, other.GetStruct().Identifier, StringComparison.Ordinal),// Compare by the Identifier of the struct
+            ValueType.Stream => string.Compare(GetStream().Identifier, other.GetStream().Identifier, StringComparison.Ordinal),// Compare by the Identifier of the stream
             _ => 0,// If both are None, consider them equal
         };
     }
@@ -815,20 +800,10 @@ public class Value(object value, ValueType type = ValueType.None) : IComparable<
     }
 }
 
-public enum ValueType
+public class SliceIndex(Value indexOrStart, Value stopIndex, Value stepValue)
 {
-    Integer = 0,
-    Float = 1,
-    Boolean = 2,
-    String = 3,
-    List = 4,
-    Hashmap = 5,
-    Object = 6,
-    Lambda = 7,
-    None = 8,
-    Struct = 9,
-    Pointer = 10,
-    Date = 11,
-    Unset = 20,
-    Number = 21
+    public Value IndexOrStart { get; set; } = indexOrStart;
+    public Value StopIndex { get; set; } = stopIndex;
+    public Value StepValue { get; set; } = stepValue;
+    public bool IsSlice { get; set; }
 };
