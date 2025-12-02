@@ -1239,7 +1239,7 @@ public static class CoreBuiltinHandler
 
         TypeError.ExpectString(token, value);
 
-        return Value.CreateList(value.GetString().Split(Environment.NewLine, StringSplitOptions.None).Select(x => Value.CreateString(x)).ToList());
+        return Value.CreateList([.. value.GetString().Split(Environment.NewLine, StringSplitOptions.None).Select(x => Value.CreateString(x))]);
     }
 
     private static Value Split(Token token, Value value, List<Value> args)

@@ -46,7 +46,7 @@ public struct FileUtil
             }
 
             var files = matcher.GetResultsInFullPath(path);
-            return files.Select(x => Value.CreateString(x)).ToList();
+            return [.. files.Select(x => Value.CreateString(x))];
         }
         catch (Exception)
         {
@@ -95,7 +95,7 @@ public struct FileUtil
         try
         {
             var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            return Directory.EnumerateFiles(path, "*.*", searchOption).Select(x => Value.CreateString(x)).ToList();
+            return [.. Directory.EnumerateFiles(path, "*.*", searchOption).Select(x => Value.CreateString(x))];
         }
         catch (Exception)
         {
@@ -391,7 +391,7 @@ public struct FileUtil
     {
         try
         {
-            return File.ReadAllLines(filePath).Select(x => Value.CreateString(x)).ToList();
+            return [.. File.ReadAllLines(filePath).Select(x => Value.CreateString(x))];
         }
         catch (Exception)
         {
@@ -403,11 +403,103 @@ public struct FileUtil
     {
         try
         {
-            return File.ReadAllBytes(filePath).Select(x => Value.CreateInteger(x)).ToList();
+            return [.. File.ReadAllBytes(filePath).Select(x => Value.CreateInteger(x))];
         }
         catch (Exception)
         {
             throw new FileReadError(token, filePath);
+        }
+    }
+
+    public static List<Value> ReadSlice(Token token, string filePath, long start, long length)
+    {
+        if (start < 0 || length <= 0)
+        {
+            throw new FileReadError(token, "Start must be non-negative and length must be positive.");
+        }
+
+        try
+        {
+            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (start >= fs.Length)
+            {
+                return [];
+            }
+
+            fs.Seek(start, SeekOrigin.Begin);
+            long toRead = Math.Min(length, fs.Length - start);
+            byte[] buffer = new byte[toRead];
+            int bytesRead = fs.Read(buffer, 0, buffer.Length);
+
+            return [.. buffer.Take(bytesRead).Select(b => Value.CreateInteger(b))];
+        }
+        catch (Exception)
+        {
+            throw new FileReadError(token, filePath);
+        }
+    }
+
+    public static int WriteSlice(Token token, string filePath, long offset, List<Value> data)
+    {
+        if (offset < 0)
+        {
+            throw new FileSystemError(token, "Offset must be non-negative.");
+        }
+
+        if (data == null || data.Count == 0)
+        {
+            return 0; // nothing to write
+        }
+
+        try
+        {
+            // Ensure the directory exists
+            var directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            using var fs = new FileStream(
+                filePath,
+                FileMode.OpenOrCreate,
+                FileAccess.Write,
+                FileShare.None,
+                bufferSize: 81920,
+                useAsync: false);
+
+            if (offset + data.Count > fs.Length)
+            {
+                fs.SetLength(offset + data.Count);
+            }
+
+            fs.Seek(offset, SeekOrigin.Begin);
+
+            byte[] buffer = new byte[data.Count];
+            for (int i = 0; i < data.Count; i++)
+            {
+                long val = data[i].GetInteger();
+
+                if (val < 0 || val > 255)
+                {
+                    throw new FileSystemError(token, $"Byte value at index {i} is out of range [0-255]: {val}");
+                }
+
+                buffer[i] = (byte)val;
+            }
+
+            fs.Write(buffer, 0, buffer.Length);
+            fs.Flush(); // Ensure data is on disk
+
+            return buffer.Length;
+        }
+        catch (FileSystemError)
+        {
+            throw; // validation error
+        }
+        catch (Exception ex)
+        {
+            throw new FileSystemError(token, $"Failed to write slice to file '{filePath}' at offset {offset}: {ex.Message}");
         }
     }
 
@@ -467,7 +559,7 @@ public struct FileUtil
     {
         try
         {
-            File.WriteAllBytes(path, bytes.Select(x => (byte)x.GetInteger()).ToArray());
+            File.WriteAllBytes(path, [.. bytes.Select(x => (byte)x.GetInteger())]);
             return bytes.Count;
         }
         catch (Exception)

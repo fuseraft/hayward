@@ -13,36 +13,38 @@ public static class FileIOBuiltinHandler
     {
         return builtin switch
         {
-            TokenName.Builtin_FileIO_CreateFile => CreateFile(token, args),
-            TokenName.Builtin_FileIO_MakeDirectory => MakeDirectory(token, args),
-            TokenName.Builtin_FileIO_MakeDirectoryP => MakeDirectoryP(token, args),
-            TokenName.Builtin_FileIO_DeleteFile => RemovePath(token, args),
-            TokenName.Builtin_FileIO_RemoveDirectory => RemovePath(token, args),
-            TokenName.Builtin_FileIO_RemoveDirectoryF => RemovePathF(token, args),
-            TokenName.Builtin_FileIO_FileExists => FileExists(token, args),
-            TokenName.Builtin_FileIO_IsDirectory => IsDirectory(token, args),
-            TokenName.Builtin_FileIO_GetFileExtension => GetFileExtension(token, args),
-            TokenName.Builtin_FileIO_GetCurrentDirectory => GetCurrentDirectory(token, args),
-            TokenName.Builtin_FileIO_FileName => GetFileName(token, args),
-            TokenName.Builtin_FileIO_GetFilePath => GetFilePath(token, args),
-            TokenName.Builtin_FileIO_GetFileAbsolutePath => GetFileAbsolutePath(token, args),
-            TokenName.Builtin_FileIO_TempDir => GetTempDirectory(token, args),
+            TokenName.Builtin_FileIO_AppendText => AppendText(token, args),
             TokenName.Builtin_FileIO_ChangeDirectory => ChangeDirectory(token, args),
+            TokenName.Builtin_FileIO_Combine => Combine(token, args),
             TokenName.Builtin_FileIO_CopyFile => CopyFile(token, args),
             TokenName.Builtin_FileIO_CopyR => CopyR(token, args),
+            TokenName.Builtin_FileIO_CreateFile => CreateFile(token, args),
+            TokenName.Builtin_FileIO_DeleteFile => RemovePath(token, args),
+            TokenName.Builtin_FileIO_FileExists => FileExists(token, args),
+            TokenName.Builtin_FileIO_FileName => GetFileName(token, args),
+            TokenName.Builtin_FileIO_FileSize => GetFileSize(token, args),
+            TokenName.Builtin_FileIO_GetCurrentDirectory => GetCurrentDirectory(token, args),
+            TokenName.Builtin_FileIO_GetFileAbsolutePath => GetFileAbsolutePath(token, args),
+            TokenName.Builtin_FileIO_GetFileExtension => GetFileExtension(token, args),
+            TokenName.Builtin_FileIO_GetFileInfo => GetFileInfo(token, args),
+            TokenName.Builtin_FileIO_GetFilePath => GetFilePath(token, args),
+            TokenName.Builtin_FileIO_Glob => Glob(token, args),
+            TokenName.Builtin_FileIO_IsDirectory => IsDirectory(token, args),
+            TokenName.Builtin_FileIO_ListDirectory => ListDirectory(token, args),
+            TokenName.Builtin_FileIO_MakeDirectory => MakeDirectory(token, args),
+            TokenName.Builtin_FileIO_MakeDirectoryP => MakeDirectoryP(token, args),
             TokenName.Builtin_FileIO_MoveFile => MoveFile(token, args),
             TokenName.Builtin_FileIO_ReadBytes => ReadBytes(token, args),
             TokenName.Builtin_FileIO_ReadFile => ReadFile(token, args),
             TokenName.Builtin_FileIO_ReadLines => ReadLines(token, args),
-            TokenName.Builtin_FileIO_AppendText => AppendText(token, args),
+            TokenName.Builtin_FileIO_ReadSlice => ReadSlice(token, args),
+            TokenName.Builtin_FileIO_RemoveDirectory => RemovePath(token, args),
+            TokenName.Builtin_FileIO_RemoveDirectoryF => RemovePathF(token, args),
+            TokenName.Builtin_FileIO_TempDir => GetTempDirectory(token, args),
             TokenName.Builtin_FileIO_WriteBytes => WriteBytes(token, args),
-            TokenName.Builtin_FileIO_WriteText => WriteText(token, args),
             TokenName.Builtin_FileIO_WriteLine => WriteLine(token, args),
-            TokenName.Builtin_FileIO_Glob => Glob(token, args),
-            TokenName.Builtin_FileIO_ListDirectory => ListDirectory(token, args),
-            TokenName.Builtin_FileIO_FileSize => GetFileSize(token, args),
-            TokenName.Builtin_FileIO_Combine => Combine(token, args),
-            TokenName.Builtin_FileIO_GetFileInfo => GetFileInfo(token, args),
+            TokenName.Builtin_FileIO_WriteSlice => WriteSlice(token, args),
+            TokenName.Builtin_FileIO_WriteText => WriteText(token, args),
             _ => throw new FunctionUndefinedError(token, token.Text),
         };
     }
@@ -220,6 +222,34 @@ public static class FileIOBuiltinHandler
         }
 
         throw new InvalidOperationError(token, "Expected a string or a list.");
+    }
+
+    private static Value WriteSlice(Token token, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.WriteSlice, 3, args.Count);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.WriteSlice, 0, args[0]);
+        ParameterTypeMismatchError.ExpectInteger(token, FileIOBuiltin.WriteSlice, 1, args[1]);
+        ParameterTypeMismatchError.ExpectList(token, FileIOBuiltin.WriteSlice, 2, args[2]);
+
+        string filePath = args[0].GetString();
+        long offset = args[1].GetInteger();
+        List<Value> data = args[2].GetList();
+
+        return Value.CreateInteger(FileUtil.WriteSlice(token, filePath, offset, data));
+    }
+
+    private static Value ReadSlice(Token token, List<Value> args)
+    {
+        ParameterCountMismatchError.Check(token, FileIOBuiltin.ReadSlice, 3, args.Count);
+        ParameterTypeMismatchError.ExpectString(token, FileIOBuiltin.ReadSlice, 0, args[0]);
+        ParameterTypeMismatchError.ExpectInteger(token, FileIOBuiltin.ReadSlice, 1, args[1]);
+        ParameterTypeMismatchError.ExpectInteger(token, FileIOBuiltin.ReadSlice, 2, args[2]);
+
+        string filePath = args[0].GetString();
+        long offset = args[1].GetInteger();
+        long length = args[2].GetInteger();
+
+        return Value.CreateList(FileUtil.ReadSlice(token, filePath, offset, length));
     }
 
     private static Value ReadBytes(Token token, List<Value> args)
