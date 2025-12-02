@@ -24,8 +24,9 @@ The `fio` package contains functionality for working with files and directories.
   - [`move(_source, _dest)`](#move_source-_dest)
   - [`parentdir(_path)`](#parentdir_path)
   - [`read(_path)`](#read_path)
+  - [`readbytes(_path)`](#readbytes_path)
   - [`readlines(_path)`](#readlines_path)
-  - [`readbytes(_path, _offioet, _size)`](#readbytes_path-_offioet-_size)
+  - [`readslice(_path, _offset, _size)`](#readslice_path-_offset-_size)
   - [`remove(_path)`](#remove_path)
   - [`rmdir(_path)`](#rmdir_path)
   - [`rmdirf(_path)`](#rmdirf_path)
@@ -33,7 +34,8 @@ The `fio` package contains functionality for working with files and directories.
   - [`tmpdir()`](#tmpdir)
   - [`write(_path, _text)`](#write_path-_text)
   - [`writeln(_path, _text)`](#writeln_path-_text)
-  - [`writebytes(_path, _bytes)`](#writebytes_path-_bytes)
+  - [`writebytes(_path, _data)`](#writebytes_path-_data)
+  - [`writeslice(_path, _offset, _data)`](#writeslice_path-_offset-_data)
 
 ## Package Functions
 
@@ -304,6 +306,20 @@ Get the content of a file as a string.
 | :--- | :---|
 | `String` | The file content. |
 
+### `readbytes(_path)`
+
+Get the content of a file as a list of bytes.
+
+**Parameters**
+| Type | Name | Description |
+| :--- | :--- | :--- |
+| `String` | `_path` | The path to a file. |
+
+**Returns**
+| Type | Description |
+| :--- | :---|
+| `List` | Bytes from a file. |
+
 ### `readlines(_path)`
 
 Get the content of a file as a list of strings.
@@ -318,7 +334,7 @@ Get the content of a file as a list of strings.
 | :--- | :---|
 | `List` | The file lines. |
 
-### `readbytes(_path, _offioet, _size)`
+### `readslice(_path, _offset, _size)`
 
 Get the content of a file as a list of bytes.
 
@@ -326,7 +342,7 @@ Get the content of a file as a list of bytes.
 | Type | Name | Description |
 | :--- | :--- | :--- |
 | `String` | `_path` | The path to a file. |
-| `Integer` | `_offioet` | The position in the file to read from.
+| `Integer` | `_offset` | The position in the file to read from.
 | `Integer` | `_size` | The number of bytes to read from the file.
 
 **Returns**
@@ -429,7 +445,7 @@ Write a line of text to a file. This always appends to a file.
 | :--- | :---|
 | `Boolean` | Indicates success or failure. |
 
-### `writebytes(_path, _bytes)`
+### `writebytes(_path, _data)`
 
 Write a list of bytes to a file. This overwrites the file if it exists.
 
@@ -437,4 +453,15 @@ Write a list of bytes to a file. This overwrites the file if it exists.
 | Type | Name | Description |
 | :--- | :--- | :--- |
 | `String` | `_path` | The file path. |
-| `List` | `_bytes` | The list of bytes to write. |
+| `List` | `_data` | The list of bytes to write. |
+
+### `writeslice(_path, _offset, _data)`
+
+Write a list of bytes to a file at a specified offset.
+
+**Parameters**
+| Type | Name | Description |
+| :--- | :--- | :--- |
+| `String` | `_path` | The file path. |
+| `Integer` | `_offset` | The offset to begin writing. |
+| `List` | `_data` | The list of bytes to write. |
