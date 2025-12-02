@@ -51,7 +51,7 @@ public class HaywardSettings
         return new HaywardSettings
         {
             Name = "hayward",
-            Version = "1.2.0",
+            Version = "1.2.1",
             SafeMode = true,
             Extensions = new FileExtensions
             {
